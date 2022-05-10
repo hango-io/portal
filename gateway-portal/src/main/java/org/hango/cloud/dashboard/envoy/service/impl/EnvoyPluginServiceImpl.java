@@ -881,8 +881,7 @@ public class EnvoyPluginServiceImpl implements IEnvoyPluginInfoService {
         bindingInfo.setPluginType(bindingPluginInfo.getPluginType());
         bindingInfo.setPluginPriority(pluginInfo.getPluginPriority());
         bindingInfo.setBindingStatus(EnvoyPluginBindingInfo.BINDING_STATUS_ENABLE);
-        long bindingInfoId = envoyPluginBindingInfoDao.add(bindingInfo);
-        return true;
+        return envoyPluginBindingInfoDao.add(bindingInfo) > 0;
     }
 
     @Override

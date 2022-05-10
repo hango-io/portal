@@ -16,16 +16,9 @@ import java.util.List;
 
 /**
  * 流量染色相关dto
- *
  * @author qilu
  */
 public class TrafficMarkDto {
-    /**
-     * 流量染色参数
-     */
-    @JSONField(name = "TrafficParam")
-    @Valid
-    List<TrafficMarkParamDto> trafficMarkParams;
     /**
      * 数据库主键自增id
      */
@@ -56,32 +49,43 @@ public class TrafficMarkDto {
      */
     @JSONField(name = "CreateTime")
     private long createTime;
+
     /**
      * 更新时间
      */
     @JSONField(name = "UpdateTime")
     private long updateTime;
+
     /**
-     * 流量染色的路由规则id
+     * 流量染色的路由规则id列表，英文逗号(,)分割
      */
-    @JSONField(name = "RouteRuleId")
-    @Min(1)
-    private long routeRuleId;
+    @JSONField(name = "RouteRuleIds")
+    private String routeRuleIds;
     /**
      * 流量染色开启状态：0表示关闭；1表示开启
      */
     @JSONField(name = "EnableStatus")
     private int enableStatus;
+
     /**
      * 流量匹配 当前仅支持Header匹配
      */
     @JSONField(name = "TrafficMatch")
     private String trafficMatch = "Header";
+
     /**
      * 染色标识
      */
     @JSONField(name = "ColorTag")
     private String colorTag;
+
+    /**
+     * 流量染色参数
+     */
+    @JSONField(name = "TrafficParam")
+    @Valid
+    List<TrafficMarkParamDto> trafficMarkParams;
+
     /**
      * 服务名称
      */
@@ -89,10 +93,10 @@ public class TrafficMarkDto {
     private String serviceName;
 
     /**
-     * 路由名称
+     * 路由名称列表，英文逗号(,)分割
      */
-    @JSONField(name = "RouteRuleName")
-    private String routeRuleName;
+    @JSONField(name = "RouteRuleNames")
+    private String routeRuleNames;
 
     public static TrafficMarkInfo toMeta(TrafficMarkDto trafficMarkDto) {
         TrafficMarkInfo trafficMarkInfo = new TrafficMarkInfo();
@@ -102,7 +106,7 @@ public class TrafficMarkDto {
         trafficMarkInfo.setProtocol(trafficMarkDto.getProtocol());
         trafficMarkInfo.setCreateTime(trafficMarkDto.getCreateTime());
         trafficMarkInfo.setUpdateTime(trafficMarkDto.getUpdateTime());
-        trafficMarkInfo.setRouteRuleId(trafficMarkDto.getRouteRuleId());
+        trafficMarkInfo.setRouteRuleIds(trafficMarkDto.getRouteRuleIds());
         trafficMarkInfo.setEnableStatus(trafficMarkDto.getEnableStatus());
         trafficMarkInfo.setTrafficMatch(trafficMarkDto.getTrafficMatch());
         trafficMarkInfo.setColorTag(trafficMarkDto.getColorTag());
@@ -110,7 +114,7 @@ public class TrafficMarkDto {
                 JSON.toJSONString(trafficMarkDto.getTrafficMarkParams()) : null);
         trafficMarkInfo.setTrafficColorName(trafficMarkDto.getTrafficColorName());
         trafficMarkInfo.setServiceName(trafficMarkDto.getServiceName());
-        trafficMarkInfo.setRouteRuleName(trafficMarkDto.getRouteRuleName());
+        trafficMarkInfo.setRouteRuleNames(trafficMarkDto.getRouteRuleNames());
         return trafficMarkInfo;
     }
 
@@ -122,14 +126,14 @@ public class TrafficMarkDto {
         trafficMarkDto.setProtocol(trafficMarkInfo.getProtocol());
         trafficMarkDto.setCreateTime(trafficMarkInfo.getCreateTime());
         trafficMarkDto.setUpdateTime(trafficMarkInfo.getUpdateTime());
-        trafficMarkDto.setRouteRuleId(trafficMarkInfo.getRouteRuleId());
+        trafficMarkDto.setRouteRuleIds(trafficMarkInfo.getRouteRuleIds());
         trafficMarkDto.setEnableStatus(trafficMarkInfo.getEnableStatus());
         trafficMarkDto.setTrafficMatch(trafficMarkInfo.getTrafficMatch());
         trafficMarkDto.setColorTag(trafficMarkInfo.getColorTag());
         trafficMarkDto.setTrafficMarkParams(setTrafficColorParamForDto(trafficMarkInfo));
         trafficMarkDto.setTrafficColorName(trafficMarkInfo.getTrafficColorName());
         trafficMarkDto.setServiceName(trafficMarkInfo.getServiceName());
-        trafficMarkDto.setRouteRuleName(trafficMarkInfo.getRouteRuleName());
+        trafficMarkDto.setRouteRuleNames(trafficMarkInfo.getRouteRuleNames());
         return trafficMarkDto;
     }
 
@@ -201,12 +205,12 @@ public class TrafficMarkDto {
         this.updateTime = updateTime;
     }
 
-    public long getRouteRuleId() {
-        return routeRuleId;
+    public String getRouteRuleIds() {
+        return routeRuleIds;
     }
 
-    public void setRouteRuleId(long routeRuleId) {
-        this.routeRuleId = routeRuleId;
+    public void setRouteRuleIds(String routeRuleIds) {
+        this.routeRuleIds = routeRuleIds;
     }
 
     public int getEnableStatus() {
@@ -257,14 +261,13 @@ public class TrafficMarkDto {
         this.serviceName = serviceName;
     }
 
-    public String getRouteRuleName() {
-        return routeRuleName;
+    public String getRouteRuleNames() {
+        return routeRuleNames;
     }
 
-    public void setRouteRuleName(String routeRuleName) {
-        this.routeRuleName = routeRuleName;
+    public void setRouteRuleNames(String routeRuleNames) {
+        this.routeRuleNames = routeRuleNames;
     }
-
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);

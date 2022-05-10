@@ -10,8 +10,7 @@ import java.io.Serializable;
 
 /**
  * 流量染色参数相关dto
- *
- * @author qilu
+ *  @author qilu
  */
 public class TrafficMarkParamDto implements Serializable {
 
@@ -58,7 +57,6 @@ public class TrafficMarkParamDto implements Serializable {
     public void setValue(String value) {
         this.value = value;
     }
-
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
