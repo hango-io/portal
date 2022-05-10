@@ -11,42 +11,23 @@ import org.hango.cloud.dashboard.apiserver.meta.ServiceInfo;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCodeEnum;
-import org.hango.cloud.dashboard.apiserver.service.IDubboService;
-import org.hango.cloud.dashboard.apiserver.service.IGatewayInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IRouteRuleInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IRouteRuleProxyService;
-import org.hango.cloud.dashboard.apiserver.service.IServiceInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
+import org.hango.cloud.dashboard.apiserver.service.*;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.apiserver.web.holder.ProjectTraceHolder;
 import org.hango.cloud.dashboard.envoy.core.constant.PluginConstant;
 import org.hango.cloud.dashboard.envoy.dao.IRouteRuleProxyDao;
-import org.hango.cloud.dashboard.envoy.meta.BindingPluginInfo;
-import org.hango.cloud.dashboard.envoy.meta.EnvoyDestinationInfo;
-import org.hango.cloud.dashboard.envoy.meta.EnvoyPluginBindingInfo;
-import org.hango.cloud.dashboard.envoy.meta.EnvoyVirtualHostInfo;
-import org.hango.cloud.dashboard.envoy.meta.RouteRuleInfo;
-import org.hango.cloud.dashboard.envoy.meta.RouteRuleProxyInfo;
-import org.hango.cloud.dashboard.envoy.meta.ServiceProxyInfo;
+import org.hango.cloud.dashboard.envoy.meta.*;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyGatewayService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyPluginInfoService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyWebServiceService;
 import org.hango.cloud.dashboard.envoy.service.IGetFromApiPlaneService;
-import org.hango.cloud.dashboard.envoy.web.dto.EnvoyDestinationDto;
-import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteRuleHeaderOperationDto;
-import org.hango.cloud.dashboard.envoy.web.dto.EnvoySubsetDto;
-import org.hango.cloud.dashboard.envoy.web.dto.RouteRuleProxyDto;
-import org.hango.cloud.dashboard.envoy.web.dto.VirtualClusterDto;
+import org.hango.cloud.dashboard.envoy.web.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -377,9 +358,8 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
     public List<RouteRuleProxyInfo> getRouteRuleProxyList(long gwId, long serviceId, String pattern,
                                                           String sortKey, String sortValue, long offset,
                                                           long limit) {
-
         long projectId = ProjectTraceHolder.getProId();
-        List<Long> routeIds = Collections.EMPTY_LIST;
+        List<Long> routeIds = Collections.emptyList();
         if (StringUtils.isNotBlank(pattern)) {
             routeIds = routeRuleInfoService.getRouteRuleInfoByPattern(pattern, -1, serviceId, projectId, "", "", 0,
                             1000).stream().map(RouteRuleInfo::getId)
@@ -397,7 +377,7 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
                                                       final boolean auth, final long offset, final long limit) {
         if (!auth) {
             if (routeId == 0) {
-                return getRouteRuleProxyList(gwId, serviceId, StringUtils.EMPTY, Const.CONST_PRIORITY, "", offset,
+                return getRouteRuleProxyList(gwId, serviceId,null, StringUtils.EMPTY, Const.CONST_PRIORITY, "", offset,
                         limit);
             }
             List<RouteRuleProxyInfo> routeRuleProxyList = Lists.newArrayList();

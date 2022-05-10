@@ -5,7 +5,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * 流量染色相关元数据
- *
  * @author qilu
  */
 public class TrafficMarkInfo {
@@ -37,9 +36,9 @@ public class TrafficMarkInfo {
     private long updateTime;
 
     /**
-     * 流量染色的路由规则id
+     * 流量染色的路由规则id列表，英文逗号(,)分割
      */
-    private long routeRuleId;
+    private String routeRuleIds;
 
     /**
      * 流量染色开启状态：0表示关闭；1表示开启
@@ -67,9 +66,9 @@ public class TrafficMarkInfo {
     private String serviceName;
 
     /**
-     * 路由名称
+     * 路由名称列表，英文逗号(,)分割
      */
-    private String routeRuleName;
+    private String routeRuleNames;
 
     /**
      * 协议
@@ -116,12 +115,12 @@ public class TrafficMarkInfo {
         this.updateTime = updateTime;
     }
 
-    public long getRouteRuleId() {
-        return routeRuleId;
+    public String getRouteRuleIds() {
+        return routeRuleIds;
     }
 
-    public void setRouteRuleId(long routeRuleId) {
-        this.routeRuleId = routeRuleId;
+    public void setRouteRuleIds(String routeRuleIds) {
+        this.routeRuleIds = routeRuleIds;
     }
 
     public int getEnableStatus() {
@@ -172,12 +171,12 @@ public class TrafficMarkInfo {
         this.serviceName = serviceName;
     }
 
-    public String getRouteRuleName() {
-        return routeRuleName;
+    public String getRouteRuleNames() {
+        return routeRuleNames;
     }
 
-    public void setRouteRuleName(String routeRuleName) {
-        this.routeRuleName = routeRuleName;
+    public void setRouteRuleNames(String routeRuleNames) {
+        this.routeRuleNames = routeRuleNames;
     }
 
     public String getProtocol() {

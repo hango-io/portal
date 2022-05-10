@@ -34,8 +34,8 @@ public class TrafficMarkDaoImpl extends BaseDao implements ITrafficMarkDao {
     @Override
     public long add(TrafficMarkInfo trafficMarkInfo) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "insert into apigw_gportal_entry_traffic_policy (gw_id, gw_name, protocol, traffic_color_name, service_name, route_rule_name, create_time, update_time, route_rule_id, enable_status, traffic_match, color_tag, param) "
-                + " values (:gwId, :gwName, :protocol, :trafficColorName, :serviceName, :routeRuleName, :createTime, :updateTime, :routeRuleId, :enableStatus, :trafficMatch, :colorTag, :trafficParam)";
+        String sql = "insert into apigw_gportal_entry_traffic_policy (gw_id, gw_name, protocol, traffic_color_name, service_name, route_rule_names, create_time, update_time, route_rule_ids, enable_status, traffic_match, color_tag, param) "
+                + " values (:gwId, :gwName, :protocol, :trafficColorName, :serviceName, :routeRuleNames, :createTime, :updateTime, :routeRuleIds, :enableStatus, :trafficMatch, :colorTag, :trafficParam)";
         SqlParameterSource ps = new BeanPropertySqlParameterSource(trafficMarkInfo);
         namedParameterJdbcTemplate.update(sql, ps, keyHolder);
         logger.info("add TrafficMarkInfo: {}", trafficMarkInfo);
@@ -44,8 +44,8 @@ public class TrafficMarkDaoImpl extends BaseDao implements ITrafficMarkDao {
 
     @Override
     public long update(TrafficMarkInfo trafficMarkInfo) {
-        String sql = "update apigw_gportal_entry_traffic_policy set gw_id=:gwId, gw_name=:gwName, update_time=:updateTime, route_rule_id=:routeRuleId, enable_status=:enableStatus, traffic_match=:trafficMatch, color_tag=:colorTag," +
-                " param=:trafficParam, service_name=:serviceName, route_rule_name=:routeRuleName, traffic_color_name=:trafficColorName where id=:id";
+        String sql = "update apigw_gportal_entry_traffic_policy set gw_id=:gwId, gw_name=:gwName, update_time=:updateTime, route_rule_ids=:routeRuleIds, enable_status=:enableStatus, traffic_match=:trafficMatch, color_tag=:colorTag," +
+                " param=:trafficParam, service_name=:serviceName, route_rule_names=:routeRuleNames, traffic_color_name=:trafficColorName where id=:id";
         SqlParameterSource ps = new BeanPropertySqlParameterSource(trafficMarkInfo);
         logger.info("update TrafficMarkInfo: {}", trafficMarkInfo);
         return namedParameterJdbcTemplate.update(sql, ps);
@@ -116,14 +116,14 @@ public class TrafficMarkDaoImpl extends BaseDao implements ITrafficMarkDao {
             trafficMarkInfo.setGwName(rs.getString("gw_name"));
             trafficMarkInfo.setCreateTime(rs.getLong("create_time"));
             trafficMarkInfo.setUpdateTime(rs.getLong("update_time"));
-            trafficMarkInfo.setRouteRuleId(rs.getLong("route_rule_id"));
+            trafficMarkInfo.setRouteRuleIds(rs.getString("route_rule_ids"));
             trafficMarkInfo.setEnableStatus(rs.getInt("enable_status"));
             trafficMarkInfo.setTrafficMatch(rs.getString("traffic_match"));
             trafficMarkInfo.setColorTag(rs.getString("color_tag"));
             trafficMarkInfo.setTrafficParam(rs.getString("param"));
             trafficMarkInfo.setTrafficColorName(rs.getString("traffic_color_name"));
             trafficMarkInfo.setServiceName(rs.getString("service_name"));
-            trafficMarkInfo.setRouteRuleName(rs.getString("route_rule_name"));
+            trafficMarkInfo.setRouteRuleNames(rs.getString("route_rule_names"));
             trafficMarkInfo.setProtocol(rs.getString("protocol"));
             return trafficMarkInfo;
         }
