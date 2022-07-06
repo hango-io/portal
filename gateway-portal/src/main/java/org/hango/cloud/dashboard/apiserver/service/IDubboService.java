@@ -59,6 +59,12 @@ public interface IDubboService {
      */
     DubboInfo getDubboInfo(long objectId, String objectType);
 
+
+    /**
+     * 判断方法是否有效
+     */
+    void processMethodWorks(DubboInfoDto dto);
+
     /**
      * 更新Dubbo转换参数
      *

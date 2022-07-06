@@ -21,11 +21,16 @@ public abstract class PluginHandler {
     public static final Map<String, PluginHandler> pluginUseSubNameList = new HashMap<>();
 
     static {
+        //21GA版本插件
+        pluginIgnoreList.add("com.netease.metadatahub");
+        pluginIgnoreList.add("com.netease.metadataext");
         //22GA版本插件
         pluginIgnoreList.add("proxy.filters.http.metadatahub");
     }
 
     static {
+        //21GA版本插件
+        pluginUseSubNameList.put("com.netease.resty", new RestyPluginHandler());
         //22GA版本插件
         pluginUseSubNameList.put("proxy.filters.http.rider", new RiderPluginHandler());
     }

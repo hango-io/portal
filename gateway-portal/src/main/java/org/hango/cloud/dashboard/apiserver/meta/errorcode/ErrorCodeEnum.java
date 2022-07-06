@@ -348,6 +348,10 @@ public enum ErrorCodeEnum {
     FailedToOfflineServiceOrRoute("FailedToOfflineServiceOrRoute", "Failed to automatically offline service or route", "自动下线服务或路由失败", 400),
     PublishTypeNotSupport("PublishTypeNotSupport", "The publish type of service can not support this operation", "该服务的发布方式并不支持本操作", 400),
     CustomParamMappingInvalid("CustomParamMappingInvalid", "All params name must be blank when custom mapping switch is closed", "关闭自定义参数映射开关后， 所有自定义名称必须为空", 400),
+    GenericInfoInvalid("GenericInfoInvalid", "generic config invalid", "泛型配置格式错误", 400),
+    UnSupportedDefaultValueType("UnSupportedDefaultValueType", "default value type not support", "默认值类型不支持", 400),
+    DefaultValueConfigInvaild("DefaultValueConfigInvaild", "default value config invaild", "默认值配置错误", 400),
+    DubboAttachmentConfigInvaild("DubboAttachmentConfigInvaild", "dubbo attachment config invaild", "隐式参数配置错误", 400),
     ;
 
     private String code;
