@@ -18,12 +18,7 @@ import org.hango.cloud.dashboard.apiserver.web.controller.AbstractController;
 import org.hango.cloud.dashboard.apiserver.web.holder.UserPermissionHolder;
 import org.hango.cloud.dashboard.common.distributedlock.MethodReentrantLock;
 import org.hango.cloud.gdashboard.api.dto.DubboParamInfoDto;
-import org.hango.cloud.gdashboard.api.meta.ApiInfo;
-import org.hango.cloud.gdashboard.api.meta.ApiParamType;
-import org.hango.cloud.gdashboard.api.meta.DubboParamInfo;
-import org.hango.cloud.gdashboard.api.meta.DubboType;
-import org.hango.cloud.gdashboard.api.meta.OperationLog;
-import org.hango.cloud.gdashboard.api.meta.ServiceType;
+import org.hango.cloud.gdashboard.api.meta.*;
 import org.hango.cloud.gdashboard.api.meta.errorcode.ApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.errorcode.CommonApiErrorCode;
 import org.hango.cloud.gdashboard.api.service.IApiInfoService;
@@ -35,12 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -234,6 +224,7 @@ public class DubboController extends AbstractController {
                                      @RequestParam(value = "ObjectType", required = false, defaultValue = Const.ROUTE) String objectType) {
         logger.info("进行路由Dubbo转换查询操作，，关联类型：{} ,关联ID：{} , 操作人：{}", objectType, objectId, UserPermissionHolder.getAccountId());
         DubboInfoDto dubboDto = dubboService.getDubboDto(objectId, objectType);
+        dubboService.processMethodWorks(dubboDto);
         return apiReturnSuccess(dubboDto);
     }
 

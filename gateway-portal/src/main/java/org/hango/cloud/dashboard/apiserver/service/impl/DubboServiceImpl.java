@@ -2,21 +2,22 @@ package org.hango.cloud.dashboard.apiserver.service.impl;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.dashboard.apiserver.dao.IDubboDao;
 import org.hango.cloud.dashboard.apiserver.dto.DubboInfoDto;
+import org.hango.cloud.dashboard.apiserver.dto.DubboMetaDto;
 import org.hango.cloud.dashboard.apiserver.meta.DubboInfo;
 import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterEnum;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
-import org.hango.cloud.dashboard.apiserver.service.IDubboService;
-import org.hango.cloud.dashboard.apiserver.service.IRouteRuleInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IRouteRuleProxyService;
-import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
+import org.hango.cloud.dashboard.apiserver.service.*;
+import org.hango.cloud.dashboard.apiserver.util.ClassTypeUtil;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.apiserver.util.ZkClientUtils;
+import org.hango.cloud.dashboard.envoy.dao.IRouteRuleProxyDao;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleInfo;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleProxyInfo;
 import org.hango.cloud.dashboard.envoy.meta.ServiceProxyInfo;
@@ -27,10 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.hango.cloud.dashboard.apiserver.util.Const.POSITION_COOKIE;
+import static org.hango.cloud.dashboard.apiserver.util.Const.POSITION_HEADER;
 
 /**
  * @author zhangbj
@@ -55,6 +57,12 @@ public class DubboServiceImpl implements IDubboService {
 
     @Autowired
     private IRouteRuleInfoService envoyRouteRuleInfoService;
+
+    @Autowired
+    private IRouteRuleProxyDao routeRuleProxyDao;
+
+    @Autowired
+    private IDubboMetaService dubboMetaService;
 
     @Override
     public long addDubboInfo(DubboInfoDto dto) {
@@ -106,7 +114,14 @@ public class DubboServiceImpl implements IDubboService {
 
     @Override
     public DubboInfoDto getDubboDto(long objectId, String objectType) {
-        return DubboInfoDto.toDto(getDubboInfo(objectId, objectType));
+        DubboInfoDto dubboInfoDto = DubboInfoDto.toDto(getDubboInfo(objectId, objectType));
+        //默认值json格式转换为json string以适配前端api
+        if (dubboInfoDto != null && dubboInfoDto.getParams() != null){
+            for (DubboInfoDto.DubboParam param : dubboInfoDto.getParams()) {
+                param.setDefaultValue(JSONObject.toJSONString(param.getDefaultValue()));
+            }
+        }
+        return dubboInfoDto;
     }
 
     @Override
@@ -121,6 +136,40 @@ public class DubboServiceImpl implements IDubboService {
         }
         return infoList.get(0);
     }
+
+
+    @Override
+    public void processMethodWorks(DubboInfoDto dto) {
+        if (dto == null){
+            return;
+        }
+        //获取已发布路由信息
+        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        params.put("Id", dto.getObjectId());
+        List<RouteRuleProxyInfo> routeRuleProxyInfos = routeRuleProxyDao.getRecordsByField(params);
+        if (CollectionUtils.isEmpty(routeRuleProxyInfos)){
+            logger.error("未找到已发布路由信息，查询条件为 routeRuleProxyId:{}", dto.getObjectId());
+            return;
+        }
+        RouteRuleProxyInfo proxyInfo = routeRuleProxyInfos.get(0);
+        //获取dubbo meta信息
+        List<DubboMetaDto> dubboMetaDtos = dubboMetaService.findByCondition(proxyInfo.getGwId(), dto.getInterfaceName(), dto.getGroup(), dto.getVersion());
+        //判断方法是否失效
+        for (DubboMetaDto dubboMetaDto : dubboMetaDtos) {
+            if (dto.getMethod().equals(dubboMetaDto.getMethod()) && equalParams(dto.getParams(), dubboMetaDto.getParams())){
+                dto.setMethodWorks(true);
+                return;
+            }
+        }
+        dto.setMethodWorks(false);
+    }
+
+    private boolean equalParams(List<DubboInfoDto.DubboParam> dubboParams, List<String> params){
+        List<String> dubboParamInfo = CollectionUtils.isEmpty(dubboParams) ? new ArrayList<>() : dubboParams.stream().map(DubboInfoDto.DubboParam::getValue).collect(Collectors.toList());
+        List<String> paramInfo = CollectionUtils.isEmpty(params) ? new ArrayList<>() : params;
+        return dubboParamInfo.equals(paramInfo);
+    }
+
 
     @Override
     public long updateDubboInfo(DubboInfoDto dto) {
@@ -169,17 +218,12 @@ public class DubboServiceImpl implements IDubboService {
             logger.info("参数校验失败，该服务的发布方式并不支持本操作, 服务发布方式为 {}", serviceProxy.getRegistryCenterType());
             return CommonErrorCode.PublishTypeNotSupport;
         }
-        List<DubboInfoDto.DubboParam> paramWithNoneKeyList = dto.getParams().stream().filter(f -> StringUtils.isBlank(f.getKey())).collect(Collectors.toList());
-        //开启自定义参数映射开关后， 不允许自定义名称为空的存在
-        if (dto.getCustomParamMapping() && !CollectionUtils.isEmpty(paramWithNoneKeyList)) {
-            logger.info("开启自定义参数映射开关后， 不允许自定义名称为空的存在 : {}", JSON.toJSONString(paramWithNoneKeyList));
-            return CommonErrorCode.ParameterNull;
-        }
-        //关闭自定义参数映射开关后， 所有自定义名称必须为空
-        //当dto.getParams()元素数与paramWithNoneKeyList 元素数相等，代表所有自定义名称为空
-        if (!dto.getCustomParamMapping() && dto.getParams().size() != paramWithNoneKeyList.size()) {
-            logger.info("关闭自定义参数映射开关后， 所有自定义名称必须为空 : {}", JSON.toJSONString(dto));
-            return CommonErrorCode.CustomParamMappingInvalid;
+        //自定义参数校验
+        if (dto.getCustomParamMapping()){
+            ErrorCode errorCode = checkCustomParamMapping(dto);
+            if (CommonErrorCode.Success != errorCode){
+                return errorCode;
+            }
         }
         String backendService = serviceProxy.getBackendService();
         String[] meta = ZkClientUtils.splitIgv(backendService);
@@ -188,6 +232,136 @@ public class DubboServiceImpl implements IDubboService {
         dto.setVersion(meta[2]);
         return CommonErrorCode.Success;
     }
+
+    //自定义参数映射校验
+    private ErrorCode checkCustomParamMapping(DubboInfoDto dto){
+        List<DubboInfoDto.DubboParam> params = dto.getParams();
+        for (DubboInfoDto.DubboParam param : params) {
+            //参数名不能为空
+            if (StringUtils.isBlank(param.getKey())){
+                logger.error("自定义参数映射不允许参数名为空 : {}", JSON.toJSONString(dto));
+                return CommonErrorCode.ParameterNull;
+            }
+            //参数类型不能为空
+            if (StringUtils.isBlank(param.getValue())){
+                logger.error("自定义参数映射不允许参数类型为空 : {}", JSON.toJSONString(dto));
+                return CommonErrorCode.ParameterNull;
+            }
+            //默认值类型校验
+            if (param.getDefaultValue() != null){
+                ErrorCode errorCode = checkDefaultValue(param.getValue(), param.getDefaultValue());
+                if (!CommonErrorCode.Success.equals(errorCode)){
+                    return errorCode;
+                }
+            }
+            //泛型校验
+            Boolean checkResult = checkGenericInfo(param.getGenericInfo());
+            if (!checkResult){
+                logger.error("无效的泛型配置 : {}", JSON.toJSONString(dto));
+                return CommonErrorCode.GenericInfoInvalid;
+            }
+        }
+        //隐式参数校验
+        if (!checkDubboAttachment(dto.getDubboAttachment())){
+            return CommonErrorCode.DubboAttachmentConfigInvaild;
+        }
+        return CommonErrorCode.Success;
+    }
+
+    private Boolean checkDubboAttachment(List<DubboInfoDto.DubboAttachmentDto> dubboAttachmentDtos){
+        if (CollectionUtils.isEmpty(dubboAttachmentDtos)){
+            return Boolean.TRUE;
+        }
+        for (DubboInfoDto.DubboAttachmentDto dubboAttachmentDto : dubboAttachmentDtos) {
+            String paramPosition = dubboAttachmentDto.getParamPosition();
+            if (StringUtils.isBlank(paramPosition)){
+                logger.error("隐式参数来源不能为空 : {}", JSON.toJSONString(dubboAttachmentDto));
+                return Boolean.FALSE;
+            }
+            if (!POSITION_COOKIE.equalsIgnoreCase(paramPosition) && !POSITION_HEADER.equalsIgnoreCase(paramPosition)){
+                logger.error("隐式参数来源错误 : {}", paramPosition);
+                return Boolean.FALSE;
+            }
+            if (StringUtils.isBlank(dubboAttachmentDto.getClientParamName())){
+                logger.error("参数名不能为空 : {}", JSON.toJSONString(dubboAttachmentDto));
+                return Boolean.FALSE;
+            }
+
+            if (StringUtils.isBlank(dubboAttachmentDto.getServerParamName())){
+                logger.error("隐式参数名不能为空 : {}", JSON.toJSONString(dubboAttachmentDto));
+                return Boolean.FALSE;
+            }
+        }
+        long clientCount = dubboAttachmentDtos.stream().map(o -> o.getParamPosition() + o.getClientParamName()).distinct().count();
+        if (clientCount != dubboAttachmentDtos.size()){
+            logger.error("参数名重复 : {}", JSON.toJSONString(dubboAttachmentDtos));
+
+            return Boolean.FALSE;
+        }
+        long serverCount = dubboAttachmentDtos.stream().map(DubboInfoDto.DubboAttachmentDto::getServerParamName).distinct().count();
+        if (serverCount != dubboAttachmentDtos.size()){
+            logger.error("隐式参数名重复 : {}", JSON.toJSONString(dubboAttachmentDtos));
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    private ErrorCode checkDefaultValue(String javaType, Object defaultValue){
+        if (!ClassTypeUtil.isMapClass(javaType) && !ClassTypeUtil.isCollectionClass(javaType) && !ClassTypeUtil.isPrimitive(javaType) && !ClassTypeUtil.isWrapperClass(javaType)){
+            logger.error("默认值类型不支持 : {}", javaType);
+            return CommonErrorCode.UnSupportedDefaultValueType;
+        }
+        //boolean类型校验
+        if (ClassTypeUtil.isBooleanClass(javaType) && !(defaultValue instanceof Boolean)){
+            return CommonErrorCode.DefaultValueConfigInvaild;
+        }
+        //数值类型校验
+        if (ClassTypeUtil.isNumberClass(javaType) && !(defaultValue instanceof Number)){
+            return CommonErrorCode.DefaultValueConfigInvaild;
+        }
+        //字符串类型校验
+        if (ClassTypeUtil.isStringClass(javaType) && !(defaultValue instanceof String)){
+            return CommonErrorCode.DefaultValueConfigInvaild;
+        }
+        //集合类型校验
+        if (ClassTypeUtil.isCollectionClass(javaType) && !(defaultValue instanceof Collection)){
+            return CommonErrorCode.DefaultValueConfigInvaild;
+        }
+        //字典类型校验
+        if (ClassTypeUtil.isMapClass(javaType) && !(defaultValue instanceof Map)){
+            return CommonErrorCode.DefaultValueConfigInvaild;
+        }
+        //兜底校验
+        String str = JSONObject.toJSONString(defaultValue);
+        try {
+            JSONObject.parseObject(str, ClassTypeUtil.getClassForName(javaType));
+        } catch (Exception e) {
+            logger.error("默认值配置错误，type:{}, defaultValue:{}", javaType, str);
+            return CommonErrorCode.DefaultValueConfigInvaild;
+        }
+        return CommonErrorCode.Success;
+    }
+
+    public Boolean checkGenericInfo(String genericInfo){
+        if (StringUtils.isBlank(genericInfo)){
+            return Boolean.TRUE;
+        }
+        String[] genericConfigs = genericInfo.split(",");
+        for (String genericConfig : genericConfigs) {
+            if (StringUtils.isBlank(genericConfig)) {
+                return Boolean.FALSE;
+            }
+            if (!genericConfig.startsWith(".")){
+                return Boolean.FALSE;
+            }
+            String[] split = genericConfig.split(":");
+            if (split.length != 2){
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
+    }
+
 
     private ErrorCode checkAndCompleteG0Dubbo(DubboInfoDto dto) {
         //暂未实现
@@ -236,7 +410,53 @@ public class DubboServiceImpl implements IDubboService {
         add.put(Const.HEADER_DUBBO_GROUP, dto.getGroup());
         add.put(Const.HEADER_DUBBO_VERSION, dto.getVersion());
         add.put(Const.HEADER_DUBBO_PARAMS, dto.getParamToStr());
+        add.put(Const.HEADER_DUBBO_PARAM_SOURCE, dto.getParamSource());
         add.put(Const.HEADER_DUBBO_CUSTOM_PARAMS_MAPPING_SWITCH, BooleanUtils.toStringTrueFalse(dto.getCustomParamMapping()));
+        List<DubboInfoDto.DubboParam> params = dto.getParams();
+        if (!CollectionUtils.isEmpty(params)){
+            List<String> genericInfoList = params.stream().map(DubboInfoDto.DubboParam::getGenericInfo).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(genericInfoList)){
+                add.put(Const.HEADER_DUBBO_GENERIC, StringUtils.join(genericInfoList, ";"));
+            }
+            if (dto.getCustomParamMapping()){
+                List<Object> defaultValueList = params.stream().map(o -> parseDefaultValue(o.getValue(), o.getDefaultValue())).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(defaultValueList)){
+                    add.put(Const.HEADER_DUBBO_DEFAULT, JSONObject.toJSONString(defaultValueList));
+                }
+                List<String> requiredList = params.stream().map(o -> o.isRequired() ? "T" : "F").collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(requiredList)){
+                    add.put(Const.HEADER_DUBBO_REQUIRED, StringUtils.join(requiredList, ";"));
+                }
+            }
+
+        }
+        List<DubboInfoDto.DubboAttachmentDto> dubboAttachment = dto.getDubboAttachment();
+        if (!CollectionUtils.isEmpty(dubboAttachment)){
+            List<String> headers = new ArrayList<>();
+            List<String> cookies = new ArrayList<>();
+            for (DubboInfoDto.DubboAttachmentDto dubboAttachmentDto : dubboAttachment) {
+                String paramPosition = dubboAttachmentDto.getParamPosition();
+                if (POSITION_HEADER.equalsIgnoreCase(paramPosition)){
+                    headers.add(dubboAttachmentDto.getClientParamName() + ":" + dubboAttachmentDto.getServerParamName());
+                }else if (POSITION_COOKIE.equalsIgnoreCase(paramPosition)){
+                    cookies.add(dubboAttachmentDto.getClientParamName() + ":" + dubboAttachmentDto.getServerParamName());
+
+                }
+            }
+            if (!CollectionUtils.isEmpty(headers)){
+                add.put(Const.HEADER_DUBBO_ATTACTMENT_HEADER, String.join(";", headers));
+            }
+            if (!CollectionUtils.isEmpty(cookies)){
+                add.put(Const.HEADER_DUBBO_ATTACTMENT_COOKIE, String.join(";", cookies));
+            }
+        }
         return headerOperation;
+    }
+
+    public Object parseDefaultValue(String typeString, Object value){
+        if (value == null && ClassTypeUtil.PrimitiveTypeEnum.isPrimitiveType(typeString)){
+            return ClassTypeUtil.PrimitiveTypeEnum.getDefaultValueByName(typeString);
+        }
+        return value;
     }
 }

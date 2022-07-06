@@ -2,12 +2,15 @@ package org.hango.cloud.dashboard.apiserver.dto;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hango.cloud.dashboard.apiserver.meta.DubboInfo;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +56,7 @@ public class DubboInfoDto {
     private String version;
 
     /**
-     * 是否开启自定义参数映射开关， 默认false
+     * 是否开启自定义参数映射开关， 目前只支持开启
      */
     @JSONField(name = "CustomParamMapping")
     private boolean customParamMapping;
@@ -70,6 +73,27 @@ public class DubboInfoDto {
     @JSONField(name = "Params")
     private List<DubboParam> params = new ArrayList<>();
 
+
+    /**
+     * 参数来源，支持query和body两种参数来源配置
+     */
+    @JSONField(name = "ParamSource")
+    @Pattern(regexp = "query|body")
+    private String paramSource;
+
+    /**
+     * dubbo attachmentInfo
+     */
+    @JSONField(name = "Attachment")
+    private List<DubboAttachmentDto> dubboAttachment;
+
+    /**
+     * 方法是否有效
+     */
+    @JSONField(name = "MethodWorks")
+    private Boolean methodWorks;
+
+
     public static DubboInfoDto toDto(DubboInfo info) {
         if (info == null) {
             return null;
@@ -83,7 +107,9 @@ public class DubboInfoDto {
         dubboInfoDto.setVersion(meta.getVersion());
         dubboInfoDto.setGroup(meta.getGroup());
         dubboInfoDto.setParams(meta.getParams());
+        dubboInfoDto.setParamSource(meta.getParamSource());
         dubboInfoDto.setCustomParamMapping(meta.getCustomParamMapping());
+        dubboInfoDto.setDubboAttachment(meta.getAttachmentInfo());
         return dubboInfoDto;
     }
 
@@ -101,6 +127,22 @@ public class DubboInfoDto {
 
     public void setParams(List<DubboParam> params) {
         this.params = params;
+    }
+
+    public String getParamSource() {
+        return paramSource;
+    }
+
+    public void setParamSource(String paramSource) {
+        this.paramSource = paramSource;
+    }
+
+    public List<DubboAttachmentDto> getDubboAttachment() {
+        return dubboAttachment;
+    }
+
+    public void setDubboAttachment(List<DubboAttachmentDto> dubboAttachment) {
+        this.dubboAttachment = dubboAttachment;
     }
 
     public String getParamToStr() {
@@ -162,6 +204,14 @@ public class DubboInfoDto {
         this.customParamMapping = customParamMapping;
     }
 
+    public Boolean getMethodWorks() {
+        return methodWorks;
+    }
+
+    public void setMethodWorks(Boolean methodWorks) {
+        this.methodWorks = methodWorks;
+    }
+
     public DubboInfo toMeta() {
         DubboInfo dubboInfo = new DubboInfo();
         dubboInfo.setObjectId(objectId);
@@ -172,7 +222,9 @@ public class DubboInfoDto {
         meta.setMethod(method);
         meta.setInterfaceName(interfaceName);
         meta.setParams(params);
+        meta.setParamSource(paramSource);
         meta.setCustomParamMapping(customParamMapping);
+        meta.setAttachmentInfo(dubboAttachment);
         dubboInfo.setDubboInfo(JSON.toJSONString(meta));
         return dubboInfo;
     }
@@ -205,11 +257,25 @@ public class DubboInfoDto {
          */
         private List<DubboParam> params;
 
-
         /**
          * 是否开启自定义参数映射开关， 默认false
          */
         private boolean customParamMapping;
+
+        /**
+         * 参数来源，支持：query和body三种参数来源配置
+         */
+        private String paramSource = Const.POSITION_BODY;
+
+        /**
+         * dubbo attachment信息
+         */
+        private List<DubboAttachmentDto> attachmentInfo;
+
+        /**
+         * dubbo 泛型信息
+         */
+        private String genericInfo;
 
         public String getMethod() {
             return method;
@@ -258,6 +324,30 @@ public class DubboInfoDto {
         public void setCustomParamMapping(boolean customParamMapping) {
             this.customParamMapping = customParamMapping;
         }
+
+        public String getParamSource() {
+            return paramSource;
+        }
+
+        public void setParamSource(String paramSource) {
+            this.paramSource = paramSource;
+        }
+
+        public List<DubboAttachmentDto> getAttachmentInfo() {
+            return attachmentInfo;
+        }
+
+        public void setAttachmentInfo(List<DubboAttachmentDto> attachmentInfo) {
+            this.attachmentInfo = attachmentInfo;
+        }
+
+        public String getGenericInfo() {
+            return genericInfo;
+        }
+
+        public void setGenericInfo(String genericInfo) {
+            this.genericInfo = genericInfo;
+        }
     }
 
     public static class DubboParam {
@@ -271,6 +361,15 @@ public class DubboInfoDto {
          */
         @JSONField(name = "Value")
         private String value;
+
+        @JSONField(name = "Required")
+        private boolean required;
+
+        @JSONField(name = "DefaultValue")
+        private Object defaultValue;
+
+        @JSONField(name = "GenericInfo")
+        private String genericInfo;
 
         public String getKey() {
             return key;
@@ -286,6 +385,97 @@ public class DubboInfoDto {
 
         public void setValue(String value) {
             this.value = value;
+        }
+
+        public boolean isRequired() {
+            return required;
+        }
+
+        public void setRequired(boolean required) {
+            this.required = required;
+        }
+
+        public Object getDefaultValue() {
+            return defaultValue;
+        }
+
+        public void setDefaultValue(Object defaultValue) {
+            this.defaultValue = defaultValue;
+        }
+
+        public String getGenericInfo() {
+            return genericInfo;
+        }
+
+        public void setGenericInfo(String genericInfo) {
+            this.genericInfo = genericInfo;
+        }
+    }
+
+
+    public static class DubboAttachmentDto{
+        /**
+         * attachment位置 Header/Cookie
+         */
+        @JSONField(name = "ParamPosition")
+        private String paramPosition;
+        /**
+         * 客户端参数名称
+         */
+        @JSONField(name = "ClientParamName")
+        private String clientParamName;
+
+        /**
+         * 服务端参数名称
+         */
+        @JSONField(name = "ServerParamName")
+        private String serverParamName;
+
+        /**
+         * 备注信息
+         */
+        @JSONField(name = "Description")
+        private String description;
+
+        public String getParamPosition() {
+            return paramPosition;
+        }
+
+        public void setParamPosition(String paramPosition) {
+            this.paramPosition = paramPosition;
+        }
+
+        public String getClientParamName() {
+            return clientParamName;
+        }
+
+        public void setClientParamName(String clientParamName) {
+            this.clientParamName = clientParamName;
+        }
+
+        public String getServerParamName() {
+            return serverParamName;
+        }
+
+        public void setServerParamName(String serverParamName) {
+            this.serverParamName = serverParamName;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getDistinctName(){
+            return paramPosition + clientParamName;
+        }
+
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
     }
 }

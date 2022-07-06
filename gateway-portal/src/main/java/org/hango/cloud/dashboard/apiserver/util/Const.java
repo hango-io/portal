@@ -176,6 +176,8 @@ public class Const {
 
     public static final String POSITION_HEADER = "header";
 
+    public static final String POSITION_COOKIE = "cookie";
+
     public static final String POSITION_DUBBO_PARAM = "dubbo_param";
 
     public static final String REQUEST_EXAMPLE = "REQUEST_EXAMPLE";
@@ -462,6 +464,12 @@ public class Const {
     public static final String HEADER_DUBBO_GROUP = "x-dubbo-group";
     public static final String HEADER_DUBBO_VERSION = "x-dubbo-version";
     public static final String HEADER_DUBBO_PARAMS = "x-dubbo-params";
+    public static final String HEADER_DUBBO_GENERIC = "x-dubbo-generic";
+    public static final String HEADER_DUBBO_REQUIRED = "x-dubbo-required";
+    public static final String HEADER_DUBBO_DEFAULT = "x-dubbo-default";
+    public static final String HEADER_DUBBO_PARAM_SOURCE = "x-dubbo-source";
+    public static final String HEADER_DUBBO_ATTACTMENT_HEADER = "x-dubbo-header";
+    public static final String HEADER_DUBBO_ATTACTMENT_COOKIE = "x-dubbo-cookie";
     public static final String HEADER_DUBBO_CUSTOM_PARAMS_MAPPING_SWITCH = "x-dubbo-custom-param-mapping-switch";
     public static final String DUBBO_SERVICE_SUFFIX = ".dubbo";
     public static final String DUBBO_META_REFRESH_KEY_TEMPLATE = "api-gateway-dubbo-org.hango.cloud.dashboard.meta-%d-%s";

@@ -139,6 +139,10 @@ public class CommonErrorCode extends ErrorCode {
     public static ErrorCode RepeatParamValue = new ErrorCode(ErrorCodeEnum.RepeatValue, "ParamValue");
     public static ErrorCode UpdateNotAllowedRuleName = new ErrorCode(ErrorCodeEnum.UpdateNotAllowed, "RuleName");
     public static ErrorCode CustomParamMappingInvalid = new ErrorCode(ErrorCodeEnum.CustomParamMappingInvalid);
+    public static ErrorCode GenericInfoInvalid = new ErrorCode(ErrorCodeEnum.GenericInfoInvalid);
+    public static ErrorCode UnSupportedDefaultValueType = new ErrorCode(ErrorCodeEnum.UnSupportedDefaultValueType);
+    public static ErrorCode DefaultValueConfigInvaild = new ErrorCode(ErrorCodeEnum.DefaultValueConfigInvaild);
+    public static ErrorCode DubboAttachmentConfigInvaild = new ErrorCode(ErrorCodeEnum.DubboAttachmentConfigInvaild);
     public static ErrorCode ServiceNotFound = new ErrorCode(ErrorCodeEnum.ServiceNotFound);
     public static ErrorCode CannotOfflineService = new ErrorCode(ErrorCodeEnum.CannotOfflineService);
     public static ErrorCode CannotOfflineGrpcService = new ErrorCode(ErrorCodeEnum.CannotOfflineGrpcService);

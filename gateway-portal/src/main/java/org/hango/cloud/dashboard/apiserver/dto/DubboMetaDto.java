@@ -63,7 +63,7 @@ public class DubboMetaDto implements Comparable<DubboMetaDto> {
      */
 
     @JSONField(name = "Group")
-    private String group;
+    private String group= StringUtils.EMPTY;;
 
 
     /**
@@ -71,7 +71,7 @@ public class DubboMetaDto implements Comparable<DubboMetaDto> {
      */
 
     @JSONField(name = "Version")
-    private String version;
+    private String version = StringUtils.EMPTY;;
 
 
     /**
