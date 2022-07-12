@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Configuration后面的status，这个用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出；可以设置成OFF(关闭)或Error(只输出错误信息) -->
+<!--monitorInterval：Log4j2能够自动检测修改配置 文件和重新配置本身，设置间隔秒数 -->
+<Configuration status="INFO" monitorInterval="30">
+    <Properties>
+        <!-- 缺省配置（用于开发环境），配置日志文件输出目录和动态参数。其他环境需要在VM参数中指定； “sys:”表示：如果VM参数中没指定这个变量值，则使用本文件中定义的缺省全局变量值 -->
+        <Property name="instance">api-gateway-portal</Property>
+        <Property name="log.dir">${sys:log.dir:-./api-gateway-portal/logs}</Property>
+        <Property name="log.size.trigger">${sys:log.size.trigger:-1000MB}</Property>
+        <Property name="log.file.name">default</Property>
+        <Property name="log.file.pattern">${sys:log.file.pattern:-%d}</Property>
+        <Property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{logTraceUUID}] - %msg%n</Property>
+    </Properties>
+    <!-- 定义所有的appender -->
+    <Appenders>
+        <!--这个输出控制台的配置 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--输出日志的格式 -->
+            <PatternLayout
+                    pattern="${pattern}"/>
+        </Console>
+        <!-- 配置审计级别的日志信息 -->
+        <RollingRandomAccessFile name="CONFIG_AUDIT"
+                                 fileName="${log.dir}/config-audits/config_audit_${log.file.name}.log"
+                                 filePattern="${log.dir}/config-audits/config_audit_${log.file.pattern}_%i.log"
+                                 filePermissions="rw-r--r--"
+                                 append="true">
+            <Filters>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT"
+                                 onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${pattern}"/>
+            <Policies>
+                <!--
+                                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                -->
+                <SizeBasedTriggeringPolicy size="${log.size.trigger}"/>
+            </Policies>
+        </RollingRandomAccessFile>
+
+        <!-- info及以上级别的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档
+        <RollingRandomAccessFile> filepattern 中的日期格式精确位数决定了生成日志的日期单位，
+        如果按月生成日志，那么 filePath 修改为 "${LOG_HOME}/app-%d{yyyy-MM}.log";
+        按小时生成日志，filePath = "${LOG_HOME}/app-%d{yyyy-MM-dd-HH-mm}.log"; -->
+        <RollingRandomAccessFile name="infoLog"
+                                 fileName="${log.dir}/catalina_${log.file.name}.log"
+                                 filePattern="${log.dir}/catalina_${log.file.pattern}_%i.log"
+                                 filePermissions="rw-r--r--"
+                                 append="true">
+            <!-- filePattern="${log.dir}/%d{yyyy-MM}/${instance}-info-%d{yyyy-MM-dd}-%i.log.gz" -->
+            <PatternLayout
+                    pattern="${pattern}"/>
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+            <Filters>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+            </Filters>
+            <Policies>
+                <!-- 基于时间的滚动策略，interval属性用来指定多久滚动一次 -->
+                <!--
+                                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                -->
+                <!-- 基于指定文件大小的滚动策略，size属性用来定义每个日志文件的大小 -->
+                <SizeBasedTriggeringPolicy size="${log.size.trigger}"/>
+                <!-- DefaultRolloverStrategy:用来指定同一个文件夹下最多有几个日志文件时开始删除最旧的，创建新的(通过max属性) -->
+            </Policies>
+        </RollingRandomAccessFile>
+
+        <!-- error级别的日志信息 -->
+        <RollingRandomAccessFile name="errorLog"
+                                 fileName="${log.dir}/error_${log.file.name}.log"
+                                 filePattern="${log.dir}/%d{yyyy-MM}/error_${log.file.pattern}-%i.log"
+                                 filePermissions="rw-r--r--"
+                                 append="true">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT"
+                                 onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${pattern}"/>
+            <Policies>
+                <!--                <TimeBasedTriggeringPolicy interval="1"
+                                                           modulate="true"/>-->
+                <SizeBasedTriggeringPolicy size="${log.size.trigger}"/>
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <!-- 全局配置，默认所有的Logger都继承此配置 -->
+    <!-- 用来配置LoggerConfig，包含一个root logger和若干个普通logger。 additivity指定是否同时输出log到父类的appender，缺省为true。
+    一个Logger可以绑定多个不同的Appender。只有定义了logger并引入的appender，appender才会生效。 -->
+    <Loggers> <!-- 第三方的软件日志级别 -->
+        <!-- AsyncRoot - 异步记录日志 - 需要LMAX Disruptor的支持 -->
+        <AsyncRoot level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="infoLog"/>
+            <AppenderRef ref="errorLog"/>
+        </AsyncRoot>
+        <!-- 配置审计级别的日志 -->
+        <AsyncLogger name="audit" level="debug">
+            <AppenderRef ref="CONFIG_AUDIT"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.netflix.discovery" level="fatal"/>
+    </Loggers>
+</Configuration>

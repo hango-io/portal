@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wsdl:definitions
+        xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+        xmlns:tns="http://tempuri.org/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:s="http://www.w3.org/2001/XMLSchema"
+        xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        targetNamespace="http://tempuri.org/">
+    <wsdl:types>
+        <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+            <s:element name="GetCustomerRiskInfo">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="OrgCode" type="s:string"/>
+                        <s:element minOccurs="1" maxOccurs="1" name="PlanPutMoney" type="s:long"/>
+                        <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="GetCustomerRiskInfoResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="1" maxOccurs="1" name="GetCustomerRiskInfoResult" type="s:int"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="CustomerLimitIsOut">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="1" maxOccurs="1" name="ProjectID" type="s:int"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="CustomerLimitIsOutResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="1" maxOccurs="1" name="CustomerLimitIsOutResult" type="s:int"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="int" type="s:int"/>
+        </s:schema>
+    </wsdl:types>
+    <wsdl:message name="GetCustomerRiskInfoSoapIn">
+        <wsdl:part name="parameters" element="tns:GetCustomerRiskInfo"/>
+    </wsdl:message>
+    <wsdl:message name="GetCustomerRiskInfoSoapOut">
+        <wsdl:part name="parameters" element="tns:GetCustomerRiskInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="CustomerLimitIsOutSoapIn">
+        <wsdl:part name="parameters" element="tns:CustomerLimitIsOut"/>
+    </wsdl:message>
+    <wsdl:message name="CustomerLimitIsOutSoapOut">
+        <wsdl:part name="parameters" element="tns:CustomerLimitIsOutResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetCustomerRiskInfoHttpGetIn">
+        <wsdl:part name="OrgCode" type="s:string"/>
+        <wsdl:part name="PlanPutMoney" type="s:string"/>
+        <wsdl:part name="Key" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetCustomerRiskInfoHttpGetOut">
+        <wsdl:part name="Body" element="tns:int"/>
+    </wsdl:message>
+    <wsdl:message name="CustomerLimitIsOutHttpGetIn">
+        <wsdl:part name="ProjectID" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="CustomerLimitIsOutHttpGetOut">
+        <wsdl:part name="Body" element="tns:int"/>
+    </wsdl:message>
+    <wsdl:message name="GetCustomerRiskInfoHttpPostIn">
+        <wsdl:part name="OrgCode" type="s:string"/>
+        <wsdl:part name="PlanPutMoney" type="s:string"/>
+        <wsdl:part name="Key" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetCustomerRiskInfoHttpPostOut">
+        <wsdl:part name="Body" element="tns:int"/>
+    </wsdl:message>
+    <wsdl:message name="CustomerLimitIsOutHttpPostIn">
+        <wsdl:part name="ProjectID" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="CustomerLimitIsOutHttpPostOut">
+        <wsdl:part name="Body" element="tns:int"/>
+    </wsdl:message>
+    <wsdl:portType name="CustomerRiskInfoSoap">
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <wsdl:input message="tns:GetCustomerRiskInfoSoapIn"/>
+            <wsdl:output message="tns:GetCustomerRiskInfoSoapOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <wsdl:input message="tns:CustomerLimitIsOutSoapIn"/>
+            <wsdl:output message="tns:CustomerLimitIsOutSoapOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="CustomerRiskInfoHttpGet">
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <wsdl:input message="tns:GetCustomerRiskInfoHttpGetIn"/>
+            <wsdl:output message="tns:GetCustomerRiskInfoHttpGetOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <wsdl:input message="tns:CustomerLimitIsOutHttpGetIn"/>
+            <wsdl:output message="tns:CustomerLimitIsOutHttpGetOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="CustomerRiskInfoHttpPost">
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <wsdl:input message="tns:GetCustomerRiskInfoHttpPostIn"/>
+            <wsdl:output message="tns:GetCustomerRiskInfoHttpPostOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <wsdl:input message="tns:CustomerLimitIsOutHttpPostIn"/>
+            <wsdl:output message="tns:CustomerLimitIsOutHttpPostOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="CustomerRiskInfoSoap" type="tns:CustomerRiskInfoSoap">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <soap:operation soapAction="http://tempuri.org/GetCustomerRiskInfo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <soap:operation soapAction="http://tempuri.org/CustomerLimitIsOut" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CustomerRiskInfoSoap12" type="tns:CustomerRiskInfoSoap">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <soap12:operation soapAction="http://tempuri.org/GetCustomerRiskInfo" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <soap12:operation soapAction="http://tempuri.org/CustomerLimitIsOut" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CustomerRiskInfoHttpGet" type="tns:CustomerRiskInfoHttpGet">
+        <http:binding verb="GET"/>
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <http:operation location="/GetCustomerRiskInfo"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <http:operation location="/CustomerLimitIsOut"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CustomerRiskInfoHttpPost" type="tns:CustomerRiskInfoHttpPost">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="GetCustomerRiskInfo">
+            <http:operation location="/GetCustomerRiskInfo"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="CustomerLimitIsOut">
+            <http:operation location="/CustomerLimitIsOut"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="CustomerRiskInfo">
+        <wsdl:port name="CustomerRiskInfoSoap" binding="tns:CustomerRiskInfoSoap">
+            <soap:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/CustomerRiskInfo.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="CustomerRiskInfoSoap12" binding="tns:CustomerRiskInfoSoap12">
+            <soap12:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/CustomerRiskInfo.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="CustomerRiskInfoHttpGet" binding="tns:CustomerRiskInfoHttpGet">
+            <http:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/CustomerRiskInfo.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="CustomerRiskInfoHttpPost" binding="tns:CustomerRiskInfoHttpPost">
+            <http:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/CustomerRiskInfo.asmx"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

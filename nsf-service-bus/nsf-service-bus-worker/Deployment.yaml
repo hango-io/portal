@@ -1,0 +1,132 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsb-worker
+  namespace: skiff-apigw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nsb-worker
+  template:
+    metadata:
+      labels:
+        app: nsb-worker
+    spec:
+      containers:
+        - env:
+            - name: LOG_REMAIN
+              value: "2"
+          image: hub.c.163.com/qingzhou/nsb-worker:v1.0.0-productization-20200806-nsb-wph-4c549a5a
+          imagePullPolicy: IfNotPresent
+          name: worker
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 1Gi
+          volumeMounts:
+            - mountPath: /usr/local/camel/application.properties
+              name: nsb-worker-config
+              subPath: application.properties
+            - mountPath: /usr/local/camel/log4j.properties
+              name: nsb-worker-config
+              subPath: log4j.properties
+            - mountPath: /usr/local/camel/quartz.properties
+              name: nsb-worker-config
+              subPath: quartz.properties
+      imagePullSecrets:
+        - name: qingzhou
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: application.properties
+                path: application.properties
+              - key: log4j.properties
+                path: log4j.properties
+              - key: quartz.properties
+                path: quartz.properties
+            name: nsb-worker-config
+          name: nsb-worker-config
+---
+apiVersion: v1
+data:
+  application.properties: |
+    sinkId=camel-worker
+    sourceHost=apigw-gportal
+    sourcePort=8899
+
+    #camel配置
+    camel.shutdownTimeout=60000
+
+    #grpc配置
+    grpc.reestablishStreamDelay=3000
+    grpc.keepAliveTime=300000
+    grpc.keepAliveTimeout=100000
+
+    #trace配置
+    trace.enable=true
+    trace.allowStream=false
+    trace.allowFile=false
+    trace.showBody=true
+    trace.maxBodySize=2000
+  log4j.properties: |
+    log4j.rootLogger=info,stdout
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    log4j.appender.stdout.Target=System.out
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+    log4j.appender.stdout.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %5p %c{1}:%L - %m%n
+    log4j.appender.stdout.encoding=UTF-8
+
+    log4j.logger.org.apache.camel.processor.interceptor.Tracer=info,org.apache.camel.processor.interceptor.Tracer
+    log4j.additivity.org.apache.camel.processor.interceptor.Tracer=true
+    log4j.appender.org.apache.camel.processor.interceptor.Tracer=com.netease.cloud.nsf.log.ESAppender
+    log4j.appender.org.apache.camel.processor.interceptor.Tracer.Type=_doc
+    log4j.appender.org.apache.camel.processor.interceptor.Tracer.Prefix=nsb_tracer_
+    log4j.appender.org.apache.camel.processor.interceptor.Tracer.Uris=http://172.16.16.17:9200
+
+    log4j.logger.com.netease.cloud.nsf.processor.SuccessProcessor=info,com.netease.cloud.nsf.processor.SuccessProcessor
+    log4j.additivity.com.netease.cloud.nsf.processor.SuccessProcessor=true
+    log4j.appender.com.netease.cloud.nsf.processor.SuccessProcessor=com.netease.cloud.nsf.log.ESAppender
+    log4j.appender.com.netease.cloud.nsf.processor.SuccessProcessor.Type=_doc
+    log4j.appender.com.netease.cloud.nsf.processor.SuccessProcessor.Prefix=nsb_success_
+    log4j.appender.com.netease.cloud.nsf.processor.SuccessProcessor.Uris=http://172.16.16.17:9200
+  quartz.properties: |
+    #==============================================================
+    #Configure Main Scheduler Properties
+    #==============================================================
+    org.quartz.scheduler.instanceName=quartzScheduler
+    org.quartz.scheduler.instanceId=AUTO
+    #==============================================================
+    #Configure JobStore
+    #==============================================================
+    org.quartz.jobStore.class=org.quartz.impl.jdbcjobstore.JobStoreTX
+    org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+    org.quartz.jobStore.tablePrefix=QRTZ_
+    org.quartz.jobStore.isClustered=true
+    org.quartz.jobStore.clusterCheckinInterval=2000
+    org.quartz.jobStore.dataSource=quartzDataSource
+    #==============================================================
+    #Configure ThreadPool
+    #==============================================================
+    org.quartz.threadPool.class=org.quartz.simpl.SimpleThreadPool
+    org.quartz.threadPool.threadCount=10
+    org.quartz.threadPool.threadPriority=5
+    org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread=true
+    #==============================================================
+    #Configure datasource
+    #==============================================================
+    org.quartz.dataSource.quartzDataSource.driver=com.mysql.jdbc.Driver
+    org.quartz.dataSource.quartzDataSource.URL=jdbc:mysql://qa-yl-rds-14068.rds.cn-east-beta1.internal:3306/apigw_gportal?&autoReconnect=true&connectTimeout=5000&socketTimeout=50000&generateSimpleParameterMetadata=true
+    org.quartz.dataSource.quartzDataSource.user=qzmysql
+    org.quartz.dataSource.quartzDataSource.password=5dQzJb5FRk7dJzoj
+    org.quartz.dataSource.quartzDataSource.maxConnections=50
+    org.quartz.dataSource.quartzDataSource.validationQuery=SELECT 1 FROM DUAL
+kind: ConfigMap
+metadata:
+  name: nsb-worker-config
+  namespace: skiff-apigw

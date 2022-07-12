@@ -1,0 +1,15 @@
+[
+  "nova",
+  "vpc",
+  "neutron",
+  "auth",
+  "cinder",
+  "glance",
+  "umbrella",
+  "vpcSandwich",
+  "kafka",
+  "spes",
+  "adminagency",
+  "noderes",
+  "vpc-extra"
+]

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--配置文件-->
+    <bean id="placeHolder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="application.properties"/>
+    </bean>
+
+    <!--GRpc参数-->
+    <bean name="sinkOptions" class="com.netease.cloud.nsf.sink.SinkOptions">
+        <property name="sinkId" value="${sinkId}"/>
+        <property name="sourceHost" value="${sourceHost}"/>
+        <property name="sourcePort" value="${sourcePort}"/>
+        <property name="reestablishStreamDelay" value="${grpc.reestablishStreamDelay}"/>
+        <property name="GRpcKeepAliveTime" value="${grpc.keepAliveTime}"/>
+        <property name="GRpcKeepAliveTimeout" value="${grpc.keepAliveTimeout}"/>
+    </bean>
+
+    <!--application配置-->
+    <bean name="server" class="com.netease.cloud.nsf.server.DefaultServer">
+        <constructor-arg ref="camelContext"/>
+        <constructor-arg ref="sinkClient"/>
+    </bean>
+
+    <!--处理资源，分发资源-->
+    <bean name="resourceManager" class="com.netease.cloud.nsf.resource.DefaultResourceManager">
+        <constructor-arg>
+            <list>
+                <ref bean="resourceMonitor"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!--监听资源变更-->
+    <bean name="resourceMonitor" class="com.netease.cloud.nsf.resource.DefaultResourceMonitor">
+        <constructor-arg ref="camelContext"/>
+    </bean>
+
+    <!--处理sink接受到的资源-->
+    <bean name="resourceHandler" class="com.netease.cloud.nsf.sink.DefaultResourceHandler">
+        <constructor-arg ref="resourceManager"/>
+    </bean>
+
+    <!--建立grpc连接，接受配置-->
+    <bean name="sinkClient" class="com.netease.cloud.nsf.sink.SinkClient">
+        <constructor-arg ref="sinkOptions"/>
+        <constructor-arg ref="resourceHandler"/>
+    </bean>
+
+    <!--Quartz配置-->
+    <bean name="quartzComponent" class="org.apache.camel.component.quartz2.QuartzComponent">
+        <property name="propertiesFile" value="quartz.properties"/>
+    </bean>
+
+    <!--Https Client配置-->
+    <bean name="https4Component" class="org.apache.camel.component.http4.HttpComponent">
+        <!--ssl配置-->
+        <property name="sslContextParameters">
+            <bean class="org.apache.camel.util.jsse.SSLContextParameters"/>
+        </property>
+        <property name="x509HostnameVerifier">
+            <bean class="org.apache.http.conn.ssl.NoopHostnameVerifier"/>
+        </property>
+    </bean>
+
+    <!--Http Client配置-->
+    <bean name="http4Component" class="org.apache.camel.component.http4.HttpComponent"/>
+
+    <!--Camel Context配置-->
+    <bean name="camelContext" class="org.apache.camel.impl.DefaultCamelContext">
+        <property name="tracing" value="${trace.enable}"/>
+        <property name="routePolicyFactories">
+            <list>
+                <!--需要cluster模式时注入-->
+                <!--<ref bean="namespacedRoutePolicyFactory"/>-->
+            </list>
+        </property>
+        <property name="shutdownStrategy">
+            <bean class="org.apache.camel.impl.DefaultShutdownStrategy">
+                <!--路由关闭的超时时间-->
+                <property name="timeout" value="${camel.shutdownTimeout}"/>
+                <property name="timeUnit" value="MILLISECONDS"/>
+            </bean>
+        </property>
+        <property name="globalOptions">
+            <map>
+                <!--日志最多打印body长度-->
+                <entry key="CamelLogDebugBodyMaxChars" value="${trace.maxBodySize}"/>
+            </map>
+        </property>
+        <!--Registry-->
+        <property name="registry">
+            <!--聚合Registry-->
+            <bean class="org.apache.camel.impl.CompositeRegistry">
+                <constructor-arg>
+                    <list>
+                        <bean class="org.apache.camel.spring.spi.ApplicationContextRegistry">
+                            <constructor-arg ref="applicationContext"/>
+                        </bean>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="lifecycleStrategies">
+            <list>
+                <bean class="com.netease.cloud.nsf.server.CamelLifecycleListener">
+                    <!--需要注册到camel中的service-->
+                    <property name="registerServices">
+                        <list>
+                            <ref bean="namespacedRoutePolicyFactory"/>
+                            <ref bean="fileLockClusterService"/>
+                        </list>
+                    </property>
+                    <!--需要注册到camel中的component-->
+                    <property name="registerComponent">
+                        <map>
+                            <entry key="quartz2" value-ref="quartzComponent"/>
+                            <entry key="http4" value-ref="http4Component"/>
+                            <entry key="https4" value-ref="https4Component"/>
+                        </map>
+                    </property>
+                    <!--error handler-->
+                    <property name="errorHandlerFactory">
+                        <bean class="org.apache.camel.builder.DeadLetterChannelBuilder">
+                            <constructor-arg value="bean:onExceptionProcessor"/>
+                        </bean>
+                    </property>
+                    <!--需要预注册的route-->
+                    <property name="registerRoutes">
+                        <list>
+                            <!--健康检查route-->
+                            <bean class="com.netease.cloud.nsf.route.HealthCheckRoute">
+                                <constructor-arg value="${healthCheck.path}"/>
+                                <constructor-arg value="${healthCheck.port}"/>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean name="traceFormatter" class="com.netease.cloud.nsf.record.CustomTraceFormatter">
+        <!--是否允许打印steam内容-->
+        <property name="allowStream" value="${trace.allowStream}"/>
+        <!--是否允许打印文件内容-->
+        <property name="allowFile" value="${trace.allowFile}"/>
+        <!--是否打印body-->
+        <property name="showBody" value="${trace.showBody}"/>
+        <!--打印breadCrumbLength的长度-->
+        <property name="breadCrumbLength" value="${trace.breadCrumbLength}"/>
+        <!--打印properties的value的长度-->
+        <property name="propertiesValueLength" value="${trace.propertiesValueLength}"/>
+        <!--打印headers的value的长度-->
+        <property name="headersValueLength" value="${trace.headersValueLength}"/>
+    </bean>
+
+    <bean name="groovyShellFactory" class="com.netease.cloud.nsf.processor.CustomGroovyShellFactory">
+        <!--groovy脚本默认import的包-->
+        <constructor-arg>
+            <list>
+                <value>org.apache.camel.*</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean name="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+
+    <!--打印成功日志的processor-->
+    <bean name="onSuccessProcessor" class="com.netease.cloud.nsf.processor.SuccessProcessor">
+        <constructor-arg ref="objectMapper"/>
+    </bean>
+
+    <!--打印异常日志的processor-->
+    <bean name="onExceptionProcessor" class="com.netease.cloud.nsf.processor.ExceptionProcessor">
+        <constructor-arg ref="objectMapper"/>
+    </bean>
+
+    <!--Clustered-->
+    <bean name="fileLockClusterService" class="org.apache.camel.component.file.cluster.FileLockClusterService">
+        <property name="root" value="/camel/cluster"/>
+    </bean>
+
+    <bean name="namespacedRoutePolicyFactory" class="com.netease.cloud.nsf.cluster.NamespacedRoutePolicyFactory">
+        <constructor-arg ref="namespacedRouteConfiguration"/>
+    </bean>
+
+    <bean name="namespacedRouteConfiguration" class="com.netease.cloud.nsf.cluster.NamespacedRouteConfiguration">
+        <constructor-arg name="defaultMode" value="p2p"/>
+        <constructor-arg name="defaultNamespace" value="default"/>
+        <constructor-arg name="watchedNamespace">
+            <list>
+                <value>default</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!--HealthCheck-->
+    <bean class="org.apache.camel.impl.health.ContextHealthCheck">
+        <property name="camelContext" ref="camelContext"/>
+        <property name="configuration">
+            <bean class="org.apache.camel.health.HealthCheckConfiguration">
+                <property name="enabled" value="true"/>
+                <property name="interval" value="PT1S"/>
+                <property name="failureThreshold" value="1"/>
+            </bean>
+        </property>
+    </bean>
+
+    <!--Server 随spring容器启动停止-->
+    <bean class="com.netease.cloud.nsf.ApplicationListener">
+        <constructor-arg ref="server"/>
+    </bean>
+
+
+    <!--Spring Converter-->
+    <bean id="stringToDurationConverter" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+        <property name="targetClass"
+                  value="org.springframework.data.convert.Jsr310Converters.StringToDurationConverter"/>
+        <property name="targetField" value="INSTANCE"/>
+    </bean>
+
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <ref bean="stringToDurationConverter"/>
+            </set>
+        </property>
+    </bean>
+
+    <!--applicationContext-->
+    <bean id="applicationProvider" class="com.netease.cloud.nsf.server.ApplicationContextProvider"/>
+    <bean id="applicationContext" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="applicationProvider"/>
+        <property name="targetMethod" value="get"/>
+    </bean>
+</beans>

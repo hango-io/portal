@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package nsb.route;
+
+import "nsb/route/resource.proto";
+import "google/rpc/status.proto";
+
+message SinkNode{
+  string id = 1;
+  map<string, string> annotations = 2;
+}
+
+message RequestResources{
+  SinkNode sink_node = 1;
+
+  string response_nonce = 2;
+
+  google.rpc.Status error_detail = 3;
+}
+
+message Resources {
+  string nonce = 1;
+
+  repeated Resource resources = 2;
+}
+
+service ResourceSource{
+  rpc EstablishResourceStream(stream RequestResources) returns (stream Resources){}
+}
+
+service ResourceSink{
+  rpc EstablishResourceStream(stream Resources) returns (stream RequestResources){}
+}

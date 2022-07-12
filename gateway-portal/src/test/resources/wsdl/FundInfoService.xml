@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wsdl:definitions
+        xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+        xmlns:tns="http://tempuri.org/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:s="http://www.w3.org/2001/XMLSchema"
+        xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        targetNamespace="http://tempuri.org/">
+    <wsdl:types>
+        <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+            <s:element name="SearchContractsByProjectcode">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="PROJECT_NUMBER" type="s:string"/>
+                        <s:element minOccurs="0" maxOccurs="1" name="MASTER_NO" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="SearchContractsByProjectcodeResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="SearchContractsByProjectcodeResult"
+                                   type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="FundInfoConfirm">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="PROJECT_NUMBER" type="s:string"/>
+                        <s:element minOccurs="0" maxOccurs="1" name="FUND_STATUS" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="FundInfoConfirmResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="FundInfoConfirmResult" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="HelloWorld">
+                <s:complexType/>
+            </s:element>
+            <s:element name="HelloWorldResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="HelloWorldResult" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="string" nillable="true" type="s:string"/>
+        </s:schema>
+    </wsdl:types>
+    <wsdl:message name="SearchContractsByProjectcodeSoapIn">
+        <wsdl:part name="parameters" element="tns:SearchContractsByProjectcode"/>
+    </wsdl:message>
+    <wsdl:message name="SearchContractsByProjectcodeSoapOut">
+        <wsdl:part name="parameters" element="tns:SearchContractsByProjectcodeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="FundInfoConfirmSoapIn">
+        <wsdl:part name="parameters" element="tns:FundInfoConfirm"/>
+    </wsdl:message>
+    <wsdl:message name="FundInfoConfirmSoapOut">
+        <wsdl:part name="parameters" element="tns:FundInfoConfirmResponse"/>
+    </wsdl:message>
+    <wsdl:message name="HelloWorldSoapIn">
+        <wsdl:part name="parameters" element="tns:HelloWorld"/>
+    </wsdl:message>
+    <wsdl:message name="HelloWorldSoapOut">
+        <wsdl:part name="parameters" element="tns:HelloWorldResponse"/>
+    </wsdl:message>
+    <wsdl:message name="SearchContractsByProjectcodeHttpGetIn">
+        <wsdl:part name="PROJECT_NUMBER" type="s:string"/>
+        <wsdl:part name="MASTER_NO" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="SearchContractsByProjectcodeHttpGetOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="FundInfoConfirmHttpGetIn">
+        <wsdl:part name="PROJECT_NUMBER" type="s:string"/>
+        <wsdl:part name="FUND_STATUS" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="FundInfoConfirmHttpGetOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="HelloWorldHttpGetIn"/>
+    <wsdl:message name="HelloWorldHttpGetOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="SearchContractsByProjectcodeHttpPostIn">
+        <wsdl:part name="PROJECT_NUMBER" type="s:string"/>
+        <wsdl:part name="MASTER_NO" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="SearchContractsByProjectcodeHttpPostOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="FundInfoConfirmHttpPostIn">
+        <wsdl:part name="PROJECT_NUMBER" type="s:string"/>
+        <wsdl:part name="FUND_STATUS" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="FundInfoConfirmHttpPostOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="HelloWorldHttpPostIn"/>
+    <wsdl:message name="HelloWorldHttpPostOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:portType name="FundInfoServiceSoap">
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <wsdl:documentation
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">S1项目合同接口
+            </wsdl:documentation>
+            <wsdl:input message="tns:SearchContractsByProjectcodeSoapIn"/>
+            <wsdl:output message="tns:SearchContractsByProjectcodeSoapOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <wsdl:documentation
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">S3项目产品信息登记接口
+            </wsdl:documentation>
+            <wsdl:input message="tns:FundInfoConfirmSoapIn"/>
+            <wsdl:output message="tns:FundInfoConfirmSoapOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <wsdl:input message="tns:HelloWorldSoapIn"/>
+            <wsdl:output message="tns:HelloWorldSoapOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="FundInfoServiceHttpGet">
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <wsdl:documentation
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">S1项目合同接口
+            </wsdl:documentation>
+            <wsdl:input message="tns:SearchContractsByProjectcodeHttpGetIn"/>
+            <wsdl:output message="tns:SearchContractsByProjectcodeHttpGetOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <wsdl:documentation
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">S3项目产品信息登记接口
+            </wsdl:documentation>
+            <wsdl:input message="tns:FundInfoConfirmHttpGetIn"/>
+            <wsdl:output message="tns:FundInfoConfirmHttpGetOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <wsdl:input message="tns:HelloWorldHttpGetIn"/>
+            <wsdl:output message="tns:HelloWorldHttpGetOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="FundInfoServiceHttpPost">
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <wsdl:documentation
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">S1项目合同接口
+            </wsdl:documentation>
+            <wsdl:input message="tns:SearchContractsByProjectcodeHttpPostIn"/>
+            <wsdl:output message="tns:SearchContractsByProjectcodeHttpPostOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <wsdl:documentation
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">S3项目产品信息登记接口
+            </wsdl:documentation>
+            <wsdl:input message="tns:FundInfoConfirmHttpPostIn"/>
+            <wsdl:output message="tns:FundInfoConfirmHttpPostOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <wsdl:input message="tns:HelloWorldHttpPostIn"/>
+            <wsdl:output message="tns:HelloWorldHttpPostOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="FundInfoServiceSoap" type="tns:FundInfoServiceSoap">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <soap:operation soapAction="http://tempuri.org/SearchContractsByProjectcode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <soap:operation soapAction="http://tempuri.org/FundInfoConfirm" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <soap:operation soapAction="http://tempuri.org/HelloWorld" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FundInfoServiceSoap12" type="tns:FundInfoServiceSoap">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <soap12:operation soapAction="http://tempuri.org/SearchContractsByProjectcode" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <soap12:operation soapAction="http://tempuri.org/FundInfoConfirm" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <soap12:operation soapAction="http://tempuri.org/HelloWorld" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FundInfoServiceHttpGet" type="tns:FundInfoServiceHttpGet">
+        <http:binding verb="GET"/>
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <http:operation location="/SearchContractsByProjectcode"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <http:operation location="/FundInfoConfirm"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <http:operation location="/HelloWorld"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FundInfoServiceHttpPost" type="tns:FundInfoServiceHttpPost">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="SearchContractsByProjectcode">
+            <http:operation location="/SearchContractsByProjectcode"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="FundInfoConfirm">
+            <http:operation location="/FundInfoConfirm"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="HelloWorld">
+            <http:operation location="/HelloWorld"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="FundInfoService">
+        <wsdl:port name="FundInfoServiceSoap" binding="tns:FundInfoServiceSoap">
+            <soap:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/FundInfoService.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="FundInfoServiceSoap12" binding="tns:FundInfoServiceSoap12">
+            <soap12:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/FundInfoService.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="FundInfoServiceHttpGet" binding="tns:FundInfoServiceHttpGet">
+            <http:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/FundInfoService.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="FundInfoServiceHttpPost" binding="tns:FundInfoServiceHttpPost">
+            <http:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/FundInfoService.asmx"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

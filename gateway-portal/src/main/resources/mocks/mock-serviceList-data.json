@@ -1,0 +1,515 @@
+[
+  {
+    "confKey": "RDS",
+    "description": "",
+    "email": "cloud_rds_yanliang@163.com",
+    "id": 519,
+    "tenantId": "e8ca93f83b2c4a88822e194e7d4cac51",
+    "uid": "06169d1d8c57426fab9d00414244996a",
+    "username": "cloud_rds_yanliang@163.com"
+  },
+  {
+    "confKey": "NCE",
+    "description": "",
+    "email": "ncetestmaster_yq@163.com",
+    "id": 520,
+    "tenantId": "796dae17ff9b4c708baa4597f32eb8fa",
+    "uid": "8cd57421117640a0aa7012878dc53aa1",
+    "username": "ncetestmaster_yq@163.com"
+  },
+  {
+    "confKey": "NCR",
+    "description": "",
+    "email": "ncr163@163.com",
+    "id": 521,
+    "tenantId": "7ae900806f654f1995b8a7e3a4a7af68",
+    "uid": "68ce9adaef8544069143c475eeb66311",
+    "username": "ncr163@163.com"
+  },
+  {
+    "confKey": "comb_k8s_yq",
+    "description": "",
+    "email": "comb_k8s_yq@126.com",
+    "id": 522,
+    "tenantId": "a354994ae6e147a5ba27348178f6f6c2",
+    "uid": "83c42c236c6f4e708192c8adffb7b4c2",
+    "username": "comb_k8s_yq@126.com"
+  },
+  {
+    "confKey": "nlbtest1@163.com",
+    "description": "",
+    "email": "nlbtest1@163.com",
+    "id": 523,
+    "tenantId": "86abf149903840199ffdffc86e408d74",
+    "uid": "ac8415519f934e7e8fe719ecae87649c",
+    "username": "nlbtest1@163.com"
+  },
+  {
+    "confKey": "comb_k8s_yq_perf",
+    "description": "",
+    "email": "comb_k8s_yq_perf@163.com",
+    "id": 524,
+    "tenantId": "0d088c92482447b8a5113331b99d3b46",
+    "uid": "8408e651d3d94210bf334102eeb77319",
+    "username": "comb_k8s_yq_perf@163.com"
+  },
+  {
+    "confKey": "NAS",
+    "description": "",
+    "email": "NAS_super_yiqiao@163.com",
+    "id": 525,
+    "tenantId": "a86c91f53e0b4374937efc941df9ed3f",
+    "uid": "d172ad8f2b084b588fae4f51edb5bc30",
+    "username": "NAS_super_yiqiao@163.com"
+  },
+  {
+    "confKey": "NLB",
+    "description": "",
+    "email": "nlbadmin@163.com",
+    "id": 526,
+    "tenantId": "e3d5abdb6d684b3d8778f53c11ab21d7",
+    "uid": "2d67175f15bd4c2395a489d24906e1e4",
+    "username": "nlbadmin@163.com"
+  },
+  {
+    "confKey": "MongoDB",
+    "description": "",
+    "email": "hzlaimingxing@corp.netease.com",
+    "id": 527,
+    "tenantId": "8cb9fe0b2e3b45d885439c286a87a17c",
+    "uid": "3c2d3885de654d18ae08797abea33b3c",
+    "username": "hzlaimingxing_corp_netease_com"
+  },
+  {
+    "confKey": "mdw",
+    "description": "",
+    "email": "hzxuzhonghu@corp.netease.com",
+    "id": 528,
+    "tenantId": "366b3840a3b7413d8ea44473f865cceb",
+    "uid": "075abd935dad4316a25644b72fe89609",
+    "username": "resource_pool@126.com"
+  },
+  {
+    "confKey": "NCS",
+    "description": "",
+    "email": "hzhuangzhenxi@corp.netease.com",
+    "id": 529,
+    "tenantId": "5410fcfdc0864463a7c078dae6de0a27",
+    "uid": "dba8b50edca547fea8344af1eb3579f2",
+    "username": "hzhuangzhenxi_corp_netease_com"
+  },
+  {
+    "confKey": "NET",
+    "description": "",
+    "email": "hzzhangzhiping@corp.netease.com",
+    "id": 530,
+    "tenantId": "127130f6cf28454299802f2af686c743",
+    "uid": "858cc21d057e44d2a09c3f508db6e1d2",
+    "username": "hzzhangzhiping_corp_netease_com"
+  },
+  {
+    "confKey": "NWS",
+    "description": "",
+    "email": "fcqa@yopmail.com",
+    "id": 531,
+    "tenantId": "2c4314e7009946ffbba98df9516320b3",
+    "uid": "7689019f11d24f9b8ac1405c4a5826bc",
+    "username": "fcqayq"
+  },
+  {
+    "confKey": "nlb_rp@163.com",
+    "description": "",
+    "email": "nlb_rp@163.com",
+    "id": 532,
+    "tenantId": "1a8fcb3e35d84f54a2a8bf6ebc95228a",
+    "uid": "4ee0e1a97bb54b49bd33c895a3d705f1",
+    "username": "nlb_rp@163.com"
+  },
+  {
+    "confKey": "NOS",
+    "description": "",
+    "email": "hzliukai@corp.netease.com",
+    "id": 533,
+    "tenantId": "e0a2f378083f41ec8e6f0cd99252ca6d",
+    "uid": "698c04c00b30418483b913265cb53fd6",
+    "username": "hzliukai@corp.netease.com"
+  },
+  {
+    "confKey": "MongoDB",
+    "description": "",
+    "email": "cloud_mongo@163.com",
+    "id": 534,
+    "tenantId": "c23376921d924c6ba554eabd21aeb827",
+    "uid": "69a17bf177f3450a91f6f015a394a52c",
+    "username": "cloud_mongo@163.com"
+  },
+  {
+    "confKey": "NOS",
+    "description": "",
+    "email": "nosqatest5@163.com",
+    "id": 535,
+    "tenantId": "51717d14566645d1999847cd1f1bf26a",
+    "uid": "3d763929d3fd48d29caada7d17a7bf30",
+    "username": "nosqatest5yanlian"
+  },
+  {
+    "confKey": "NCS",
+    "description": "",
+    "email": "cloud_search@163.com",
+    "id": 536,
+    "tenantId": "b572793b1f2b47aeb4e4ab76fe9c53a8",
+    "uid": "b410cf2a836249ccb51196727e7d321b",
+    "username": "cloud_search@163.com"
+  },
+  {
+    "confKey": "NMEM",
+    "description": "",
+    "email": "memcached163@163.com",
+    "id": 537,
+    "tenantId": "79c9c63e30074673abb43b661c1e1a90",
+    "uid": "b7ed1d39aaaa41c6a2e7340901108b56",
+    "username": "memcached163@163.com"
+  },
+  {
+    "confKey": "MongoDB",
+    "description": "",
+    "email": "cloud_mongo@126.com",
+    "id": 538,
+    "tenantId": "5bc4feb5fc5e4fa78078ac623e6b1a20",
+    "uid": "ccf3e462398440cdb153c8d787a9ed25",
+    "username": "cloud_mongo@126.com"
+  },
+  {
+    "confKey": "NOS",
+    "description": "",
+    "email": "chenjianfei@163.com",
+    "id": 539,
+    "tenantId": "80546f08d5f7465099072a0ab469d0f1",
+    "uid": "8eafa550dd0841959ea2adeca0f1bd41",
+    "username": "chenjianfei_163_com"
+  },
+  {
+    "confKey": "NWS",
+    "description": "",
+    "email": "nwinservice@163.com",
+    "id": 540,
+    "tenantId": "5283b8daa6524c8193694e3a4ad20921",
+    "uid": "1fdd17a8081648c4aea40d1413372fc1",
+    "username": "nwinservice@163.com"
+  },
+  {
+    "confKey": "NET",
+    "description": "",
+    "email": "ip_management@163.com",
+    "id": 541,
+    "tenantId": "092ae62bf8064f79bb5a0ee582a9be47",
+    "uid": "0be335ad40ad407a992c013afe0b3802",
+    "username": "ip_management_163_com"
+  },
+  {
+    "confKey": "CombSec",
+    "description": "",
+    "email": "workntes@163.com",
+    "id": 542,
+    "tenantId": "7327f264d0ba4174aa6536a6afc20be7",
+    "uid": "004961f192c343d09acab9e95ada8075",
+    "username": "workntesci"
+  },
+  {
+    "confKey": "kafka",
+    "description": "",
+    "email": "cloud_kafka@163.com",
+    "id": 543,
+    "tenantId": "16b35f330879408982e1041f52deb05c",
+    "uid": "61608ff4cb0c4b0ea08eaa2fce9aee19",
+    "username": "cloudkafka"
+  },
+  {
+    "confKey": "CombSec",
+    "description": "",
+    "email": "ntesmdw@163.com",
+    "id": 544,
+    "tenantId": "27de2d2250cb4be0a6d7f5a3d457d714",
+    "uid": "808df63c85e246cbb1492658f56851b2",
+    "username": "ntesmdw@163.com"
+  },
+  {
+    "confKey": "console",
+    "description": "",
+    "email": "gongyuanbao@corp.netease.com",
+    "id": 545,
+    "tenantId": "6f9cdf1575ea4541a6bfa083bf63fb8c",
+    "uid": "b1e10a0c05a541b8b60407391a411ef3",
+    "username": "console_service"
+  },
+  {
+    "confKey": "NQS",
+    "description": "",
+    "email": "cloud_nqs@163.com",
+    "id": 546,
+    "tenantId": "0692d6d34ee246de982f207f595fcb32",
+    "uid": "96bd397eca594190bbca58c2ba318d83",
+    "username": "cloud_nqs@163.com"
+  },
+  {
+    "confKey": "NES",
+    "description": "",
+    "email": "cloud_nes@163.com",
+    "id": 547,
+    "tenantId": "d71165b9572141cc9f2b786f5c676ca8",
+    "uid": "c59c1a1ce57949a4b244c639862036d3",
+    "username": "cloud_nes@163.com"
+  },
+  {
+    "confKey": "fzt",
+    "description": "",
+    "email": "fztfztfzt@126.com",
+    "id": 548,
+    "tenantId": "cd559b4eade74cefa3670a66acc7d455",
+    "uid": "4e6db2f8421e48709e3fc6d30e20bb89",
+    "username": "fztfztfzt"
+  },
+  {
+    "confKey": "dongguanb",
+    "description": "",
+    "email": "decservice@163.com",
+    "id": 549,
+    "tenantId": "39f431bcc89d455a88000d6364c575a0",
+    "uid": "d66f27dbeba44026b7eada314d35d7a5",
+    "username": "dongguanb_service_offline"
+  },
+  {
+    "confKey": "nvs",
+    "description": "",
+    "email": "Iaascheck@163.com",
+    "id": 550,
+    "tenantId": "d5d96d7874484950a4461ef07b906813",
+    "uid": "225c70db3c734fcb8a69c22c3d747fdf",
+    "username": "Iaascheck@163.com"
+  },
+  {
+    "confKey": "nvs",
+    "description": "",
+    "email": "nvpcservice@163.com",
+    "id": 551,
+    "tenantId": "8e3a302100a149da91f0449d16be9051",
+    "uid": "92feb4f54cb14649815703438da9f940",
+    "username": "nvpcservice_163_com"
+  },
+  {
+    "confKey": "CombSec",
+    "description": "",
+    "email": "combsec@163.com",
+    "id": 552,
+    "tenantId": "83be792de27f400d8b8abbad05ac0b21",
+    "uid": "08c32d477db7482b975a58b6631224f3",
+    "username": "combsec@163.com"
+  },
+  {
+    "confKey": "NCE",
+    "description": "",
+    "email": "dongyuzju@126.com",
+    "id": 553,
+    "tenantId": "767468fd4c904dc28f9c00fc4948581a",
+    "uid": "66dbdac0d45a4be1af0b5c512e970c3f",
+    "username": "dongyuzju@126.com"
+  },
+  {
+    "confKey": "NET",
+    "description": "",
+    "email": "zhangxun@163.com",
+    "id": 554,
+    "tenantId": "96d0d4bcda264d07861d2ae07f23ff29",
+    "uid": "d4876e861c644fab82fa6cc02dce2cf7",
+    "username": "zhangxun_163_com"
+  },
+  {
+    "confKey": "NCS",
+    "description": "",
+    "email": "ncsservice@126.com",
+    "id": 555,
+    "tenantId": "f66bc10cb35b4983ba199e126f84908f",
+    "uid": "437a20466a114e4585adda35c1a11139",
+    "username": "ncsservice_126_com"
+  },
+  {
+    "confKey": "interlayer",
+    "description": "",
+    "email": "interlayer002@163.com",
+    "id": 556,
+    "tenantId": "06f541f6d62149f7997de83621aa840d",
+    "uid": "2ba1c3390c184f05bc3e7bc493ac4624",
+    "username": "interlayer002@163.com"
+  },
+  {
+    "confKey": "cloudopsdev",
+    "description": "",
+    "email": "cloudopsdev@163.com",
+    "id": 557,
+    "tenantId": "1aea4cf167044cd78ee8f16a8d51bb31",
+    "uid": "56f49aa24af04bb39c12f5cc348af856",
+    "username": "cloudopsdev_163_com"
+  },
+  {
+    "confKey": "openstack",
+    "description": "",
+    "email": "nas_agent_test@163.com",
+    "id": 558,
+    "tenantId": "9a697f953ba14871948f6a01f8495cdc",
+    "uid": "497f7346c11c4c1a940804fca8fa3b04",
+    "username": "nas_agent_test@163.com"
+  },
+  {
+    "confKey": "G1",
+    "description": "",
+    "email": "interlayer_service@163.com",
+    "id": 559,
+    "tenantId": "e8c5c597d752444293091932c9ebd78e",
+    "uid": "a1769ba591284efc8940776d3e49a3e7",
+    "username": "interlayer_service@163.com"
+  },
+  {
+    "confKey": "cloudsre",
+    "description": "",
+    "email": "cloudsre@hz.netease.com",
+    "id": 560,
+    "tenantId": "000ca4cd653f4b8f88a84efdef561765",
+    "uid": "963bd821b63d429cb3fa281a12e23b04",
+    "username": "cloudsre@hz.netease.com"
+  },
+  {
+    "confKey": "nas",
+    "description": "",
+    "email": "hzlushiliang@163.com",
+    "id": 561,
+    "tenantId": "47d50e88ee33452c9f6e2b0b054efe4e",
+    "uid": "545861b771334bbabf882ffc704d9c54",
+    "username": "hzlushiliang_163_com"
+  },
+  {
+    "confKey": "qanas",
+    "description": "",
+    "email": "qanas_pubt1@163.com",
+    "id": 562,
+    "tenantId": "fdb175e4a6084e358e9e5173734e4e7e",
+    "uid": "c00923c955534284a1711fe0432b00d0",
+    "username": "qanas_pubt1_163_com"
+  },
+  {
+    "confKey": "k8s",
+    "description": "",
+    "email": "k8stest_800@163.com",
+    "id": 563,
+    "tenantId": "8d98d992496648f58ebaca34205885f8",
+    "uid": "2811fd1906df4a99a3e658fcd0f6dc35",
+    "username": "k8stest800yqci"
+  },
+  {
+    "confKey": "KAFKA",
+    "description": "",
+    "email": "kafka_admin@163.com",
+    "id": 564,
+    "tenantId": "9358bab1abb6496483fd647340b0cad2",
+    "uid": "110635a7f1ac452d93ee6e9384913061",
+    "username": "kafka_admin@163.com"
+  },
+  {
+    "confKey": "KAFKA",
+    "description": "",
+    "email": "cloud_kafka_qa@163.com",
+    "id": 565,
+    "tenantId": "727fb97a41bc4b3cb569e6f02cb178dd",
+    "uid": "25fc219585494cf3885896bf4cc729da",
+    "username": "cloud_kafka_qa@163.com"
+  },
+  {
+    "confKey": "OPS",
+    "description": "",
+    "email": "cloudops@126.com",
+    "id": 566,
+    "tenantId": "11e09a8d963f491bbb8cdb985e836230",
+    "uid": "db49b7a2c84d4bafb44c18ebd91b164a",
+    "username": "cloudops_126_com"
+  },
+  {
+    "confKey": "NES",
+    "description": "",
+    "email": "chishwoshishui@163.com",
+    "id": 567,
+    "tenantId": "4c1f60385a22412e93e1af41de0f35dd",
+    "uid": "1c59180190f145bf8345d01d3f13b1c7",
+    "username": "chishwoshishui_163_com"
+  },
+  {
+    "confKey": "yiwu",
+    "description": "",
+    "email": "decservice@163.com",
+    "id": 568,
+    "tenantId": "283c43bcd4ba471eb8d0200f14e7f17c",
+    "uid": "9f758cee96e14183b31768011d59eda7",
+    "username": "yiwu_service_offline"
+  },
+  {
+    "confKey": "demo",
+    "description": "",
+    "email": "decservice@163.com",
+    "id": 569,
+    "tenantId": "18121c5517e94315931e5ca511e421d6",
+    "uid": "6e70d92c9d5d4a278c769e22410d40d9",
+    "username": "demo_service_offline"
+  },
+  {
+    "confKey": "NCM",
+    "description": "",
+    "email": "cloud_monitor@126.com",
+    "id": 570,
+    "tenantId": "dea807325c3a455787e0d44cf9ef10b2",
+    "uid": "75b6a23d71bc4380bc5ea4a824de4269",
+    "username": "cloudmonitorservice"
+  },
+  {
+    "confKey": "DNS",
+    "description": "",
+    "email": "dns_ntes@163.com",
+    "id": 571,
+    "tenantId": "c1fde246dc52466ebd63341f76a00148",
+    "uid": "e327308a96b94b0ea8f5cef4473bb42b",
+    "username": "dns_service"
+  },
+  {
+    "confKey": "SPES",
+    "description": "",
+    "email": "ntesspes@hotmail.com",
+    "id": 572,
+    "tenantId": "adb4dac3428842068093f0ac5b8ac25c",
+    "uid": "fb5f3e62ce3f4e2d8ceb0b17475ba31d",
+    "username": "spes_srv_unstable"
+  },
+  {
+    "confKey": "G-DASHBOARD",
+    "description": "G-Dashboard平台",
+    "email": "wengyanghui@corp.netease.com",
+    "id": 663,
+    "tenantId": "c22be238a35f4d5aa232af065e68ff4f",
+    "uid": "ab9224d7abc146ee8d89627b391bd1e6",
+    "username": "gdashboard_service"
+  },
+  {
+    "confKey": "BMM",
+    "description": "裸机管理服务",
+    "email": "ncebmm@gmail.com",
+    "id": 880,
+    "tenantId": "6ee27851043348a282f4d067914152ee",
+    "uid": "006a7f0161754016a987d49dd035a59d",
+    "username": "bmm_srv"
+  },
+  {
+    "confKey": "COMB-CONSOLE",
+    "description": "蜂巢控制台服务",
+    "email": "gongyuanbao@corp.netease.com",
+    "id": 881,
+    "tenantId": "51f5a70d30b6453b933db9ab7b27f589",
+    "uid": "6620c722ac0b46d998de8f1261e6625b",
+    "username": "comb_console"
+  }
+]

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package nsb.route;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+message Metadata {
+    string name = 1;
+    google.protobuf.Timestamp create_time = 2;
+    string version = 3;
+    map<string, string> labels = 4;
+}
+
+message Resource {
+    nsb.route.Metadata metadata = 1;
+    string body = 2;
+}

@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.helloworld";
+option java_outer_classname = "HelloWorldProto";
+option objc_class_prefix = "HLW";
+
+package hello;
+
+import "google/api/annotations.proto";
+
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest11111) returns (HelloReply) {
+  }
+
+  // 单项rpc
+  rpc GetUsernameById (Id) returns (Username) {
+    //proto-gateway能够生产restful反向代理，目前只是对go有效
+    option (google.api.http) = {
+      post:"/v1/user/get_user_by_id1"
+      body:"*"
+    };
+  }
+
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  message SubMessage {
+    int32 age = 1;
+  }
+  string name = 1;
+  SubMessage sub = 2;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+  int32 age = 2;
+  string sex = 3;
+}
+
+// message gRPC中service不能直接使用基本类型，必须通过message包装
+message Username {
+  string username = 1;
+}
+message Id {
+  int64 id = 1;
+}
