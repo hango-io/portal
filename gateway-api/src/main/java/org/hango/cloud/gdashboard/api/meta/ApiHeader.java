@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * API Header
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 15:18.
  */
 public class ApiHeader implements Serializable {

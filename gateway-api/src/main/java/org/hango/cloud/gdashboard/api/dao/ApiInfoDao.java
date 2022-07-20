@@ -6,7 +6,7 @@ import org.hango.cloud.gdashboard.api.meta.ApiInfo;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 10:27.
  */
 public interface ApiInfoDao extends IBaseDao<ApiInfo> {

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.io.Serializable;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2019/1/17 下午3:52.
  */
 public class PluginInfo implements Serializable {

@@ -7,7 +7,7 @@ import java.io.Serializable;
  * 如http status code 为400
  * 描述可填：Code: MissingParameter Message: 参数缺失
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/24 14:43.
  */
 public class ApiStatusCode implements Serializable {

@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 创建API时使用，提供给从excel导入和nsf agent调用创建API接口使用
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/8/15 上午11:04.
  */
 public class CreateApiDto implements Serializable {

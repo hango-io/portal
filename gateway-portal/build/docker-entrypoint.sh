@@ -3,16 +3,6 @@
 set -ex
 
 env > $CATALINA_HOME/bin/envStorage
-chmod +x $CATALINA_HOME/bin/skiff_clean_log.sh
-chmod +x $CATALINA_HOME/bin/log_rename.sh
-$CATALINA_HOME/bin/log_rename.sh
-sed -i "s#\$CATALINA_HOME#$CATALINA_HOME#g" $CATALINA_HOME/bin/skiff_clean_log.sh
-sed -i "s#\$CATALINA_HOME#$CATALINA_HOME#g" $CATALINA_HOME/bin/log_rename.sh
-
-echo "00 00 * * * $CATALINA_HOME/bin/log_rename.sh" > $CATALINA_HOME/bin/log_config.cron
-echo "$CRON_TASK $CATALINA_HOME/bin/skiff_clean_log.sh" >> $CATALINA_HOME/bin/log_config.cron
-/etc/init.d/cron restart
-crontab $CATALINA_HOME/bin/log_config.cron
 
 #local_access 日志开关
 if [ "$NCE_LOCAL_ACCESS_SWITCH" = "false" ]; then

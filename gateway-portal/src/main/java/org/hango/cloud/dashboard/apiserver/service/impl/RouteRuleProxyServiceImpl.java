@@ -28,7 +28,6 @@ import org.hango.cloud.dashboard.envoy.meta.EnvoyVirtualHostInfo;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleInfo;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleProxyInfo;
 import org.hango.cloud.dashboard.envoy.meta.ServiceProxyInfo;
-import org.hango.cloud.dashboard.envoy.service.IAuthPermissionService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyGatewayService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyPluginInfoService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyWebServiceService;
@@ -38,7 +37,6 @@ import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteRuleHeaderOperationDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoySubsetDto;
 import org.hango.cloud.dashboard.envoy.web.dto.RouteRuleProxyDto;
 import org.hango.cloud.dashboard.envoy.web.dto.VirtualClusterDto;
-import org.hango.cloud.dashboard.scg.service.IGetFromScgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,9 +80,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
     private IEnvoyGatewayService envoyGatewayService;
 
     @Autowired
-    private IAuthPermissionService authPermissionService;
-
-    @Autowired
     private IGetFromApiPlaneService getFromApiPlaneService;
 
     @Autowired
@@ -93,8 +88,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
     @Autowired
     private IEnvoyWebServiceService webServiceService;
 
-    @Autowired
-    private IGetFromScgService getFromScgService;
 
     @Override
     public ErrorCode checkPublishParam(RouteRuleProxyDto routeRuleProxyDto) {
@@ -155,9 +148,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
 
         //TODO SCG Check
         routeRuleProxyDto.setGwType(gatewayInDb.getGwType());
-        if (GatewayEnum.SCG.getType().equals(gatewayInDb.getGwType())) {
-            return CommonErrorCode.Success;
-        }
 
         RouteRuleInfo routeRuleInfo = routeRuleInfoService.getRouteRuleInfoById(routeRuleProxyDto.getRouteRuleId());
         EnvoyVirtualHostInfo virtualHostInfo = envoyGatewayService.getVirtualHostByGwIdAndProjectId(gwId, routeRuleInfo.getProjectId());
@@ -249,11 +239,7 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
             return CommonErrorCode.NoSuchRouteRule;
         }
 
-        //TODO SCG Check
         routeRuleProxyDto.setGwType(gatewayInfo.getGwType());
-        if (GatewayEnum.SCG.getType().equals(gatewayInfo.getGwType())) {
-            return CommonErrorCode.Success;
-        }
 
         List<EnvoyDestinationDto> destinationServices = routeRuleProxyDto.getDestinationServices();
         if (CollectionUtils.isEmpty(destinationServices)) {
@@ -418,12 +404,8 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
             routeRuleProxyList.add(getRouteRuleProxy(gwId, routeId));
             return routeRuleProxyList;
         }
-        List<Long> routeAuthId = authPermissionService.getRouteAuthId(gwId);
-        if (CollectionUtils.isEmpty(routeAuthId)) {
-            return Lists.newArrayList();
-        }
         return routeRuleProxyDao.getRouteRuleProxyList(gwId, serviceId, ProjectTraceHolder.getProId(), routeId,
-                routeAuthId, offset, limit);
+                Collections.emptyList(), offset, limit);
     }
 
     @Override
@@ -468,12 +450,8 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
             }
             return getRouteRuleProxyCount(gwId, routeId);
         }
-        List<Long> routeAuthId = authPermissionService.getRouteAuthId(gwId);
-        if (CollectionUtils.isEmpty(routeAuthId)) {
-            return 0;
-        }
         return routeRuleProxyDao.getRouteRuleProxyCount(gwId, serviceId, ProjectTraceHolder.getProId(), routeId,
-                routeAuthId);
+                Collections.emptyList());
     }
 
     @Override
@@ -516,10 +494,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
             return false;
         }
 
-        if (!authPermissionService.deleteAuthPermission(gwId, 0, routeRuleId, Const.AUTH_GATEWAY_ROUTE)) {
-            logger.warn("删除路由下的授权失败");
-            return false;
-        }
         //删除路由发布信息
         routeRuleProxyDao.delete(routeRuleProxyInfo);
         //更新路由规则发布状态
@@ -611,10 +585,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
             return CommonErrorCode.Success;
         }
         GatewayInfo gatewayInfo = gatewayInfoService.get(gwId);
-        //TODO SCG Check
-        if (GatewayEnum.SCG.getType().equals(gatewayInfo.getGwType())) {
-            return CommonErrorCode.Success;
-        }
 
         RouteRuleProxyInfo routeRuleProxyInfo = routeRuleProxyInfos.get(0);
         List<EnvoyDestinationInfo> destinationServiceList = routeRuleProxyInfo.getDestinationServiceList();
@@ -994,9 +964,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
             case ENVOY:
                 publishStatus = getFromApiPlaneService.publishRouteRuleByApiPlane(routeRuleProxyInfo, pluginConfigurations);
                 break;
-            case SCG:
-                publishStatus = getFromScgService.publishRouteToScgGw(routeRuleProxyInfo);
-                break;
             default:
                 publishStatus = false;
         }
@@ -1022,9 +989,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
         switch (GatewayEnum.getByType(gatewayInfo.getGwType())) {
             case ENVOY:
                 offlineStatus = getFromApiPlaneService.deleteRouteRuleByApiPlane(routeRuleProxyInfo);
-                break;
-            case SCG:
-                offlineStatus = getFromScgService.offlineRouteToScgGw(routeRuleProxyInfo);
                 break;
             default:
                 offlineStatus = false;

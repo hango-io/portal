@@ -5,7 +5,7 @@ import org.hango.cloud.gdashboard.api.meta.DubboParamInfo;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 15:46.
  */
 public interface DubboParamDao extends IBaseDao<DubboParamInfo> {

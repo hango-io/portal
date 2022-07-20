@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * http response object.
  *
- * @author Feng Changjian (hzfengchj@corp.netease.com)
+ * @author Feng Changjian (hzfengchj)
  * @version $Id: HttpClientResponse.java, v 1.0 2013-8-2 下午04:10:16
  */
 public class HttpClientResponse {

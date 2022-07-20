@@ -5,7 +5,7 @@ import org.hango.cloud.gdashboard.api.meta.OperationLog;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/25 15:57.
  */
 public interface IOperationLogService {

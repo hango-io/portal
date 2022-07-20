@@ -8,7 +8,7 @@ import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Modified hanjiahao
  * @Date: 创建时间: 2017/12/26 17:03.
  */

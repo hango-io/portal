@@ -34,10 +34,6 @@ import org.hango.cloud.dashboard.envoy.meta.webservice.EnvoyServiceWsdlBindingIt
 import org.hango.cloud.dashboard.envoy.meta.webservice.EnvoyServiceWsdlInfo;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyPluginInfoService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyWebServiceService;
-import org.hango.cloud.dashboard.webservice.SoapCreatorContext;
-import org.hango.cloud.dashboard.webservice.SoapRequestCreator;
-import org.hango.cloud.dashboard.webservice.SoapResponseCreator;
-import org.hango.cloud.dashboard.webservice.SoapTemplateCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -274,8 +270,8 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
         Definitions definitions = wsdlParser.parse(new ByteArrayInputStream(wsdlInfo.getWsdlFileContent().getBytes()));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            SoapRequestCreator creator = new SoapRequestCreator(definitions, new SoapTemplateCreator(), new MarkupBuilder(new PrintWriter(bos)));
-            creator.createRequest(binding.getPortType(), binding.getOperation(), binding.getBinding());
+//            SoapRequestCreator creator = new SoapRequestCreator(definitions, new SoapTemplateCreator(), new MarkupBuilder(new PrintWriter(bos)));
+//            creator.createRequest(binding.getPortType(), binding.getOperation(), binding.getBinding());
             String templateResult = bos.toString();
             out.put(WS_REQUEST_TEMPLATE, templateResult);
         } catch (Exception e) {
@@ -349,12 +345,12 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
                     bindingItem.setResponseAllElements(new ArrayList<>());
 
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    SoapRequestCreator requestCreator = new SoapRequestCreator(definitions, new SoapTemplateCreator(), new MarkupBuilder(new PrintWriter(bos)));
-                    SoapResponseCreator responseCreator = new SoapResponseCreator(definitions, new SoapTemplateCreator(), new MarkupBuilder(new PrintWriter(bos)));
-                    SoapCreatorContext requestResultContext = (SoapCreatorContext) requestCreator.createRequest(binding.getPortType().getName(), operation.getName(), binding.getName());
-                    SoapCreatorContext responseResultContext = (SoapCreatorContext) responseCreator.createRequest(binding.getPortType().getName(), operation.getName(), binding.getName());
-                    bindingItem.setRequestAllElements(getElementList(requestResultContext.getAnalyzerContext().getAllElements()));
-                    bindingItem.setResponseAllElements(getElementList(responseResultContext.getAnalyzerContext().getAllElements()));
+//                    SoapRequestCreator requestCreator = new SoapRequestCreator(definitions, new SoapTemplateCreator(), new MarkupBuilder(new PrintWriter(bos)));
+//                    SoapResponseCreator responseCreator = new SoapResponseCreator(definitions, new SoapTemplateCreator(), new MarkupBuilder(new PrintWriter(bos)));
+//                    SoapCreatorContext requestResultContext = (SoapCreatorContext) requestCreator.createRequest(binding.getPortType().getName(), operation.getName(), binding.getName());
+//                    SoapCreatorContext responseResultContext = (SoapCreatorContext) responseCreator.createRequest(binding.getPortType().getName(), operation.getName(), binding.getName());
+//                    bindingItem.setRequestAllElements(getElementList(requestResultContext.getAnalyzerContext().getAllElements()));
+//                    bindingItem.setResponseAllElements(getElementList(responseResultContext.getAnalyzerContext().getAllElements()));
 
 
                     wsdlBindingList.add(bindingItem);

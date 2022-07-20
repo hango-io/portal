@@ -3,7 +3,7 @@ package org.hango.cloud.dashboard.apiserver.service.impl.sdk;
 /**
  * 请求类头部数据结构 用于请求头和响应头
  *
- * @author Hu Yuchao(huyuchao@corp.netease.com)
+ * @author Hu Yuchao(huyuchao)
  */
 public class HeaderParameter {
     private String value;

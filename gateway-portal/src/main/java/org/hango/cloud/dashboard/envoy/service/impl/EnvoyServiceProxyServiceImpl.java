@@ -39,19 +39,16 @@ import org.hango.cloud.dashboard.envoy.meta.RouteRuleInfo;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleProxyInfo;
 import org.hango.cloud.dashboard.envoy.meta.ServiceProxyInfo;
 import org.hango.cloud.dashboard.envoy.meta.grpc.EnvoyServiceProtobufProxy;
-import org.hango.cloud.dashboard.envoy.service.IAuthPermissionService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyGrpcProtobufService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyHealthCheckService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyWebServiceService;
 import org.hango.cloud.dashboard.envoy.service.IGetFromApiPlaneService;
-import org.hango.cloud.dashboard.envoy.service.cache.AuthPermissionCacheService;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceConnectionPoolDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceConsistentHashDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceLoadBalancerDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceTrafficPolicyDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoySubsetDto;
 import org.hango.cloud.dashboard.envoy.web.dto.ServiceProxyDto;
-import org.hango.cloud.dashboard.scg.service.IGetFromScgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,13 +107,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
     @Autowired
     private IEnvoyWebServiceService webServiceService;
     @Autowired
-    private AuthPermissionCacheService authPermissionCacheService;
-    @Autowired
-    private IAuthPermissionService authPermissionService;
-    @Autowired
     private IDubboMetaService dubboMetaService;
-    @Autowired
-    private IGetFromScgService getFromScgService;
     @Autowired
     private IGatewayProjectService gatewayProjectService;
 
@@ -153,7 +144,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
      * 因此需要区分调用
      *
      * @param serviceProxyDto          服务发布信息
-     * @param envoyHealthCheckRuleInfo 健康检查信息(SCG网关暂未实现该功能)
+     * @param envoyHealthCheckRuleInfo 健康检查信息
      * @return
      */
     private boolean publishToDiffTypeGw(ServiceProxyDto serviceProxyDto, EnvoyHealthCheckRuleInfo envoyHealthCheckRuleInfo) {
@@ -167,9 +158,6 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
         switch (GatewayEnum.getByType(gatewayInfo.getGwType())) {
             case ENVOY:
                 publishStatus = getFromApiPlaneService.publishServiceByApiPlane(serviceProxyDto, envoyHealthCheckRuleInfo);
-                break;
-            case SCG:
-                publishStatus = getFromScgService.publishServiceToScgGw(serviceProxyDto);
                 break;
             default:
                 publishStatus = false;
@@ -197,9 +185,6 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
         switch (GatewayEnum.getByType(gatewayInfo.getGwType())) {
             case ENVOY:
                 offlineStatus = getFromApiPlaneService.offlineServiceByApiPlane(gatewayInfo.getApiPlaneAddr(), deleteAllSubset(serviceProxyDto));
-                break;
-            case SCG:
-                offlineStatus = getFromScgService.offlineServiceToScgGw(serviceProxyDto);
                 break;
             default:
                 offlineStatus = false;
@@ -258,12 +243,8 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
             return errorCode;
         }
 
-        //TODO SCG Check
         GatewayInfo gatewayInfo = gatewayInfoService.get(serviceProxyDto.getGwId());
         serviceProxyDto.setGwType(gatewayInfo.getGwType());
-        if (gatewayInfo != null && GatewayEnum.SCG.getType().equals(gatewayInfo.getGwType())) {
-            return CommonErrorCode.Success;
-        }
 
         return checkEnvoyServiceProxyDto(serviceProxyDto);
     }
@@ -313,12 +294,9 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
             return errorCode;
         }
 
-        //TODO SCG Check
         GatewayInfo gatewayInfo = gatewayInfoService.get(serviceProxyDto.getGwId());
         serviceProxyDto.setGwType(gatewayInfo.getGwType());
-        if (gatewayInfo != null && GatewayEnum.SCG.getType().equals(gatewayInfo.getGwType())) {
-            return CommonErrorCode.Success;
-        }
+
 
         return checkEnvoyServiceProxyDto(serviceProxyDto);
     }
@@ -586,11 +564,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
     @Override
     public List<ServiceProxyInfo> getAuthServiceProxyByLimit(long gwId, long serviceId, long projectId,
                                                              long offset, long limit) {
-        List<Long> serviceAuthId = authPermissionService.getServiceAuthId(gwId);
-        if (CollectionUtils.isEmpty(serviceAuthId)) {
-            return Lists.newArrayList();
-        }
-        return serviceProxyDao.getServiceProxyByLimit(gwId, serviceId, projectId, serviceAuthId, offset, limit);
+        return serviceProxyDao.getServiceProxyByLimit(gwId, serviceId, projectId, Collections.emptyList(), offset, limit);
     }
 
     @Override
@@ -627,11 +601,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
 
     @Override
     public long getAuthServiceProxyCount(final long gwId, final long serviceId) {
-        List<Long> serviceAuthId = authPermissionService.getServiceAuthId(gwId);
-        if (CollectionUtils.isEmpty(serviceAuthId)) {
-            return 0;
-        }
-        return serviceProxyDao.getAuthServiceProxyCount(gwId, serviceId, ProjectTraceHolder.getProId(), serviceAuthId);
+        return serviceProxyDao.getAuthServiceProxyCount(gwId, serviceId, ProjectTraceHolder.getProId(), Collections.emptyList());
     }
 
     @Override
@@ -1092,7 +1062,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
 
         /**
          *  fix dns host
-         *  https://overmind-project.netease.com/v2/my_workbench/taskdetail/Task-10766
+         *
          */
         return backendService.replace('_', '-');
     }

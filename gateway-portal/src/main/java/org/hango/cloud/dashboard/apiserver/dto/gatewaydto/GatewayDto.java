@@ -9,6 +9,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
 import org.hango.cloud.dashboard.apiserver.util.BeanUtil;
 import org.hango.cloud.dashboard.apiserver.util.Const;
+import org.hango.cloud.dashboard.envoy.meta.EnvoyVirtualHostInfo;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyVirtualHostDto;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.util.CollectionUtils;
@@ -161,8 +162,11 @@ public class GatewayDto implements Serializable {
             meta.setStatus(NumberUtils.INTEGER_ONE);
             if (!CollectionUtils.isEmpty(dto.getVirtualHostList())) {
                 projectIds.addAll(dto.getVirtualHostList().stream().map(EnvoyVirtualHostDto::getProjectId).collect(Collectors.toList()));
+                List<EnvoyVirtualHostInfo> collect = dto.getVirtualHostList().stream().map(EnvoyVirtualHostDto::toMeta).collect(Collectors.toList());
+                meta.setVirtualHostList(collect);
             }
         }
+
         meta.setProjectId(projectIds.stream().map(Object::toString).collect(Collectors.joining(",")));
         return meta;
     }

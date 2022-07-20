@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 添加新的数据模型的DTO
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/29 下午5:47.
  */
 public class CreateApiModelDto implements Serializable {

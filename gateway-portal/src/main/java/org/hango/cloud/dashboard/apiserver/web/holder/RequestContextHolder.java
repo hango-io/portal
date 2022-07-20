@@ -13,7 +13,7 @@ import java.util.Map;
  * 如果需要在Filter中使用该类中的变量,
  * 请注意与{@link RequestContextHolderFilter}
  * 之间的顺序问题
- * Created by Zhranklin zhangwu@corp.netease.com at 2017/8/18
+ * Created by Zhranklin zhangwu at 2017/8/18
  */
 public class RequestContextHolder {
 

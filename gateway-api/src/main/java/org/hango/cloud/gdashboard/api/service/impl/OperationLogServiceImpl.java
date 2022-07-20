@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * 操作日志 相关操作
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/25 15:57.
  */
 @Service

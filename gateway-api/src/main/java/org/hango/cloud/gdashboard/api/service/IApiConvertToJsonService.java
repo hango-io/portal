@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * 将API转换成普通json对象，以及swagger原生json对象
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/19 19:52.
  */
 public interface IApiConvertToJsonService {

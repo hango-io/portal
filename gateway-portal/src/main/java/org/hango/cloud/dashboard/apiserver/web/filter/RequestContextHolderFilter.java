@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 
 /**
- * Created Zhranklin zhangwu@corp.netease.com at 2017/8/18
+ * Created Zhranklin zhangwu at 2017/8/18
  */
 public class RequestContextHolderFilter extends RequestContextHolder implements Filter {
     @Override

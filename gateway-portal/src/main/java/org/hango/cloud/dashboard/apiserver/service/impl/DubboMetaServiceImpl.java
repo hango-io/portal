@@ -326,7 +326,7 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
     @Transactional(rollbackFor = Exception.class)
     public synchronized void saveDubboMeta(long gwId, String igv, List<DubboMetaDto> dubboMetaDtoList) {
         String redisKey = String.format(Const.DUBBO_META_REFRESH_KEY_TEMPLATE, gwId, igv);
-        logger.info("dubbo meta redis key is {}", redisKey);
+        logger.info("dubbo org.hango.cloud.dashboard.meta redis key is {}", redisKey);
         if (null == dubboMetaDtoList) {
             logger.warn("调用api-plane 失败，查询条件为 : 网关ID = {} , IGV = {}  无返回 ", gwId, igv);
             return;
@@ -350,7 +350,7 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
             return Collections.emptyList();
         }
         String redisKey = String.format(Const.DUBBO_META_REFRESH_KEY_TEMPLATE, gwId, igv);
-        logger.info("dubbo meta redis key is {}", redisKey);
+        logger.info("dubbo org.hango.cloud.dashboard.meta redis key is {}", redisKey);
         if (redisService.hasKey(redisKey)) {
             logger.info("距离上次更新不足 {} 毫秒，本次不再更新 ", apiServerConfig.getMetaRefreshInterval());
             return findByIgv(gwId, igv);

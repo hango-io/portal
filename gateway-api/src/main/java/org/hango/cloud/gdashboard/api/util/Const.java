@@ -1,7 +1,7 @@
 package org.hango.cloud.gdashboard.api.util;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/29 下午8:23.
  */
 public class Const {

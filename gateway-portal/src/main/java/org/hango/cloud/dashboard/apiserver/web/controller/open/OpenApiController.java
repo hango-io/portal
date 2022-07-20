@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * 暴露给Mock平台的接口以及nsf的接口
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/25 19:42.
  */
 @RestController

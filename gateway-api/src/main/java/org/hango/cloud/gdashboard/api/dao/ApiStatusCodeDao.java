@@ -4,7 +4,7 @@ package org.hango.cloud.gdashboard.api.dao;
 import org.hango.cloud.gdashboard.api.meta.ApiStatusCode;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/24 14:50.
  */
 public interface ApiStatusCodeDao extends IBaseDao<ApiStatusCode> {

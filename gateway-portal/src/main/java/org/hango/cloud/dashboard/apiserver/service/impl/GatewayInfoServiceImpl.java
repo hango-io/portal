@@ -3,24 +3,23 @@ package org.hango.cloud.dashboard.apiserver.service.impl;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hango.cloud.dashboard.apiserver.config.ElasticSearchConfig;
 import org.hango.cloud.dashboard.apiserver.dao.GatewayInfoDao;
 import org.hango.cloud.dashboard.apiserver.dto.gatewaydto.GatewayAddrConfigInfo;
 import org.hango.cloud.dashboard.apiserver.dto.gatewaydto.GatewayDto;
 import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
 import org.hango.cloud.dashboard.apiserver.meta.PluginInfo;
-import org.hango.cloud.dashboard.apiserver.meta.enums.permission.ActionPermissionEnum;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.gateway.PermissionScopeDto;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayProjectService;
-import org.hango.cloud.dashboard.apiserver.service.impl.permission.IServicePermissionService;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.apiserver.web.holder.ProjectTraceHolder;
 import org.hango.cloud.dashboard.apiserver.web.holder.UserPermissionHolder;
 import org.hango.cloud.dashboard.envoy.meta.EnvoyVirtualHostInfo;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyGatewayService;
+import org.hango.cloud.dashboard.envoy.service.impl.EnvoyGatewayServiceImpl;
+import org.hango.cloud.dashboard.envoy.web.dto.EnvoyVirtualHostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,22 +37,17 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/17 下午5:27.
  */
 @Service
 public class GatewayInfoServiceImpl implements IGatewayInfoService {
     private static final Logger logger = LoggerFactory.getLogger(GatewayInfoServiceImpl.class);
-    @Autowired
-    ElasticSearchConfig elasticSearchConfig;
-    @Autowired
-    IServicePermissionService servicePermissionService;
+
     @Autowired
     private GatewayInfoDao gatewayInfoDao;
     @Autowired
     private IEnvoyGatewayService gatewayService;
-    @Autowired
-    private IGatewayProjectService gatewayProjectService;
 
     @Override
     public GatewayInfo get(long id) {
@@ -96,7 +90,6 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
         if (gatewayInfo == null) {
             return false;
         }
-        reloadDataSource(gatewayInfo);
         gatewayInfo.setModifyDate(System.currentTimeMillis());
 
         GatewayInfo gatewayInfoInDb = get(gatewayInfo.getId());
@@ -109,6 +102,11 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
         if (Const.ENVOY_GATEWAY_TYPE.equals(gatewayInfo.getGwType()) && !updateProjectId) {
             gatewayInfo.setProjectId(gatewayInfoInDb.getProjectId());
         }
+        if (!CollectionUtils.isEmpty(gatewayInfo.getVirtualHostList())){
+            //插入Virtual Host 异常后，直接报错
+            gatewayService.updateVirtualHostList(gatewayInfo.getId(),gatewayInfo.getVirtualHostList());
+        }
+
         return 1 == gatewayInfoDao.update(gatewayInfo);
     }
 
@@ -131,11 +129,6 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
         GatewayInfo gatewayInfoInDb = gatewayInfoDao.get(id);
         //envoy类型网关，直接删除网关
         if (Const.ENVOY_GATEWAY_TYPE.equals(gatewayInfoInDb.getGwType())) {
-            gatewayInfoDao.delete(id);
-            return true;
-        }
-        //SCG类型网关，直接删除网关
-        if (Const.SCG_GATEWAY_TYPE.equals(gatewayInfoInDb.getGwType())) {
             gatewayInfoDao.delete(id);
             return true;
         }
@@ -223,11 +216,20 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public long addGatewayByMetaDto(GatewayDto gatewayDto) {
         GatewayInfo gatewayInfo = GatewayDto.toMeta(gatewayDto);
         gatewayInfo.setCreateDate(System.currentTimeMillis());
         gatewayInfo.setModifyDate(System.currentTimeMillis());
-        return gatewayInfoDao.add(gatewayInfo);
+        long gwId = gatewayInfoDao.add(gatewayInfo);
+        if (!CollectionUtils.isEmpty(gatewayInfo.getVirtualHostList())){
+            //插入Virtual Host 异常后，直接报错
+            for (EnvoyVirtualHostInfo envoyVirtualHostInfo : gatewayInfo.getVirtualHostList()) {
+                envoyVirtualHostInfo.setGwId(gwId);
+                gatewayService.createVirtualHost(envoyVirtualHostInfo);
+            }
+        }
+        return gwId;
     }
 
     @Override
@@ -284,14 +286,6 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
                 return CommonErrorCode.SameNameGatewayClusterExists;
             }
         }
-        //scg网关
-        if (Const.SCG_GATEWAY_TYPE.equals(gatewayDto.getGwType())) {
-            if (gatewayDto.getGatewayAddrConfigInfo() == null &&
-                    StringUtils.isBlank(gatewayDto.getGatewayAddrConfigInfo().getEnvId())) {
-                logger.info("创建/修改envoy网关，Env Id 为空");
-                return CommonErrorCode.InvalidEnvId;
-            }
-        }
         return CommonErrorCode.Success;
     }
 
@@ -323,23 +317,6 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
             return CommonErrorCode.GwNameAlreadyExist;
         }
         return checkCommonParam(gatewayDto);
-    }
-
-    /**
-     * 重载数据源
-     *
-     * @param gatewayInfo
-     */
-    private void reloadDataSource(GatewayInfo gatewayInfo) {
-        if (gatewayInfo != null && StringUtils.isNotBlank(gatewayInfo.getAuditDatasourceSwitch())) {
-            switch (gatewayInfo.getAuditDatasourceSwitch()) {
-                case Const.AUDIT_DATASOURCE_ELASTICSEARCH:
-                    elasticSearchConfig.removeTemplateByGwId(String.valueOf(gatewayInfo.getId()));
-                    return;
-                default:
-                    return;
-            }
-        }
     }
 
     @Override
@@ -391,30 +368,9 @@ public class GatewayInfoServiceImpl implements IGatewayInfoService {
     @Override
     public List<GatewayInfo> getGatewayListByConditions(String pattern, long offset, long limit, long tenantId, long projectId) {
         List<GatewayInfo> gatewayInfoList = new ArrayList<>();
-        List<Long> projectIdList;
         //查询某一租户项目下的网关
         if (tenantId > 0L && projectId > 0L) {
             gatewayInfoList = findGatwayByProjectIdAndLimit(pattern, offset, limit, projectId);
-        }
-        //查询某一租户下的网关
-        if (tenantId > 0L && projectId == 0L) {
-            List<PermissionScopeDto> projectDtoList = gatewayProjectService.getProjectScopeList(tenantId);
-            //租户下无项目 直接返回空
-            if (CollectionUtils.isEmpty(projectDtoList)) {
-                logger.info("当前租户下无项目 返回空");
-                return Collections.EMPTY_LIST;
-            }
-            projectIdList = projectDtoList.stream().map(PermissionScopeDto::getId).collect(Collectors.toList());
-            gatewayInfoList = getGatewayByProjectIds(pattern, projectIdList);
-        }
-        boolean hasGwAdminRole = servicePermissionService.hasRoleWithToken(UserPermissionHolder.getJwt(), String.valueOf(ProjectTraceHolder.getProId()), ActionPermissionEnum.CreateGateway);
-        // 不跟据租户项目筛选 如果是网关管理员或者拥有网关管理角色，显示所有的环境信息列表
-        if (hasGwAdminRole && tenantId == 0L && projectId == 0L) {
-            gatewayInfoList = findGatewayByLimit(pattern, offset, limit);
-        }
-        // 不跟据租户项目筛选 如果是非网关管理员或者拥有网关管理角色，显示当前项目下的环境信息列表
-        if (!hasGwAdminRole && tenantId == 0L && projectId == 0L) {
-            gatewayInfoList = findGatwayByProjectIdAndLimit(pattern, offset, limit, ProjectTraceHolder.getProId());
         }
         return gatewayInfoList;
     }

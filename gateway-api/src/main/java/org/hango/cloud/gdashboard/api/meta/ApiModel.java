@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * API 数据模型
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 15:39.
  */
 public class ApiModel implements Serializable {

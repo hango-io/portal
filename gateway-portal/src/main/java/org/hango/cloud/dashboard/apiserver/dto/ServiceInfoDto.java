@@ -1,7 +1,7 @@
 package org.hango.cloud.dashboard.apiserver.dto;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/9/13 下午8:29.
  */
 public class ServiceInfoDto {

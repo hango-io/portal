@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.List;
 
 /**
- * 网关vh meta
+ * 网关vh org.hango.cloud.dashboard.meta
  *
  * @author hzchenzhongyang 2020-01-09
  */

@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * API 参数类型
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 15:36.
  */
 public class ApiParamType implements Serializable {

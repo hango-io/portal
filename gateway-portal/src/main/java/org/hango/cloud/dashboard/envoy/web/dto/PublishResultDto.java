@@ -1,4 +1,4 @@
-package com.netease.cloud.ncegdashboard.envoy.web.dto;
+package org.hango.cloud.dashboard.envoy.web.dto;
 
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;

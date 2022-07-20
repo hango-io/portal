@@ -23,7 +23,7 @@ public class EasyGatewayDto {
      */
     @JSONField(name = "GwType")
     @NotEmpty(message = "网关类型不能为空")
-    @Pattern(regexp = "scg|envoy", message = "网关类型填写错误")
+    @Pattern(regexp = "envoy", message = "网关类型填写错误")
     private String gwType;
 
     /**
