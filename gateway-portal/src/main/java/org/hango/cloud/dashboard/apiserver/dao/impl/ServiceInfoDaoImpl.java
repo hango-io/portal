@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2017/12/26 16:49.
  */
 @Component

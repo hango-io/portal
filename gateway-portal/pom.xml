@@ -13,24 +13,26 @@
     <packaging>war</packaging>
 
     <properties>
-
         <!-- Sonar -->
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
-        <sonar.exclusions>
-            src/main/java/org/hango/cloud/dashboard/apiserver/service/impl/AuditServiceForMongoImpl.java
-        </sonar.exclusions>
 
-
-        <!--<version.org.springframework.security>4.2.4.RELEASE</version.org.springframework.security>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <spring.boot.version>1.5.4.RELEASE</spring.boot.version>
         <start-class>org.hango.cloud.dashboard.DashboardApplication</start-class>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>n52-releases</id>
+            <name>repository for 52North releases</name>
+            <url>https://52north.org/maven/repo/releases/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -143,12 +145,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.10.2</version>
@@ -217,6 +213,7 @@
             <version>1.25</version>
         </dependency>
 
+
         <dependency>
             <groupId>com.baidu.disconf</groupId>
             <artifactId>disconf-client</artifactId>
@@ -234,21 +231,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-elasticsearch</artifactId>
-            <version>3.2.1.RELEASE</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.elasticsearch</groupId>
-                    <artifactId>elasticsearch</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>io.searchbox</groupId>
             <artifactId>jest</artifactId>
             <version>5.3.3</version>
@@ -265,20 +247,6 @@
             <artifactId>disruptor</artifactId>
             <version>3.3.7</version>
         </dependency>
-
-        <!--G1认证SDK-->
-        <dependency>
-            <groupId>com.netease.cloud</groupId>
-            <artifactId>nce-interlayer-G1-auth</artifactId>
-            <version>0.0.15-SNAPSHOT</version>
-        </dependency>
-
-        <!--报警-->
-        <!--<dependency>-->
-        <!--<groupId>com.netease.cloud</groupId>-->
-        <!--<artifactId>nce-sentry-alarm</artifactId>-->
-        <!--<version>0.0.6-SNAPSHOT</version>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>javax.mail</groupId>
@@ -328,11 +296,13 @@
             <version>1.19.1</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.195</version>
+            <version>2.1.214</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
@@ -360,34 +330,6 @@
                 <exclusion>
                     <groupId>org.apache.zookeeper</groupId>
                     <artifactId>zookeeper</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!--cookie加密算法-->
-        <dependency>
-            <groupId>com.netease.fronted</groupId>
-            <artifactId>pomelo-common</artifactId>
-            <version>0.0.73</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-web</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-core</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-context-support</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-webmvc</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-webmvc</artifactId>
-                    <groupId>spring-test</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -480,13 +422,6 @@
             <artifactId>proto-google-common-protos</artifactId>
             <version>1.14.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.netease.cloud</groupId>
-            <artifactId>org.jacoco.agent.rt</artifactId>
-            <version>0.8.0</version>
-        </dependency>
-
         <!--groovy-->
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -514,7 +449,6 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <version>1.6.5</version>
-            <scope>test</scope>
         </dependency>
 
         <!--webservice依赖-->
@@ -529,79 +463,15 @@
             <version>2.5.6</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.netease.cloud</groupId>
-            <artifactId>nsf-service-bus-server</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.camel</groupId>
-                    <artifactId>camel-jsonpath</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.camel</groupId>
-                    <artifactId>camel-cxf</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
     </dependencies>
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources/dev</directory>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-    </profiles>
+
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
-            <!--此插件会打出带original的war包，影响容器化部署-->
-            <!--<plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>-->
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>${argLine}</argLine>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/BaseTest.java</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <argLine>${surefireArgLine}</argLine>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
+                <version>0.8.3</version>
                 <executions>
                     <execution>
                         <id>default-prepare-agent</id>
@@ -616,7 +486,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>default-report</id>
+                        <id>report</id>
                         <phase>test</phase>
                         <goals>
                             <goal>report</goal>
@@ -626,18 +496,25 @@
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>1.0-rc-4</version>
-                <executions>
                     <execution>
+                        <id>jacoco-check</id>
                         <goals>
-                            <goal>generateStubs</goal>
-                            <goal>compile</goal>
+                            <goal>check</goal>
                         </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.8</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

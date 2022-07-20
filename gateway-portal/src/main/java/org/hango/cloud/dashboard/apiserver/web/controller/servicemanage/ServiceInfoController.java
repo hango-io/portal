@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Modified hanjiahao
  * 服务基本管理，包括服务创建，查询，修改
  * 服务元数据管理（g0网关和envoy网关不区分服务）

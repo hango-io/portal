@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 类型为Object的参数，其具体的value值
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/29 下午3:57.
  */
 public class ApiParamObject implements Serializable {

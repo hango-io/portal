@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * 服务 信息
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2017/12/26 15:57.
  */
 public class ServiceInfo implements Serializable {

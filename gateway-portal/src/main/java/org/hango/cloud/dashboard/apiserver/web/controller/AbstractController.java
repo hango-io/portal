@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Zhu Jianfeng (hzzhujianfeng@corp.netease.com)
+ * @author Zhu Jianfeng (hzzhujianfeng)
  * @version $Id: AbstractController.java, v 1.0 2017年3月24日 上午11:29:44
  */
 @Component

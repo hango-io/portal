@@ -6,7 +6,7 @@ import org.hango.cloud.gdashboard.api.meta.ApiParamType;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 16:20.
  */
 public interface IApiParamTypeService {

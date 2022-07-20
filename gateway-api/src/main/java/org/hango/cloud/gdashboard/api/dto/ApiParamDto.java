@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/29 下午5:51.
  */
 public class ApiParamDto implements Serializable {

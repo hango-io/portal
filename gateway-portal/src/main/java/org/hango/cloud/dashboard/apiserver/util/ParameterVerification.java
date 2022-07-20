@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  * 参数校验工具类
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2017/12/12 上午11:10.
  */
 public class ParameterVerification {

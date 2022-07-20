@@ -1,6 +1,6 @@
-//package com.netease.cloud.ncegdashboard.apiserver.Listener;
+//package org.hango.cloud.dashboard.apiserver.Listener;
 //
-//import com.netease.cloud.ncegdashboard.apiserver.service.IPluginInfoService;
+//import org.hango.cloud.dashboard.apiserver.service.IPluginInfoService;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@
 //import org.springframework.stereotype.Component;
 //
 ///**
-// * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+// * @Author: Wang Dacheng(wangdacheng)
 // * @Date: 创建时间: 2019/4/11 下午3:15.
 // */
 ////@Component

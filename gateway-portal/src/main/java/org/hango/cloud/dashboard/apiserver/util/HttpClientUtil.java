@@ -45,7 +45,7 @@ import java.util.Map.Entry;
 /**
  * HTTP请求工具类
  *
- * @author Feng Changjian (hzfengchj@corp.netease.com)
+ * @author Feng Changjian (hzfengchj)
  * @version $Id: HttpClientUtil.java, v 1.0 2013-8-2 下午03:36:54
  */
 public class HttpClientUtil {

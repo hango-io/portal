@@ -10,7 +10,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.hango.cloud</groupId>
     <artifactId>gateway-api</artifactId>
     <version>0.1.5-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -104,23 +103,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
     </dependencies>
-
-
-    <distributionManagement>
-        <repository>
-            <id>repo</id>
-            <name>Netease Maven Repository</name>
-            <url>http://mvn.hz.netease.com/artifactory/libs-releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>Netease Maven Repository</name>
-            <url>http://mvn.hz.netease.com/artifactory/libs-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 
     <build>
@@ -136,6 +119,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

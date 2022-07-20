@@ -12,7 +12,7 @@ import java.util.jar.JarOutputStream;
 /**
  * 代码打包类
  *
- * @author Hu Yuchao(huyuchao@corp.netease.com)
+ * @author Hu Yuchao(huyuchao)
  */
 public class CodePacker {
     /**

@@ -3,7 +3,7 @@ package org.hango.cloud.dashboard.apiserver.exception;
 /**
  * remote host is unreachable.
  *
- * @author hzfengchj(hzfengchj @ corp.netease.com)
+ * @author hzfengchj
  * @version $Id: NetworkUnReachableException.java, v 0.1 2012-6-13 下午02:55:01
  */
 public class NetworkUnReachableException extends Exception {

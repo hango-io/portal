@@ -42,7 +42,7 @@ import java.util.Set;
 
 
 /**
- * @author wengyanghui@corp.netease.com
+ * @author wengyanghui
  * @version 创建时间: 2017/12/4 上午10:33.
  * @Modified hanjiahao
  */

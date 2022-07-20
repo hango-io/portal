@@ -4,7 +4,7 @@ package org.hango.cloud.gdashboard.api.dao;
 import org.hango.cloud.gdashboard.api.meta.ApiModelParam;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 16:08.
  */
 public interface ApiModelParamDao extends IBaseDao<ApiModelParam> {

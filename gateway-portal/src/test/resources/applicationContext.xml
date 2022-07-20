@@ -14,7 +14,7 @@
           init-method="init" destroy-method="destroy">
     </bean>
 
-    <context:component-scan base-package="com.netease.cloud.gdashboard.api"/>
+    <context:component-scan base-package="org.hango.cloud.gdashboard.api"/>
 
     <bean id="cipherKey" class="java.lang.String">
         <constructor-arg type="java.lang.String" value="111111111111111111111111"/>

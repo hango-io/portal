@@ -6,7 +6,7 @@ import org.hango.cloud.dashboard.apiserver.meta.ServiceInfo;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2017/12/26 16:47.
  */
 public interface ServiceInfoDao extends IBaseDao<ServiceInfo> {

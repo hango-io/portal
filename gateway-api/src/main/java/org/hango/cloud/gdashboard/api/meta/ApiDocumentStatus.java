@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * API 文档状态，包含：开发中、联调中、提测、已上线
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/6/27 11:30.
  */
 public class ApiDocumentStatus implements Serializable {

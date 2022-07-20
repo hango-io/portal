@@ -6,7 +6,7 @@ import org.hango.cloud.gdashboard.api.meta.ApiBody;
 /**
  * 参数数据结构 用于请求字符串，请求体及响应体
  *
- * @author Hu Yuchao(huyuchao@corp.netease.com)
+ * @author Hu Yuchao(huyuchao)
  */
 public class BodyParameter {
     private String type;

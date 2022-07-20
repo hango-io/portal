@@ -29,7 +29,6 @@
     <modules>
         <module>gateway-api</module>
         <module>gateway-portal</module>
-        <module>nsf-service-bus</module>
     </modules>
 
 </project>

@@ -227,7 +227,7 @@ public class ZkClientUtils {
         }
         List<String> leafNodes = new ArrayList<>();
         for (String iNode : interfaceNodes) {
-            //eg. /dubbo/com.netease.cloud.nsf.demo.stock.api.EchoExtraService/providers/{url}
+            //eg. /dubbo/org.hango.cloud.nsf.demo.stock.api.EchoExtraService/providers/{url}
             leafNodes.addAll(getSubNode(INTERFACE_ARCH_ROOT + "/" + iNode + PROVIDERS, zkClient));
         }
         return leafNodes;

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Zhu Jianfeng (hzzhujianfeng@corp.netease.com)
+ * @author Zhu Jianfeng (hzzhujianfeng)
  * @version $Id: IBaseDao.java, v 1.0 2017年3月27日 下午4:53:35
  */
 public interface IBaseDao<T> {

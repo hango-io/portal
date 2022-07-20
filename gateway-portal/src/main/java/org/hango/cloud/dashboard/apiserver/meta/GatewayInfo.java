@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * 存储各个环境的信息
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/17 下午5:22.
  */
 public class GatewayInfo implements Serializable {

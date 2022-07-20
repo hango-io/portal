@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * SDK代码生成类
  *
- * @author Hu Yuchao(huyuchao@corp.netease.com)
+ * @author Hu Yuchao(huyuchao)
  */
 public class CodeGenerator {
 
@@ -37,7 +37,7 @@ public class CodeGenerator {
      */
     public static void generateDataModel(Template dataModelTemp, List<CreateApiModelDto> apiModelList, String UUID, String serviceName)
             throws IOException, TemplateException {
-        String responsePackName = "com.netease.cloud." + serviceName.toLowerCase() + ".model";
+        String responsePackName = "org.hango.cloud." + serviceName.toLowerCase() + ".model";
         String packagePath = responsePackName.replaceAll("\\.", "/");
 
         for (CreateApiModelDto apiModel : apiModelList) {
@@ -93,7 +93,7 @@ public class CodeGenerator {
         }
         File file = new File(filePath, "MENIFEST.MF");
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-            String content = "Manifest-Version: 1.0\nCreated-By: com.netease.cloud\n";
+            String content = "Manifest-Version: 1.0\nCreated-By: org.hango.cloud\n";
             byte[] data = content.getBytes(Const.DEFAULT_ENCODING);
             fileOutputStream.write(data);
         } catch (IOException e) {

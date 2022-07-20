@@ -9,8 +9,7 @@ package org.hango.cloud.dashboard.apiserver.meta;
  */
 public enum GatewayEnum {
     ENVOY("envoy"),
-    SCG("Spring Cloud Gateway");
-
+;
     private String type;
 
 

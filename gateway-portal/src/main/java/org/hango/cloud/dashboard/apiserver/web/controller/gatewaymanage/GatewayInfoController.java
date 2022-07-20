@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.dashboard.apiserver.aop.Audit;
-import org.hango.cloud.dashboard.apiserver.aop.SpecResourceAlteration;
 import org.hango.cloud.dashboard.apiserver.dto.auditdto.ResourceDataDto;
 import org.hango.cloud.dashboard.apiserver.dto.gatewaydto.EasyGatewayDto;
 import org.hango.cloud.dashboard.apiserver.dto.gatewaydto.GatewayDto;
@@ -15,14 +14,11 @@ import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCodeEnum;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayProjectService;
 import org.hango.cloud.dashboard.apiserver.service.apigateway.IGetInfoFromGatewayService;
-import org.hango.cloud.dashboard.apiserver.service.impl.permission.IServicePermissionService;
 import org.hango.cloud.dashboard.apiserver.util.AuditResourceHolder;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.apiserver.web.controller.AbstractController;
 import org.hango.cloud.dashboard.apiserver.web.holder.ProjectTraceHolder;
 import org.hango.cloud.dashboard.common.distributedlock.MethodReentrantLock;
-import org.hango.cloud.dashboard.envoy.handler.PluginSpecResourceHandler;
-import org.hango.cloud.dashboard.envoy.handler.PublishSpecResourceHandler;
 import org.hango.cloud.dashboard.envoy.meta.EnvoyVirtualHostInfo;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyGatewayService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyIstioGatewayService;
@@ -51,7 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Modified hanjiahao
  * 网关基本管理，包括创建网关、删除网关、查询网关基本信息
  */
@@ -61,8 +57,7 @@ import java.util.stream.Collectors;
 public class GatewayInfoController extends AbstractController {
 
     private static Logger logger = LoggerFactory.getLogger(GatewayInfoController.class);
-    @Autowired
-    IServicePermissionService servicePermissionService;
+
     @Autowired
     private IGatewayInfoService gatewayInfoService;
     @Autowired
@@ -71,14 +66,12 @@ public class GatewayInfoController extends AbstractController {
     private IEnvoyGatewayService envoyGatewayService;
     @Autowired
     private IEnvoyIstioGatewayService envoyIstioGatewayService;
-    @Autowired
-    private IGatewayProjectService gatewayProjectService;
+
 
 
     @MethodReentrantLock
     @RequestMapping(params = {"Action=CreateGateway"}, method = RequestMethod.POST)
     @Audit(eventName = "CreateGwInfo", description = "创建网关")
-    @SpecResourceAlteration(clazz = {PublishSpecResourceHandler.class, PluginSpecResourceHandler.class})
     public Object addGwInfo(@Validated @RequestBody GatewayDto gatewayDto) {
         //操作审计记录资源名称
         ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_GATEWAY, null, gatewayDto.getGwName());
@@ -94,13 +87,6 @@ public class GatewayInfoController extends AbstractController {
                 logger.warn("调用ApiPlane创建网关失败,请检查网络连接");
                 return apiReturn(CommonErrorCode.UpdateToGwFailure);
             }
-        }
-        //SCG 暂不提供审计监控能力
-        if (!Const.SCG_GATEWAY_TYPE.equals(gatewayDto.getGwType())) {
-            errorCode = gatewayInfoService.checkCommonDataParam(gatewayDto);
-        }
-        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
-            return apiReturn(errorCode);
         }
         long gwId = gatewayInfoService.addGatewayByMetaDto(gatewayDto);
         resource.setResourceId(gwId);
@@ -171,7 +157,6 @@ public class GatewayInfoController extends AbstractController {
     @MethodReentrantLock
     @RequestMapping(params = {"Action=DeleteGateway"}, method = RequestMethod.GET)
     @Audit(eventName = "DeleteGwInfo", description = "删除网关")
-    @SpecResourceAlteration(clazz = {PublishSpecResourceHandler.class, PluginSpecResourceHandler.class})
     public Object deleteGwInfo(@RequestParam(value = "GwId") long id) {
         //操作审计记录资源名称
         GatewayInfo gatewayInfo = gatewayInfoService.get(id);
@@ -213,7 +198,6 @@ public class GatewayInfoController extends AbstractController {
     @MethodReentrantLock
     @RequestMapping(params = {"Action=UpdateGateway"}, method = RequestMethod.POST)
     @Audit(eventName = "UpdateGwInfo", description = "修改环境信息")
-    @SpecResourceAlteration(clazz = {PublishSpecResourceHandler.class, PluginSpecResourceHandler.class})
     public Object updateGwInfo(@Validated @RequestBody GatewayDto gatewayDto) {
         logger.info("修改网关信息,gatewayInfo:", gatewayDto.toString());
 
@@ -229,13 +213,6 @@ public class GatewayInfoController extends AbstractController {
         if (!gatewayInfoService.updateGwInfo(GatewayDto.toMeta(gatewayDto), false)) {
             logger.info("更新网关失败");
             return apiReturn(CommonErrorCode.InternalServerError);
-        }
-        //SCG 暂不提供审计监控能力
-        if (!Const.SCG_GATEWAY_TYPE.equals(gatewayDto.getGwType())) {
-            errorCode = gatewayInfoService.checkCommonDataParam(gatewayDto);
-        }
-        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
-            return apiReturn(errorCode);
         }
         return apiReturn(CommonErrorCode.Success);
     }

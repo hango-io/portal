@@ -554,7 +554,7 @@ public class EnvoyHealthCheckServiceImpl implements IEnvoyHealthCheckService {
 
     static class InnerEnvoyServiceInstance implements Serializable {
         /**
-         * 如果是动态发布则为service域名，如果是静态发布则为com.netease.static-{serviceId}
+         * 如果是动态发布则为service域名
          */
         @JSONField(name = "Name")
         private String Name;

@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 用于记录对API的操作
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/4/24 19:47.
  */
 public class OperationLog implements Serializable {

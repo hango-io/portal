@@ -3,6 +3,7 @@ package org.hango.cloud.dashboard.apiserver.dao.impl;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.dashboard.apiserver.dao.GatewayInfoDao;
 import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
 import org.hango.cloud.dashboard.apiserver.util.Const;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/17 下午5:25.
  */
 @Component
@@ -115,33 +116,41 @@ public class GatewayInfoDaoImpl extends BaseDao implements GatewayInfoDao {
 
     @Override
     public List<GatewayInfo> getGatewayInfoByProjectIdAndLimit(String pattern, long offset, long limit, long projectId) {
-        String sql = null;
+        StringBuilder sql = new StringBuilder();
         Map<String, Object> params = new HashMap<String, Object>();
+        sql.append("select * from apigw_gportal_gateway_info where 1=1 ");
+        if (projectId > NumberUtils.LONG_ONE){
+            sql.append("and find_in_set(:projectId,project_id) ");
+            params.put("projectId", projectId);
+        }
         //支持根据网关名称的模糊匹配
         if (StringUtils.isNotBlank(pattern)) {
-            sql = "select * from apigw_gportal_gateway_info where find_in_set(:projectId,project_id) and (gw_name like :pattern or env_id like :pattern) order by gw_type desc limit :limit offset :offset";
+            sql.append("and (gw_name like :pattern or env_id like :pattern) ") ;
             params.put("pattern", "%" + pattern + "%");
-        } else {
-            sql = "select * from apigw_gportal_gateway_info where find_in_set(:projectId,project_id) order by gw_type desc limit :limit offset :offset";
         }
+        sql.append("order by gw_type desc limit :limit offset :offset");
         params.put("offset", offset);
         params.put("limit", limit);
-        params.put("projectId", projectId);
-        return namedParameterJdbcTemplate.query(sql, params, new GatewayInfoRowMapper());
+
+        return namedParameterJdbcTemplate.query(sql.toString(), params, new GatewayInfoRowMapper());
     }
 
     @Override
     public List<GatewayInfo> getGatewayInfoByProjectId(String pattern, long projectId) {
-        String sql = null;
+        StringBuilder sql = new StringBuilder();
         Map<String, Object> params = new HashMap<String, Object>();
-        if (StringUtils.isNotBlank(pattern)) {
-            sql = "select * from apigw_gportal_gateway_info where find_in_set(:projectId,project_id) and (gw_name like :pattern or env_id like :pattern)  order by id desc";
-            params.put("pattern", "%" + pattern + "%");
-        } else {
-            sql = "select * from apigw_gportal_gateway_info where find_in_set(:projectId,project_id) order by id desc";
+        sql.append("select * from apigw_gportal_gateway_info where 1=1 ");
+        if (projectId > NumberUtils.LONG_ONE){
+            sql.append("and find_in_set(:projectId,project_id) ");
+            params.put("projectId", projectId);
         }
-        params.put("projectId", projectId);
-        return namedParameterJdbcTemplate.query(sql, params, new GatewayInfoRowMapper());
+        //支持根据网关名称的模糊匹配
+        if (StringUtils.isNotBlank(pattern)) {
+            sql.append("and (gw_name like :pattern or env_id like :pattern) ") ;
+            params.put("pattern", "%" + pattern + "%");
+        }
+        sql.append(" order by id desc");
+        return namedParameterJdbcTemplate.query(sql.toString(), params, new GatewayInfoRowMapper());
     }
 
     @Override
@@ -154,11 +163,14 @@ public class GatewayInfoDaoImpl extends BaseDao implements GatewayInfoDao {
 
     @Override
     public List<Long> getGwIdListByNameFuzzy(String gwName, long projectId) {
-        String sql = "select id from apigw_gportal_gateway_info where gw_name like :gwName and find_in_set(:projectId, project_id)";
+        StringBuilder sql = new StringBuilder("select id from apigw_gportal_gateway_info where gw_name like :gwName ");
         Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        if (projectId > NumberUtils.LONG_ONE){
+            sql.append("and find_in_set(:projectId,project_id)");
+            params.put("projectId", projectId);
+        }
         params.put("gwName", "%" + gwName + "%");
-        params.put("projectId", projectId);
-        return namedParameterJdbcTemplate.queryForList(sql, params, Long.class);
+        return namedParameterJdbcTemplate.queryForList(sql.toString(), params, Long.class);
     }
 
     @Override

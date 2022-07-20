@@ -21,7 +21,6 @@ public class RedisService implements IRedisService {
 
     private static final String PROCESS_PREFIX = "process_%s";
 
-    @Resource(name = "redisTemplate")
     private RedisTemplate client;
 
     @Override

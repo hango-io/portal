@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * global constants.
  *
- * @author Feng Changjian (hzfengchj@corp.netease.com)
+ * @author Feng Changjian (hzfengchj)
  * @version $Id: Const.java, v 1.0 2013-8-2 下午03:59:33
  */
 public class Const {
@@ -434,7 +434,6 @@ public class Const {
     public static final String POLICY_UNBIND = "UNBIND";
 
     public static final String ENVOY_GATEWAY_TYPE = "envoy";
-    public static final String SCG_GATEWAY_TYPE = "Spring Cloud Gateway";
     public static final Set<String> CONST_METHODS = new HashSet<>(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH", "OPTIONS", "TRACE", "CONNECT"));
 
     public static final Set<String> SORT_KEY = new HashSet<>(Arrays.asList("create_time", "priority"));
@@ -446,7 +445,6 @@ public class Const {
     public static final Set<Integer> HTTP_STATUS_CODE = new HashSet<Integer>(Arrays.asList(100, 101, 103, 200, 201, 202, 203, 204, 205, 206, 300, 301, 302, 303, 304, 307,
             308, 400, 401, 402, 403, 404, 405, 406, 407, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 422, 425, 426, 428, 429, 431, 451, 500, 502, 503, 504, 505, 511));
     public static final String GLOBAL_PLUGIN_TRACE = "neTraceFileLog";
-    public static final String PLUGIN_NAME_RETRY = "com.netease.resty";
     /**
      * 流量染色插件的plugin_type
      */
@@ -466,7 +464,7 @@ public class Const {
     public static final String HEADER_DUBBO_PARAMS = "x-dubbo-params";
     public static final String HEADER_DUBBO_CUSTOM_PARAMS_MAPPING_SWITCH = "x-dubbo-custom-param-mapping-switch";
     public static final String DUBBO_SERVICE_SUFFIX = ".dubbo";
-    public static final String DUBBO_META_REFRESH_KEY_TEMPLATE = "api-gateway-dubbo-meta-%d-%s";
+    public static final String DUBBO_META_REFRESH_KEY_TEMPLATE = "api-gateway-dubbo-org.hango.cloud.dashboard.meta-%d-%s";
     public static final String SCOPE_TYPE_TENANT = "tenant";
     public static final String SCOPE_TYPE_PROJECT = "project";
     /**

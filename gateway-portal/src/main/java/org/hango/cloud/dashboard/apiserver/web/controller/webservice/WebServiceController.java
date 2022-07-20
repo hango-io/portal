@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * 解析wsdl文件中的接口名和方法名
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2019/1/7 下午5:32.
  */
 @RestController

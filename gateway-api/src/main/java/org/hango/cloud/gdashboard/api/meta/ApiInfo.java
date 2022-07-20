@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * API 基本信息
  *
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2017/12/28 19:16.
  */
 public class ApiInfo implements Serializable {

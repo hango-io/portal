@@ -5,7 +5,7 @@ import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/17 下午5:25.
  */
 public interface GatewayInfoDao extends IBaseDao<GatewayInfo> {

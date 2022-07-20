@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
- * @author Weng Yanghui (wengyanghui@corp.netease.com)
+ * @author Weng Yanghui (wengyanghui)
  * @version $Id: Const.java, v 1.0 2018/2/8
  */
 @Configuration

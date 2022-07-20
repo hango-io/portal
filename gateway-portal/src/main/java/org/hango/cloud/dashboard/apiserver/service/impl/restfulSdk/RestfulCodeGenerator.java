@@ -30,7 +30,7 @@ import java.util.Map;
 @Service
 public class RestfulCodeGenerator {
     private static Logger logger = LoggerFactory.getLogger(RestfulCodeGenerator.class);
-    private static String pacakgePrefix = "com.netease.cloud.";
+    private static String pacakgePrefix = "org.hango.cloud.";
     private static String packagePost = ".model";
     private static String clientPackagePost = ".client";
     private static String sdkPrefix = "java-sdk-";

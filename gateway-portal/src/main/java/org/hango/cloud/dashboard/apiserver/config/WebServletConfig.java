@@ -4,14 +4,13 @@ import org.hango.cloud.dashboard.apiserver.web.filter.AuditGatewayIdFilter;
 import org.hango.cloud.dashboard.apiserver.web.filter.LogUUIDFilter;
 import org.hango.cloud.dashboard.apiserver.web.filter.ProjectTraceFilter;
 import org.hango.cloud.dashboard.apiserver.web.filter.RequestContextHolderFilter;
-import org.hango.cloud.dashboard.apiserver.web.filter.ServicePermissionFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
- * @author Zhu Jianfeng (hzzhujianfeng@corp.netease.com)
+ * @author Zhu Jianfeng (hzzhujianfeng)
  * @version $Id: WebServletConfig.java, v 1.0 2017年3月24日 下午4:46:11
  */
 @Configuration
@@ -47,16 +46,6 @@ public class WebServletConfig extends WebMvcConfigurerAdapter {
         return registration;
     }
 
-
-    @Bean
-    public FilterRegistrationBean servicePermissionReg() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(new ServicePermissionFilter());
-        registration.addUrlPatterns("/*");
-        registration.setName(ServicePermissionFilter.class.getSimpleName());
-        registration.setOrder(4);
-        return registration;
-    }
 
     @Bean
     public FilterRegistrationBean auditGatewayIdFilterReg() {

@@ -6,7 +6,7 @@ import org.hango.cloud.gdashboard.api.meta.ApiHeader;
 import java.util.List;
 
 /**
- * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
+ * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2018/1/2 15:46.
  */
 public interface ApiHeaderDao extends IBaseDao<ApiHeader> {
