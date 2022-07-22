@@ -9,8 +9,6 @@ import com.google.protobuf.UnknownFieldSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMethod;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +65,8 @@ public class GrpcUtil {
             in = new FileInputStream(file);
             byte[] bytes = new byte[(int) file.length()];
             in.read(bytes);
-            base64Code = new BASE64Encoder().encode(bytes);
+            Base64.Encoder encoder = Base64.getEncoder();
+            base64Code = encoder.encodeToString(bytes);
         } catch (FileNotFoundException e) {
             logger.info("读取文件时，该文件不存在", e);
         } catch (IOException e) {
@@ -93,8 +93,9 @@ public class GrpcUtil {
     public static byte[] base64ToByte(String base64Code) {
         byte[] bytes = null;
         try {
-            bytes = new BASE64Decoder().decodeBuffer(base64Code);
-        } catch (IOException e) {
+            Base64.Decoder decoder = Base64.getDecoder();
+            bytes = decoder.decode(base64Code);
+        } catch (Exception e) {
             logger.warn("将base64字符串转换为byte数组失败，base64为{}", base64Code, e);
         }
         return bytes;
