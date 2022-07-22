@@ -8,12 +8,12 @@ import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IServiceInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.envoy.innerdto.EnvoyActiveHealthCheckRuleDto;
 import org.hango.cloud.dashboard.envoy.innerdto.EnvoyPassiveHealthCheckRuleDto;
 import org.hango.cloud.dashboard.envoy.innerdto.EnvoyServiceWithPortDto;
 import org.hango.cloud.dashboard.envoy.meta.ServiceProxyInfo;
+import org.hango.cloud.dashboard.envoy.service.IGetFromApiPlaneService;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceConnectionPoolDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceLoadBalancerDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyServiceTrafficPolicyDto;
@@ -25,9 +25,11 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -45,21 +47,18 @@ import static org.junit.Assert.assertTrue;
 ////@AutoConfigureMockMvc
 //@PowerMockIgnore("javax.management.*")
 //@PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
-public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
-    private static final Logger logger = LoggerFactory.getLogger(EnvoyEnvoyServiceProxyServiceImplTest.class);
+public class EnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
+    private static final Logger logger = LoggerFactory.getLogger(EnvoyServiceProxyServiceImplTest.class);
 
     @Autowired
     private IServiceInfoService serviceInfoService;
     @Autowired
     @InjectMocks
-    private IServiceProxyService serviceProxyService;
+    private EnvoyServiceProxyServiceImpl serviceProxyService;
     @Autowired
     private IGatewayInfoService gatewayInfoService;
-    @Autowired
-    @InjectMocks
-    private EnvoyServiceProxyServiceImpl envoyServiceProxyServiceImpl;
-    @Mock
-    private GetFromApiPlaneServiceImpl getFromApiPlaneService;
+    @MockBean
+    private IGetFromApiPlaneService getFromApiPlaneService;
 
     private ServiceInfo serviceInfo;
     private GatewayInfo gatewayInfo;
@@ -82,7 +81,6 @@ public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
 
     @Before
     public void init() {
-
         Mockito.when(getFromApiPlaneService.publishServiceByApiPlane(Mockito.any(), Mockito.any())).thenReturn(true);
         Mockito.doReturn(true).when(getFromApiPlaneService).offlineServiceByApiPlane(Mockito.any(), Mockito.any());
 //        Mockito.doReturn(Lists.newArrayList()).when(getFromApiPlaneService).getServiceListFromApiPlane(Mockito.any(),
@@ -192,11 +190,11 @@ public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
      */
     @Test
     public void checkEnvoyServiceProxyDto() {
-        ErrorCode errorCode = envoyServiceProxyServiceImpl.checkEnvoyServiceProxyDto(serviceProxyDto);
+        ErrorCode errorCode = serviceProxyService.checkEnvoyServiceProxyDto(serviceProxyDto);
         assertEquals(CommonErrorCode.Success.getCode(), errorCode.getCode());
 
         //校验静态发布
-        errorCode = envoyServiceProxyServiceImpl.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
+        errorCode = serviceProxyService.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
         assertEquals(CommonErrorCode.Success.getCode(), errorCode.getCode());
 
         //静态发布其版本中配置的地址要包含在服务发布的地址中
@@ -204,7 +202,7 @@ public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
         staticAddrList.add("127.0.0.1:9999");
         staticSubsetDto.setStaticAddrList(staticAddrList);
         envoyStaticServiceProxyDto.setSubsets(Arrays.asList(new EnvoySubsetDto[]{staticSubsetDto}));
-        errorCode = envoyServiceProxyServiceImpl.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
+        errorCode = serviceProxyService.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
         assertEquals(CommonErrorCode.InvalidSubsetStaticAddr.getCode(), errorCode.getCode());
 
         //同一个版本里配置的静态地址不能重复
@@ -213,7 +211,7 @@ public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
         staticAddrList.add("127.0.0.1:8888");
         staticSubsetDto.setStaticAddrList(staticAddrList);
         envoyStaticServiceProxyDto.setSubsets(Arrays.asList(new EnvoySubsetDto[]{staticSubsetDto}));
-        errorCode = envoyServiceProxyServiceImpl.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
+        errorCode = serviceProxyService.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
         assertEquals(CommonErrorCode.DuplicatedSubsetStaticAddr.getCode(), errorCode.getCode());
 
         //每个地址仅能出现在0或1个版本中
@@ -226,7 +224,7 @@ public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
         EnvoySubsetDto staticSubsetDtoNew = new EnvoySubsetDto();
         staticSubsetDtoNew.setStaticAddrList(staticAddrList);
         envoyStaticServiceProxyDto.setSubsets(Arrays.asList(new EnvoySubsetDto[]{staticSubsetDto, staticSubsetDtoNew}));
-        errorCode = envoyServiceProxyServiceImpl.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
+        errorCode = serviceProxyService.checkEnvoyServiceProxyDto(envoyStaticServiceProxyDto);
         assertEquals(CommonErrorCode.DuplicatedStaticAddr.getCode(), errorCode.getCode());
     }
 
@@ -259,7 +257,7 @@ public class EnvoyEnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
 
     @Test
     public void getEnvoyServiceProxyByLimit() {
-        serviceProxyService.publishServiceToGw(serviceProxyDto);
+        long l = serviceProxyService.publishServiceToGw(serviceProxyDto);
         long projectid = serviceInfoService.getServiceByServiceId(serviceId).getProjectId();
         List<ServiceProxyInfo> envoyServiceProxyByLimit = serviceProxyService.getEnvoyServiceProxy(gwId, serviceId, projectId, 0, 100);
         assertTrue(envoyServiceProxyByLimit.size() > 0);
