@@ -72,9 +72,18 @@ public class ServiceProxyController extends AbstractController {
     private IGetFromApiPlaneService getFromApiPlaneService;
     @Autowired
     private IServiceInfoService serviceInfoService;
-    @Autowired
-    private IGatewayProjectService gatewayProjectService;
 
+    @RequestMapping(params = {"Action=DescribeRegistryTypes"}, method = RequestMethod.GET)
+    public String describeRegistryTypes(@RequestParam(value = "ServiceType") String serviceType) {
+        ErrorCode errorCode = serviceInfoService.checkServiceType(serviceType);
+        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+            return apiReturn(errorCode);
+        }
+        Map<String, Object> result = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        List<String> registryTypes = registryCenterService.describeRegistryTypesByServiceType(serviceType);
+        result.put("RegistryTypes", registryTypes);
+        return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, result);
+    }
 
     @RequestMapping(params = {"Action=DescribeServiceListByGw"}, method = RequestMethod.GET)
     public String describeServiceList(@RequestParam(value = "GwId") long gwId,

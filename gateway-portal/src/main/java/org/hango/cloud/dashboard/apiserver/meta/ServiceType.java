@@ -17,17 +17,17 @@ public enum ServiceType {
 
 
     /**
-     * 获取服务类别（默认HTTP服务）
+     * 获取服务类别（无默认值）
      *
      * @param serviceType
      * @return
      */
-    public static String getByName(String serviceType) {
+    public static ServiceType getServiceTypeByName(String serviceType) {
         for (ServiceType type : ServiceType.values()) {
             if (type.name().equalsIgnoreCase(serviceType)) {
-                return type.name();
+                return type;
             }
         }
-        return http.name();
+        return null;
     }
 }

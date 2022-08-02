@@ -150,4 +150,11 @@ public interface IServiceInfoService {
      * @return {@link List<ServiceInfo>} 服务详情列表
      */
     List<ServiceInfo> getServiceInfoList(List<Long> serviceIdList);
+
+    /**
+     * 校验serviceType是否合法
+     * @param serviceType
+     * @return
+     */
+    ErrorCode checkServiceType(String serviceType);
 }

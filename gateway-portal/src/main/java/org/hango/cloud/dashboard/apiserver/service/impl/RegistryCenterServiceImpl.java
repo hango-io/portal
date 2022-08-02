@@ -2,12 +2,14 @@ package org.hango.cloud.dashboard.apiserver.service.impl;
 
 import com.ecwid.consul.v1.ConsulClient;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.dashboard.apiserver.dao.IRegistryCenterDao;
 import org.hango.cloud.dashboard.apiserver.dto.RegistryCenterDto;
 import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterEnum;
 import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterInfo;
+import org.hango.cloud.dashboard.apiserver.meta.ServiceType;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.service.IRegistryCenterService;
@@ -19,9 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +41,13 @@ public class RegistryCenterServiceImpl implements IRegistryCenterService {
     @Autowired
     private IRegistryCenterDao registryCenterDao;
 
+    private static final Map<String, Set<RegistryCenterEnum>> SERVICE_TYPE_2_REGISTER_TYPES_MAP = new HashMap<>();
+
+    static {
+        SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.dubbo.name(), Sets.newHashSet(RegistryCenterEnum.Zookeeper));
+        SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.webservice.name(), Sets.newHashSet(RegistryCenterEnum.Kubernetes));
+        SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.http.name(), Sets.newHashSet(RegistryCenterEnum.Nacos, RegistryCenterEnum.Kubernetes, RegistryCenterEnum.Eureka));
+    }
     @Override
     public void saveRegistryCenter(RegistryCenterDto registryCenter) {
         RegistryCenterInfo centerInfo = RegistryCenterDto.trans(registryCenter);
@@ -189,5 +196,29 @@ public class RegistryCenterServiceImpl implements IRegistryCenterService {
     public List<String> getApplicationsFromConsul(String registryCenter) {
         ConsulClient defaultConsulClient = ConsulClientUtils.getDefaultConsulClient(registryCenter);
         return ConsulClientUtils.getApplications(defaultConsulClient, ConsulClientUtils.getDataCenter(registryCenter));
+    }
+
+    @Override
+    public List<String> describeRegistryTypesByServiceType(String serviceType) {
+        List<RegistryCenterInfo> registryCenterInfos = registryCenterDao.findAll();
+        List<String> currentRegistryList = CollectionUtils.isEmpty(registryCenterInfos) ? new ArrayList<>()
+                : registryCenterInfos.stream().map(RegistryCenterInfo::getRegistryType).collect(Collectors.toList());
+        //k8s注册中心不在注册中心表中，且默认支持
+        currentRegistryList.add(RegistryCenterEnum.Kubernetes.getType());
+        return filterAndSort(serviceType, currentRegistryList);
+    }
+
+    private static List<String> filterAndSort(String serviceType, List<String> registryList) {
+        Set<RegistryCenterEnum> registryTypeSet = registryList.stream()
+                .map(RegistryCenterEnum::get)
+                .collect(Collectors.toSet());
+
+        registryTypeSet.add(RegistryCenterEnum.Kubernetes);
+        return registryTypeSet.stream()
+                .filter(registryType -> SERVICE_TYPE_2_REGISTER_TYPES_MAP.containsKey(serviceType)
+                        && SERVICE_TYPE_2_REGISTER_TYPES_MAP.get(serviceType).contains(registryType))
+                .sorted(Comparator.comparingInt(RegistryCenterEnum::getOrder))
+                .map(RegistryCenterEnum::getType)
+                .collect(Collectors.toList());
     }
 }
