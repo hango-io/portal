@@ -93,4 +93,10 @@ public interface IRegistryCenterService {
      */
     List<String> getApplicationsFromConsul(String registryCenter);
 
+    /**
+     * 根据服务类型查询支持的注册中心类型
+     * @param serviceType
+     * @return
+     */
+    List<String> describeRegistryTypesByServiceType(String serviceType);
 }

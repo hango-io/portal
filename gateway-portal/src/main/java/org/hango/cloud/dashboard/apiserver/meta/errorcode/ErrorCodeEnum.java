@@ -178,6 +178,8 @@ public enum ErrorCodeEnum {
     //服务相关
     CannotUpdateService("CannotUpdateService", "You can't update service until offline the service", "在下线服务之前，不能修改服务的基本信息", 400),
     ServicePublishedUpdateLimit("ServicePublishedUpdateLimit", "You can't update service publish type", "不能更新发布服务的发布方式", 400),
+
+    ServiceTypeInvalid("ServiceTypeInvalid", "Service type is invalid", "服务类型不合法", 400),
     CannotUpdateServiceName("CannotUpdateServiceName", "You can't update service name cause of sync", "从元数据同步服务，不允许修改服务名称", 400),
     CannotDeleteOnlineService("CannotDeleteOnlineService", "You can't delete service until offline the service", "在下线服务之前，不能删除服务", 400),
     CannotDeleteApiService("CannotDeleteApiService", "You can't delete service until delete all apis", "在删除api前，不能删除服务", 400),

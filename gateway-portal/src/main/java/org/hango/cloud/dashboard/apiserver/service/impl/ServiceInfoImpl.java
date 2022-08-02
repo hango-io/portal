@@ -6,6 +6,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.dashboard.apiserver.dao.ServiceInfoDao;
 import org.hango.cloud.dashboard.apiserver.dto.servicedto.ServiceInfoDto;
 import org.hango.cloud.dashboard.apiserver.meta.ServiceInfo;
+import org.hango.cloud.dashboard.apiserver.meta.ServiceType;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.service.IServiceInfoService;
@@ -242,5 +243,13 @@ public class ServiceInfoImpl implements IServiceInfoService {
 
         List<ServiceInfo> serviceInfoList = serviceInfoDao.getServiceInfoList(serviceIdList);
         return CollectionUtils.isEmpty(serviceIdList) ? Lists.newArrayList() : serviceInfoList;
+    }
+
+    @Override
+    public ErrorCode checkServiceType(String serviceType) {
+        if (ServiceType.getServiceTypeByName(serviceType) == null) {
+            return CommonErrorCode.ServiceTypeInvalid;
+        }
+        return CommonErrorCode.Success;
     }
 }

@@ -61,6 +61,7 @@ public class CommonErrorCode extends ErrorCode {
     public static ErrorCode CannotDownloadSDK = new ErrorCode(ErrorCodeEnum.CannotDownloadServiceSDK);
     public static ErrorCode NoSuchService = new ErrorCode(ErrorCodeEnum.NoSuchService);
     public static ErrorCode ServicePublishedUpdateLimit = new ErrorCode(ErrorCodeEnum.ServicePublishedUpdateLimit);
+    public static ErrorCode ServiceTypeInvalid = new ErrorCode(ErrorCodeEnum.ServiceTypeInvalid);
     /**
      * 授权相关
      */
