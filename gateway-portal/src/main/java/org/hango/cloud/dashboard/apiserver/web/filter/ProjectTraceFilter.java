@@ -47,7 +47,12 @@ public class ProjectTraceFilter implements Filter {
             HttpServletResponse res = (HttpServletResponse) response;
             String projectIdHeader = req.getHeader(ProjectTraceHolder.PROJECT_TRACE_ID);
             String tenantIdHeader = req.getHeader(ProjectTraceHolder.TENANT_TRACE_ID);
-
+            if (StringUtils.isBlank(projectIdHeader)) {
+               projectIdHeader = "1";
+            }
+             if (StringUtils.isBlank(tenantIdHeader)) {
+               tenantIdHeader = "1";
+            }
             String uri = req.getRequestURI();
             //非api开头的接口不进行判断
             if (Const.NO_USERPERMISSION.contains(uri) || StringUtils.isNotBlank(ActionIgnoreProject.getActionIgnoreProject(request.getParameter("Action")))) {
