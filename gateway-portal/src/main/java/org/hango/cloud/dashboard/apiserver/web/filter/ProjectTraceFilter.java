@@ -47,6 +47,7 @@ public class ProjectTraceFilter implements Filter {
             HttpServletResponse res = (HttpServletResponse) response;
             String projectIdHeader = req.getHeader(ProjectTraceHolder.PROJECT_TRACE_ID);
             String tenantIdHeader = req.getHeader(ProjectTraceHolder.TENANT_TRACE_ID);
+            //add default project
             if (StringUtils.isBlank(projectIdHeader)) {
                projectIdHeader = "1";
             }
