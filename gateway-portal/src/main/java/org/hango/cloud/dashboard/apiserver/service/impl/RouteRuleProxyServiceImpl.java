@@ -70,6 +70,8 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
     private IEnvoyWebServiceService webServiceService;
 
 
+    @Autowired
+    private ITrafficMarkService trafficMarkService;
     @Override
     public ErrorCode checkPublishParam(RouteRuleProxyDto routeRuleProxyDto) {
         RouteRuleInfo routeRuleInfo = routeRuleInfoService.getRouteRuleInfoById(routeRuleProxyDto.getRouteRuleId());
@@ -553,6 +555,10 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
 
     @Override
     public ErrorCode checkDeleteRouteRuleProxy(long gwId, long routeRuleId, List<Long> serviceIds) {
+        List<TrafficMarkInfo> trafficMarkInfos = trafficMarkService.getTrafficColorRulesByRouteRuleId(routeRuleId);
+        if (CollectionUtils.isNotEmpty(trafficMarkInfos)) {
+            return CommonErrorCode.RouteHasTrafficMarkRules;
+        }
         Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
         params.put("gwId", gwId);
         params.put("routeRuleId", routeRuleId);

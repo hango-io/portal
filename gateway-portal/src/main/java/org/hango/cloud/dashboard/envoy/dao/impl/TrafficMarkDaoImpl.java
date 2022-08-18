@@ -1,6 +1,7 @@
 package org.hango.cloud.dashboard.envoy.dao.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.hango.cloud.dashboard.apiserver.dao.impl.BaseDao;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.envoy.dao.ITrafficMarkDao;
@@ -14,12 +15,15 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 网关流量染色相关dao
@@ -92,6 +96,31 @@ public class TrafficMarkDaoImpl extends BaseDao implements ITrafficMarkDao {
     public long getCount() {
         String sql = "select count(*) from apigw_gportal_entry_traffic_policy";
         return namedParameterJdbcTemplate.queryForObject(sql, new HashMap<>(0), Long.class);
+    }
+
+    @Override
+    public List<TrafficMarkInfo> getTrafficColorRulesByRouteRuleId(long routeRuleId) {
+        String sql = "select * from apigw_gportal_entry_traffic_policy where route_rule_ids like :pattern";
+        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        params.put("pattern", "%" + routeRuleId + "%");
+        List<TrafficMarkInfo> trafficMarkInfos = namedParameterJdbcTemplate.query(sql, params, new TrafficMarkRowMapper());
+        // 因路由id为like匹配故需要recheck过滤
+        return CollectionUtils.isEmpty(trafficMarkInfos) ? Collections.emptyList() :
+                trafficMarkInfos.stream()
+                        .filter(trafficMarkInfo -> isTrafficMarkMatchRouteRuleId(trafficMarkInfo, routeRuleId))
+                        .collect(Collectors.toList());
+    }
+
+    private boolean isTrafficMarkMatchRouteRuleId(TrafficMarkInfo trafficMarkInfo, long routeRuleId) {
+        if (trafficMarkInfo == null || StringUtils.isEmpty(trafficMarkInfo.getRouteRuleIds())) {
+            return false;
+        }
+        for (String rId : trafficMarkInfo.getRouteRuleIds().split(",")) {
+            if (rId.equals(String.valueOf(routeRuleId))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

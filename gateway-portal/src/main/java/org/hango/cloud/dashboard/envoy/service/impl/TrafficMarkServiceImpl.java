@@ -428,6 +428,11 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
         return CommonErrorCode.Success;
     }
 
+    @Override
+    public List<TrafficMarkInfo> getTrafficColorRulesByRouteRuleId(long routeRuleId) {
+        return envoyTrafficColorDao.getTrafficColorRulesByRouteRuleId(routeRuleId);
+    }
+
     /**
      * 将前台的匹配规则转换为服务envoy格式的匹配规则
      *

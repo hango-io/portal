@@ -150,4 +150,6 @@ public interface ITrafficMarkService {
      * @return 操作结果
      */
     ErrorCode disableTrafficMarkPlugin(Long trafficMarkRuleId);
+
+    List<TrafficMarkInfo> getTrafficColorRulesByRouteRuleId(long routeRuleId);
 }
