@@ -35,4 +35,6 @@ public interface ITrafficMarkDao extends IBaseDao<TrafficMarkInfo> {
      * @return
      */
     long getCount();
+
+    List<TrafficMarkInfo> getTrafficColorRulesByRouteRuleId(long routeRuleId);
 }

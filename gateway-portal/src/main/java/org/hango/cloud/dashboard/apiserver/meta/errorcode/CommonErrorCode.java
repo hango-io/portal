@@ -202,6 +202,8 @@ public class CommonErrorCode extends ErrorCode {
     public static ErrorCode MirrorByRouteRule = new ErrorCode(ErrorCodeEnum.MirrorByRouteRule);
     public static ErrorCode RouteRuleNotPublished = new ErrorCode(ErrorCodeEnum.RouteRuleNotPublished);
     public static ErrorCode RouteRuleServiceNotMatch = new ErrorCode(ErrorCodeEnum.RouteRuleServiceNotMatch);
+
+    public static ErrorCode RouteHasTrafficMarkRules = new ErrorCode(ErrorCodeEnum.RouteHasTrafficMarkRules);
     public static ErrorCode RouteRuleMethodInvalid = new ErrorCode(ErrorCodeEnum.RouteRuleMethodInvalid);
     public static ErrorCode CannotDeleteRouteRuleService = new ErrorCode(ErrorCodeEnum.CannotDeleteRouteRuleService);
     public static ErrorCode SortKeyInvalid = new ErrorCode(ErrorCodeEnum.SortKeyInvalid);
