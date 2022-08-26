@@ -1036,6 +1036,10 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
             backendService = String.format(registryCenterEnum.getSuffix(), serviceProxyDto.getBackendService());
         }
 
+        if (RegistryCenterEnum.Nacos.equals(registryCenterEnum)) {
+            backendService = String.format(registryCenterEnum.getSuffix(), serviceProxyDto.getBackendService());
+        }
+
         /**
          *  fix dns host
          *
