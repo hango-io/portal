@@ -85,7 +85,7 @@ public class ServiceProxyController extends AbstractController {
         logger.info("查询网关id：{}下的所有发布服务name:{}", gwId, name);
         Map<String, Object> result = new HashMap<>(Const.DEFAULT_MAP_SIZE);
         // eureka有多个注册中心地址，需要拆分查询数据库
-        if (RegistryCenterEnum.Eureka.getType().equals(registryCenterType)) {
+        if (RegistryCenterEnum.Eureka.getType().equals(registryCenterType) && StringUtils.isNotBlank(registryCenterAddr)) {
             registryCenterAddr = registryCenterAddr.split(",")[0];
         }
         RegistryCenterDto registry = registryCenterService.findByTypeAndAddr(registryCenterType, registryCenterAddr);

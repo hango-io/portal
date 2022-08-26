@@ -23,9 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,6 +180,10 @@ public class EnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
     public void getServiceListFromApiPlane() {
         List<EnvoyServiceWithPortDto> serviceListFromApiPlane = getFromApiPlaneService.getServiceListFromApiPlane(gwId,
                 "", "Kubernetes", "", Collections.EMPTY_MAP);
+        assertTrue(serviceListFromApiPlane.size() == 0);
+
+        serviceListFromApiPlane = getFromApiPlaneService.getServiceListFromApiPlane(gwId,
+                "", "Nacos", "", Collections.EMPTY_MAP);
         assertTrue(serviceListFromApiPlane.size() == 0);
     }
 
