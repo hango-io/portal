@@ -8,13 +8,11 @@ import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IRouteRuleInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IRouteRuleProxyService;
 import org.hango.cloud.dashboard.apiserver.service.IServiceInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
+import org.hango.cloud.dashboard.apiserver.service.impl.RouteRuleProxyServiceImpl;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleInfo;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleProxyInfo;
-import org.hango.cloud.dashboard.envoy.service.ISyncRouteProxyService;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyDestinationDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteRuleMapMatchDto;
 import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteStringMatchDto;
@@ -28,8 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +50,14 @@ public class EnvoyRouteRuleProxyServiceImplTest extends BaseServiceImplTest {
     public IServiceInfoService serviceInfoService;
     @Autowired
     @InjectMocks
-    public IServiceProxyService serviceProxyService;
+    public EnvoyServiceProxyServiceImpl serviceProxyService;
     @Autowired
     public IRouteRuleInfoService routeRuleInfoService;
     @Autowired
     public IGatewayInfoService gatewayInfoService;
     @Autowired
     @InjectMocks
-    public IRouteRuleProxyService routeRuleProxyService;
+    public RouteRuleProxyServiceImpl routeRuleProxyService;
     public ServiceInfo serviceInfo;
     public GatewayInfo gatewayInfo;
     public ServiceProxyDto serviceProxyDto;
@@ -71,7 +69,7 @@ public class EnvoyRouteRuleProxyServiceImplTest extends BaseServiceImplTest {
     public long routeId;
     @Autowired
     @InjectMocks
-    private ISyncRouteProxyService syncRouteProxyService;
+    private SyncRouteProxyServiceImpl syncRouteProxyService;
     @MockBean
     private GetFromApiPlaneServiceImpl getFromApiPlaneService;
 
@@ -79,6 +77,7 @@ public class EnvoyRouteRuleProxyServiceImplTest extends BaseServiceImplTest {
 
     @Before
     public void init() {
+        MockitoAnnotations.openMocks(this);
 
         Mockito.when(getFromApiPlaneService.publishServiceByApiPlane(Mockito.any(), Mockito.any())).thenReturn(true);
         Mockito.doReturn(true).when(getFromApiPlaneService).offlineServiceByApiPlane(Mockito.any(), Mockito.any());

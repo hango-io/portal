@@ -37,7 +37,7 @@ public class BasePageInfo {
 
     @JSONField(serialize = false)
     public Pageable getPageable() {
-        return new QPageRequest(Math.floorDiv(offset, limit), limit);
+        return QPageRequest.of(Math.floorDiv(offset, limit), limit);
     }
 
 }
