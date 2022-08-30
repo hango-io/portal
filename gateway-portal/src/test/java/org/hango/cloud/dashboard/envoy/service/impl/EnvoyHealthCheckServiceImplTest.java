@@ -19,9 +19,11 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 
 import java.util.Arrays;
@@ -44,7 +46,7 @@ public class EnvoyHealthCheckServiceImplTest extends BaseServiceImplTest {
     @Autowired
     @InjectMocks
     private EnvoyHealthCheckServiceImpl envoyHealthCheckService;
-    @Mock
+    @MockBean
     private GetFromApiPlaneServiceImpl getFromApiPlaneService;
     private ServiceInfo serviceInfo;
     private GatewayInfo gatewayInfo;
@@ -53,8 +55,8 @@ public class EnvoyHealthCheckServiceImplTest extends BaseServiceImplTest {
 
     @Before
     public void init() {
+        MockitoAnnotations.openMocks(this);
 
-//        Mockito.doReturn(true).when(getFromApiPlaneService).publishServiceByApiPlane(Mockito.any(), Mockito.any());
         Mockito.when(getFromApiPlaneService.publishServiceByApiPlane(Mockito.any(), Mockito.any())).thenReturn(true);
         //初始化ServiceInfo
         serviceInfo = new ServiceInfo();
