@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,8 @@ public class EnvoyServiceProxyServiceImplTest extends BaseServiceImplTest {
 
     @Before
     public void init() {
+        MockitoAnnotations.openMocks(this);
+
         Mockito.when(getFromApiPlaneService.publishServiceByApiPlane(Mockito.any(), Mockito.any())).thenReturn(true);
         Mockito.doReturn(true).when(getFromApiPlaneService).offlineServiceByApiPlane(Mockito.any(), Mockito.any());
 //        Mockito.doReturn(Lists.newArrayList()).when(getFromApiPlaneService).getServiceListFromApiPlane(Mockito.any(),

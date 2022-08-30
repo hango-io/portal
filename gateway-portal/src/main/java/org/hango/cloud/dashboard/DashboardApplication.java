@@ -5,17 +5,11 @@ import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.elasticsearch.jest.JestAutoConfiguration;
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
@@ -31,7 +25,12 @@ import java.util.List;
  * @Author: Wang Dacheng(wangdacheng)
  * @Date: 创建时间: 2017/12/4 上午10:33.
  */
-@SpringBootApplication(exclude = {GsonAutoConfiguration.class, JestAutoConfiguration.class, RedisAutoConfiguration.class})
+@SpringBootApplication(
+        exclude = {
+                GsonAutoConfiguration.class,
+                RedisAutoConfiguration.class,
+                AutoServiceRegistrationAutoConfiguration.class
+        })
 @ImportResource({"classpath:applicationContext.xml"})
 @EnableScheduling
 @PropertySource({"classpath:gdashboard-application.properties", "classpath:gdashboard-jdbc.properties"})
