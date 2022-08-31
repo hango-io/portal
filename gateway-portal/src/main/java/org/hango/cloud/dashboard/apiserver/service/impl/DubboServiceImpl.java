@@ -3,7 +3,7 @@ package org.hango.cloud.dashboard.apiserver.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.lang3.BooleanUtils;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.dashboard.apiserver.dao.IDubboDao;
@@ -13,7 +13,11 @@ import org.hango.cloud.dashboard.apiserver.meta.DubboInfo;
 import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterEnum;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
-import org.hango.cloud.dashboard.apiserver.service.*;
+import org.hango.cloud.dashboard.apiserver.service.IDubboMetaService;
+import org.hango.cloud.dashboard.apiserver.service.IDubboService;
+import org.hango.cloud.dashboard.apiserver.service.IRouteRuleInfoService;
+import org.hango.cloud.dashboard.apiserver.service.IRouteRuleProxyService;
+import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
 import org.hango.cloud.dashboard.apiserver.util.ClassTypeUtil;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.apiserver.util.ZkClientUtils;
@@ -21,14 +25,17 @@ import org.hango.cloud.dashboard.envoy.dao.IRouteRuleProxyDao;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleInfo;
 import org.hango.cloud.dashboard.envoy.meta.RouteRuleProxyInfo;
 import org.hango.cloud.dashboard.envoy.meta.ServiceProxyInfo;
-import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteRuleHeaderOperationDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.dashboard.apiserver.util.Const.POSITION_COOKIE;
@@ -374,83 +381,16 @@ public class DubboServiceImpl implements IDubboService {
             logger.info("发布失败，未找到已发布的路由，已发布路由ID为 {}", dto.getObjectId());
             return false;
         }
+        parseDefaultValue(dto);
         RouteRuleInfo routeRule = envoyRouteRuleInfoService.getRouteRuleInfoById(routeRuleProxy.getRouteRuleId());
         if (routeRule == null) {
             logger.info("发布失败，未找到路由，路由ID为 {}", routeRuleProxy.getRouteRuleId());
             return false;
         }
-        EnvoyRouteRuleHeaderOperationDto headerOperation = JSON.parseObject(routeRule.getHeaderOperation(), EnvoyRouteRuleHeaderOperationDto.class);
-        headerOperation = getDubboHeaderOperation(isDelete ? null : dto, headerOperation);
-        routeRuleProxy.setHeaderOperation(headerOperation);
+        Map<String, String> metaMap = routeRuleProxy.getMetaMap() == null ? Maps.newHashMap() : routeRuleProxy.getMetaMap();
+        metaMap.put("DubboMeta", isDelete ? StringUtils.EMPTY : JSON.toJSONString(dto));
+        routeRuleProxy.setMetaMap(metaMap);
         return Const.ERROR_RESULT != envoyRouteRuleProxyService.updateEnvoyRouteRuleProxy(routeRuleProxy);
-    }
-
-
-    @Override
-    public EnvoyRouteRuleHeaderOperationDto getDubboHeaderOperation(DubboInfoDto dto, EnvoyRouteRuleHeaderOperationDto headerOperation) {
-        if (headerOperation == null) {
-            headerOperation = new EnvoyRouteRuleHeaderOperationDto();
-        }
-        if (dto == null) {
-            dto = new DubboInfoDto();
-        }
-        EnvoyRouteRuleHeaderOperationDto.RequestOperation requestOperation = headerOperation.getRequestOperation();
-        if (requestOperation == null) {
-            requestOperation = headerOperation.new RequestOperation();
-            headerOperation.setRequestOperation(requestOperation);
-        }
-        Map<String, String> add = requestOperation.getAdd();
-        if (add == null) {
-            add = new HashMap<>();
-            requestOperation.setAdd(add);
-        }
-
-        add.put(Const.HEADER_DUBBO_INTERFACE, dto.getInterfaceName());
-        add.put(Const.HEADER_DUBBO_METHOD, dto.getMethod());
-        add.put(Const.HEADER_DUBBO_GROUP, dto.getGroup());
-        add.put(Const.HEADER_DUBBO_VERSION, dto.getVersion());
-        add.put(Const.HEADER_DUBBO_PARAMS, dto.getParamToStr());
-        add.put(Const.HEADER_DUBBO_PARAM_SOURCE, dto.getParamSource());
-        add.put(Const.HEADER_DUBBO_CUSTOM_PARAMS_MAPPING_SWITCH, BooleanUtils.toStringTrueFalse(dto.getCustomParamMapping()));
-        List<DubboInfoDto.DubboParam> params = dto.getParams();
-        if (!CollectionUtils.isEmpty(params)){
-            List<String> genericInfoList = params.stream().map(DubboInfoDto.DubboParam::getGenericInfo).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(genericInfoList)){
-                add.put(Const.HEADER_DUBBO_GENERIC, StringUtils.join(genericInfoList, ";"));
-            }
-            if (dto.getCustomParamMapping()){
-                List<Object> defaultValueList = params.stream().map(o -> parseDefaultValue(o.getValue(), o.getDefaultValue())).collect(Collectors.toList());
-                if (!CollectionUtils.isEmpty(defaultValueList)){
-                    add.put(Const.HEADER_DUBBO_DEFAULT, JSONObject.toJSONString(defaultValueList));
-                }
-                List<String> requiredList = params.stream().map(o -> o.isRequired() ? "T" : "F").collect(Collectors.toList());
-                if (!CollectionUtils.isEmpty(requiredList)){
-                    add.put(Const.HEADER_DUBBO_REQUIRED, StringUtils.join(requiredList, ";"));
-                }
-            }
-
-        }
-        List<DubboInfoDto.DubboAttachmentDto> dubboAttachment = dto.getDubboAttachment();
-        if (!CollectionUtils.isEmpty(dubboAttachment)){
-            List<String> headers = new ArrayList<>();
-            List<String> cookies = new ArrayList<>();
-            for (DubboInfoDto.DubboAttachmentDto dubboAttachmentDto : dubboAttachment) {
-                String paramPosition = dubboAttachmentDto.getParamPosition();
-                if (POSITION_HEADER.equalsIgnoreCase(paramPosition)){
-                    headers.add(dubboAttachmentDto.getClientParamName() + ":" + dubboAttachmentDto.getServerParamName());
-                }else if (POSITION_COOKIE.equalsIgnoreCase(paramPosition)){
-                    cookies.add(dubboAttachmentDto.getClientParamName() + ":" + dubboAttachmentDto.getServerParamName());
-
-                }
-            }
-            if (!CollectionUtils.isEmpty(headers)){
-                add.put(Const.HEADER_DUBBO_ATTACTMENT_HEADER, String.join(";", headers));
-            }
-            if (!CollectionUtils.isEmpty(cookies)){
-                add.put(Const.HEADER_DUBBO_ATTACTMENT_COOKIE, String.join(";", cookies));
-            }
-        }
-        return headerOperation;
     }
 
     public Object parseDefaultValue(String typeString, Object value){
@@ -458,5 +398,18 @@ public class DubboServiceImpl implements IDubboService {
             return ClassTypeUtil.PrimitiveTypeEnum.getDefaultValueByName(typeString);
         }
         return value;
+    }
+
+    public void parseDefaultValue(DubboInfoDto.DubboParam param){
+        Object o = parseDefaultValue(param.getValue(), param.getDefaultValue());
+        param.setDefaultValue(o);
+    }
+
+    @Override
+    public void parseDefaultValue(DubboInfoDto dto){
+        List<DubboInfoDto.DubboParam> params = dto.getParams();
+        if (!CollectionUtils.isEmpty(params)){
+            params.stream().forEach(this::parseDefaultValue);
+        }
     }
 }

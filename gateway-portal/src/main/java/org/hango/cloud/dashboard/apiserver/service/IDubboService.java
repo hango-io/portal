@@ -3,7 +3,6 @@ package org.hango.cloud.dashboard.apiserver.service;
 import org.hango.cloud.dashboard.apiserver.dto.DubboInfoDto;
 import org.hango.cloud.dashboard.apiserver.meta.DubboInfo;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
-import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteRuleHeaderOperationDto;
 
 /**
  * @author zhangbj
@@ -83,13 +82,11 @@ public interface IDubboService {
 
     ErrorCode checkAndComplete(DubboInfoDto dto);
 
+
     /**
-     * 将Dubbo信息转换为Envoy Head to Add 信息
-     *
+     * 设置原始类型默认值
      * @param dto
-     * @param headerOperationDto
-     * @return
      */
-    EnvoyRouteRuleHeaderOperationDto getDubboHeaderOperation(DubboInfoDto dto, EnvoyRouteRuleHeaderOperationDto headerOperationDto);
+    void parseDefaultValue(DubboInfoDto dto);
 
 }

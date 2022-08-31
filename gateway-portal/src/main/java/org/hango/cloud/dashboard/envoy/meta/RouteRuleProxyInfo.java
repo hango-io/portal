@@ -6,6 +6,7 @@ import org.hango.cloud.dashboard.envoy.web.dto.EnvoyRouteRuleHeaderOperationDto;
 import org.hango.cloud.dashboard.envoy.web.dto.HttpRetryDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 路由规则发布信息
@@ -100,6 +101,60 @@ public class RouteRuleProxyInfo extends RouteRuleMatchInfo {
      * 流量镜像指向的服务
      */
     private long mirrorServiceId;
+
+    /**
+     * meta数据传输集
+     * Map<mata_type,meta_data>
+     * mata_type meta类型
+     *
+     * mata_type: 路由meta数据类型
+     * meta_data: 路由meta数据值，使用JSON传输
+     * eg.
+     * {
+     * "DubboMeta": {
+     * "ObjectType": "route",
+     * "ObjectId": 259,
+     * "Params": [
+     * {
+     * "Key": "str",
+     * "Value": "java.lang.String",
+     * "GenericInfo": ".dataA:com.demo.B,.dataAA:com.demo.B,.dataA.dataB:com.demo.C,.dataAA.dataB:com.demo.C",
+     * "Required": false,
+     * "DefaultValue": "sdfsdfs",
+     * "_formTableKey": 1660649073793,
+     * "index": 0
+     * },
+     * {
+     * "Key": "wer",
+     * "Value": "java.lang.Integer",
+     * "GenericInfo": null,
+     * "Required": true,
+     * "DefaultValue": null,
+     * "_formTableKey": 1660649073793
+     * }
+     * ],
+     * "Method": "echoStrAndInt",
+     * "CustomParamMapping": true,
+     * "ParamSource": "body",
+     * "Attachment": [
+     * {
+     * "ClientParamName": "xcvxcv",
+     * "Description": "cxvxcv",
+     * "ParamPosition": "Header",
+     * "ServerParamName": "cvcv",
+     * "distinctName": "Headerxcvxcv",
+     * "_formTableKey": 1660648830195
+     * }
+     * ],
+     * "MethodWorks": true
+     * },
+     * "StatsMeta": [
+     * "/test",
+     * "/test1"
+     * ]
+     * }
+     */
+    private Map<String, String> metaMap;
 
     public long getMirrorServiceId() {
         return mirrorServiceId;
@@ -267,6 +322,14 @@ public class RouteRuleProxyInfo extends RouteRuleMatchInfo {
 
     public void setGwType(String gwType) {
         this.gwType = gwType;
+    }
+
+    public Map<String, String> getMetaMap() {
+        return metaMap;
+    }
+
+    public void setMetaMap(Map<String, String> metaMap) {
+        this.metaMap = metaMap;
     }
 
     @Override
