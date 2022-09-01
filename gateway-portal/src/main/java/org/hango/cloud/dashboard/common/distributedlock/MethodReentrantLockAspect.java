@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -105,6 +106,9 @@ public class MethodReentrantLockAspect {
             json = "InputStream";
         } else if (o instanceof OutputStream) {
             json = "OutputStream";
+        } else if (o instanceof MultipartFile) {
+            MultipartFile file = (MultipartFile) o;
+            json = "MultipartFile:" + file.getOriginalFilename();
         }
         if (json != null) {
             return json;
