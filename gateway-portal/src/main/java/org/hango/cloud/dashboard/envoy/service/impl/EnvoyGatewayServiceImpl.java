@@ -30,18 +30,14 @@ import org.hango.cloud.dashboard.envoy.web.util.HttpCommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import javax.annotation.PostConstruct;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -75,6 +71,23 @@ public class EnvoyGatewayServiceImpl implements IEnvoyGatewayService {
     @Autowired
     private IRouteRuleProxyService routeRuleProxyService;
 
+    private Set<String> ignorePluginSet;
+
+    @Value("${ignorePlugins:#{null}}")
+    private String ignorePlugins;
+
+    public String getIgnorePlugins() {
+        return ignorePlugins;
+    }
+
+    public void setIgnorePlugins(String ignorePlugins) {
+        this.ignorePlugins = ignorePlugins;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.ignorePluginSet = StringUtils.isEmpty(ignorePlugins) ? Collections.emptySet() : new HashSet<>(Arrays.asList(ignorePlugins.split(",")));
+    }
 
     @Override
     public ErrorCode checkVirtualHostList(long gwId, List<EnvoyVirtualHostInfo> vhList) {
@@ -419,7 +432,11 @@ public class EnvoyGatewayServiceImpl implements IEnvoyGatewayService {
             return Collections.emptyList();
         }
         List<PluginOrderItemDto> envoyPluginManager = getEnvoyPluginManager(gatewayInfo.getApiPlaneAddr(), gatewayInfo.getGwClusterName());
-        return envoyPluginManager.stream().map(e -> toPluginManagerDto(e, apiServerConfig.getPluginManagerMap())).filter(e -> !PluginHandler.pluginIgnoreList.contains(e.getName())).collect(Collectors.toList());
+        return envoyPluginManager.stream()
+                .map(e -> toPluginManagerDto(e, apiServerConfig.getPluginManagerMap()))
+                .filter(e -> !PluginHandler.pluginIgnoreList.contains(e.getName()))
+                .filter(e -> !ignorePluginSet.contains(e.getName()))
+                .collect(Collectors.toList());
     }
 
     public EnvoyPluginManagerDto toPluginManagerDto(PluginOrderItemDto item, Map<String, String> extra) {

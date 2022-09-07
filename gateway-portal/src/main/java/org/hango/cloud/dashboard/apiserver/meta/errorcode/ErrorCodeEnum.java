@@ -178,6 +178,8 @@ public enum ErrorCodeEnum {
     //服务相关
     CannotUpdateService("CannotUpdateService", "You can't update service until offline the service", "在下线服务之前，不能修改服务的基本信息", 400),
     ServicePublishedUpdateLimit("ServicePublishedUpdateLimit", "You can't update service publish type", "不能更新发布服务的发布方式", 400),
+
+    ServiceTypeInvalid("ServiceTypeInvalid", "Service type is invalid", "服务类型不合法", 400),
     CannotUpdateServiceName("CannotUpdateServiceName", "You can't update service name cause of sync", "从元数据同步服务，不允许修改服务名称", 400),
     CannotDeleteOnlineService("CannotDeleteOnlineService", "You can't delete service until offline the service", "在下线服务之前，不能删除服务", 400),
     CannotDeleteApiService("CannotDeleteApiService", "You can't delete service until delete all apis", "在删除api前，不能删除服务", 400),
@@ -268,6 +270,7 @@ public enum ErrorCodeEnum {
     RouteRuleAlreadyPublishedToGw("RouteRuleAlreadyPublishedToGw", "The route rule has already published to gw, gw is: %s.", "路由规则已发布至网关: %s", 400),
     RouteRuleNotPublished("RouteRuleNotPublished", "The route rule not published", "路由规则未发布", 400),
     RouteRuleServiceNotMatch("RouteRuleServiceNotMatch", "The route rule not match the service", "服务和路由规则不匹配", 400),
+    RouteHasTrafficMarkRules("RouteHasTrafficMarkRules", "The route rule has traffic mark rules", "该路由存在流量染色规则，请先删除流量染色规则再下线路由", 400),
     RouteRuleMethodInvalid("RouteRuleMethodInvalid", "The route rule method is invalid", "路由规则指定的method不合法", 400),
     CannotDeleteRouteRuleService("CannotDeleteRouteRuleService", "The service has route rule", "服务存在路由规则，不允许删除", 400),
     SortKeyInvalid("SortKeyInvalid", "The sort key is invalid", "搜索查询查询搜索项不正确", 400),

@@ -447,6 +447,8 @@ public class Const {
     public static final Set<Integer> HTTP_STATUS_CODE = new HashSet<Integer>(Arrays.asList(100, 101, 103, 200, 201, 202, 203, 204, 205, 206, 300, 301, 302, 303, 304, 307,
             308, 400, 401, 402, 403, 404, 405, 406, 407, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 422, 425, 426, 428, 429, 431, 451, 500, 502, 503, 504, 505, 511));
     public static final String GLOBAL_PLUGIN_TRACE = "neTraceFileLog";
+    public static final String PLUGIN_NAME_RETRY = "com.netease.resty";
+    public static final String PLUGIN_NAME_TRAFFIC_MARK = "proxy.filters.http.traffic_mark";
     /**
      * 流量染色插件的plugin_type
      */
