@@ -10,6 +10,7 @@ import org.hango.cloud.dashboard.apiserver.config.ApiServerConfig;
 import org.hango.cloud.dashboard.apiserver.dto.DubboInfoDto;
 import org.hango.cloud.dashboard.apiserver.dto.DubboMetaDto;
 import org.hango.cloud.dashboard.apiserver.dto.RegistryCenterDto;
+import org.hango.cloud.dashboard.apiserver.meta.DubboInfo;
 import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
 import org.hango.cloud.dashboard.apiserver.meta.HttpClientResponse;
 import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterEnum;
@@ -485,10 +486,11 @@ public class GetFromApiPlaneServiceImpl implements IGetFromApiPlaneService {
         if (!ServiceType.dubbo.name().equals(serviceInfo.getServiceType())) {
             return;
         }
-        DubboInfoDto dubboDto = dubboService.getDubboDto(routeRuleProxyInfo.getId(), Const.ROUTE);
-        if (dubboDto == null) {
+        DubboInfo dubboInfo = dubboService.getDubboInfo(routeRuleProxyInfo.getId(), Const.ROUTE);
+        if (dubboInfo == null) {
             return;
         }
+        DubboInfoDto dubboDto = DubboInfoDto.toDto(dubboInfo);
         dubboService.parseDefaultValue(dubboDto);
         metaMap.put(dubboMeta, JSON.toJSONString(dubboDto));
 
