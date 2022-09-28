@@ -81,20 +81,6 @@ public interface IRouteRuleProxyService {
                                                    String sortValue, long offset, long limit);
 
     /**
-     * 分页查询认证授权的已发布路由
-     *
-     * @param gwId      网关id
-     * @param serviceId 服务id
-     * @param routeId   路由id
-     * @param auth      是否认证
-     * @param offset    分页查询offset
-     * @param limit     分页查询limit
-     * @return
-     */
-    List<RouteRuleProxyInfo> getAuthRouteProxy(long gwId, long serviceId, long routeId, boolean auth, long offset,
-                                               long limit);
-
-    /**
      * 查询已发布路由规则列表
      *
      * @param serviceId 服务id，若为0则不加入查询条件
