@@ -1,7 +1,6 @@
 package org.hango.cloud.dashboard.apiserver.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -21,6 +20,7 @@ import org.hango.cloud.dashboard.envoy.service.IEnvoyGatewayService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyPluginInfoService;
 import org.hango.cloud.dashboard.envoy.service.IEnvoyWebServiceService;
 import org.hango.cloud.dashboard.envoy.service.IGetFromApiPlaneService;
+import org.hango.cloud.dashboard.envoy.service.ITrafficMarkService;
 import org.hango.cloud.dashboard.envoy.web.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -374,21 +374,6 @@ public class RouteRuleProxyServiceImpl implements IRouteRuleProxyService {
                 limit);
     }
 
-    @Override
-    public List<RouteRuleProxyInfo> getAuthRouteProxy(final long gwId, final long serviceId, final long routeId,
-                                                      final boolean auth, final long offset, final long limit) {
-        if (!auth) {
-            if (routeId == 0) {
-                return getRouteRuleProxyList(gwId, serviceId,null, StringUtils.EMPTY, Const.CONST_PRIORITY, "", offset,
-                        limit);
-            }
-            List<RouteRuleProxyInfo> routeRuleProxyList = Lists.newArrayList();
-            routeRuleProxyList.add(getRouteRuleProxy(gwId, routeId));
-            return routeRuleProxyList;
-        }
-        return routeRuleProxyDao.getRouteRuleProxyList(gwId, serviceId, ProjectTraceHolder.getProId(), routeId,
-                Collections.emptyList(), offset, limit);
-    }
 
     @Override
     public List<RouteRuleProxyInfo> getRouteRuleProxyList(long serviceId) {
