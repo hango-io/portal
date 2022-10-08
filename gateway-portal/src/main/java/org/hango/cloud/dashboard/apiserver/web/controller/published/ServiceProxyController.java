@@ -7,12 +7,10 @@ import org.hango.cloud.dashboard.apiserver.aop.Audit;
 import org.hango.cloud.dashboard.apiserver.dto.RegistryCenterDto;
 import org.hango.cloud.dashboard.apiserver.dto.auditdto.ResourceDataDto;
 import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
-import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterEnum;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.CommonErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCode;
 import org.hango.cloud.dashboard.apiserver.meta.errorcode.ErrorCodeEnum;
 import org.hango.cloud.dashboard.apiserver.service.IGatewayInfoService;
-import org.hango.cloud.dashboard.apiserver.service.IGatewayProjectService;
 import org.hango.cloud.dashboard.apiserver.service.IRegistryCenterService;
 import org.hango.cloud.dashboard.apiserver.service.IServiceInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
@@ -89,15 +87,10 @@ public class ServiceProxyController extends AbstractController {
     public String describeServiceList(@RequestParam(value = "GwId") long gwId,
                                       @RequestParam(value = "Name", required = false) String name,
                                       @RequestParam(value = "RegistryCenterType") String registryCenterType,
-                                      @RequestParam(value = "RegistryCenterAddr", required = false) String registryCenterAddr,
                                       final HttpServletRequest request) {
         logger.info("查询网关id：{}下的所有发布服务name:{}", gwId, name);
         Map<String, Object> result = new HashMap<>(Const.DEFAULT_MAP_SIZE);
-        // eureka有多个注册中心地址，需要拆分查询数据库
-        if (RegistryCenterEnum.Eureka.getType().equals(registryCenterType) && StringUtils.isNotBlank(registryCenterAddr)) {
-            registryCenterAddr = registryCenterAddr.split(",")[0];
-        }
-        RegistryCenterDto registry = registryCenterService.findByTypeAndAddr(registryCenterType, registryCenterAddr);
+        RegistryCenterDto registry = registryCenterService.findByType(registryCenterType);
         String registryAlias = registry == null ? StringUtils.EMPTY : registry.getRegistryAlias();
         Map<String, String> serviceFilters = serviceProxyService.createServiceFilters(registry);
         List<EnvoyServiceWithPortDto> serviceListFromApiPlane =

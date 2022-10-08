@@ -15,7 +15,6 @@ import java.util.Set;
 public class DaoMetaUnitTest extends BaseServiceImplTest {
     private static final Logger logger = LoggerFactory.getLogger(DaoMetaUnitTest.class);
 
-    @Test
     public void testForAllDaoMeta() {
         logger.info("DaoMetaUnitTest ==== start ====");
         Configuration configuration = new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage("org.hango.cloud.dashboard.apiserver"))

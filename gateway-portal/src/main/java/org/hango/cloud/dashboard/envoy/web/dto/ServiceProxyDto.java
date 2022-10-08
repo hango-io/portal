@@ -69,13 +69,6 @@ public class ServiceProxyDto {
     private String registryCenterType;
 
     /**
-     * 注册中心地址
-     */
-    @JSONField(name = "RegistryCenterAddr")
-    private String registryCenterAddr;
-
-
-    /**
      * 路由发布协议，可以为空，默认为
      */
     @JSONField(name = "PublishProtocol")
@@ -170,7 +163,6 @@ public class ServiceProxyDto {
         serviceProxyInfo.setPublishProtocol(serviceProxyDto.getPublishProtocol());
         serviceProxyInfo.setPublishType(serviceProxyDto.getPublishType());
         serviceProxyInfo.setRegistryCenterType(serviceProxyDto.getRegistryCenterType());
-        serviceProxyInfo.setRegistryCenterAddr(serviceProxyDto.getRegistryCenterAddr());
         serviceProxyInfo.setGwId(serviceProxyDto.getGwId());
         serviceProxyInfo.setGwType(serviceProxyDto.getGwType());
         serviceProxyInfo.setCreateTime(serviceProxyDto.getCreateTime());
@@ -188,7 +180,6 @@ public class ServiceProxyDto {
         serviceProxyDto.setCode(serviceProxyInfo.getCode());
         serviceProxyDto.setBackendService(serviceProxyInfo.getBackendService());
         serviceProxyDto.setRegistryCenterType(serviceProxyInfo.getRegistryCenterType());
-        serviceProxyDto.setRegistryCenterAddr(serviceProxyInfo.getRegistryCenterAddr());
         serviceProxyDto.setPublishProtocol(serviceProxyInfo.getPublishProtocol());
         serviceProxyDto.setPublishType(serviceProxyInfo.getPublishType());
         serviceProxyDto.setGwId(serviceProxyInfo.getGwId());
@@ -396,14 +387,6 @@ public class ServiceProxyDto {
 
     public void setRegistryCenterType(String registryCenterType) {
         this.registryCenterType = registryCenterType;
-    }
-
-    public String getRegistryCenterAddr() {
-        return registryCenterAddr;
-    }
-
-    public void setRegistryCenterAddr(String registryCenterAddr) {
-        this.registryCenterAddr = registryCenterAddr;
     }
 
     public EnvoyServiceTrafficPolicyDto getTrafficPolicy() {

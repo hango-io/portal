@@ -218,14 +218,6 @@ public interface IServiceProxyService {
     String getBackendServiceSendToApiPlane(ServiceProxyDto serviceProxyDto);
 
     /**
-     * 校验注册中心地址是否合法
-     *
-     * @param registerCenterAddr
-     * @return
-     */
-    ErrorCode checkEurekaRegistryCenterAddr(String registerCenterAddr);
-
-    /**
      * 获取subsetsName
      *
      * @param serviceProxyInfo

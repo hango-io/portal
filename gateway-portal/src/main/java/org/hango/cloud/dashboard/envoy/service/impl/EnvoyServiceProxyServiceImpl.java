@@ -320,30 +320,6 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
             return CommonErrorCode.Success;
         }
 
-        //校验consul & ZK
-        if (StringUtils.equalsAny(serviceProxyDto.getRegistryCenterType()
-                , RegistryCenterEnum.Consul.getType(), RegistryCenterEnum.Zookeeper.getType())) {
-            RegistryCenterEnum registryCenterEnum = RegistryCenterEnum.get(serviceProxyDto.getRegistryCenterType());
-            if (registryCenterEnum == null) {
-                logger.info("错误的注册中心类型，RegistryCenterType = {} ", serviceProxyDto.getRegistryCenterType());
-                return CommonErrorCode.InvalidParameterRegistryCenterType(serviceProxyDto.getRegistryCenterType());
-            }
-
-            if (StringUtils.isBlank(serviceProxyDto.getRegistryCenterAddr())) {
-                return CommonErrorCode.MissingParameterRegistryCenterAddr;
-            }
-            //暂时只支持单一应用
-            RegistryCenterDto registryCenter = registryCenterService.findByTypeAndAddr(serviceProxyDto.getRegistryCenterType(), serviceProxyDto.getRegistryCenterAddr());
-            if (registryCenter == null) {
-                return CommonErrorCode.InvalidParameterRegistryAddr(serviceProxyDto.getRegistryCenterAddr());
-            }
-        }
-
-        //校验eureka
-        if (RegistryCenterEnum.Eureka.getType().equals(serviceProxyDto.getRegistryCenterType())) {
-            return checkEurekaRegistryCenterAddr(serviceProxyDto.getRegistryCenterAddr());
-        }
-
         return CommonErrorCode.Success;
     }
 
@@ -877,7 +853,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
         if (Const.STATIC_PUBLISH_TYPE.equals(serviceProxyInfo.getPublishType())) {
             return serviceProxyDto;
         }
-        RegistryCenterDto registry = registryCenterService.findByTypeAndAddr(serviceProxyInfo.getRegistryCenterType(), serviceProxyInfo.getRegistryCenterAddr());
+        RegistryCenterDto registry = registryCenterService.findByType(serviceProxyInfo.getRegistryCenterType());
         String registryAlias = registry == null ? StringUtils.EMPTY : registry.getRegistryAlias();
         //dynamic发布，获取port数据
         if (RegistryCenterEnum.Eureka.getType().equals(serviceProxyInfo.getRegistryCenterType()) ||
@@ -1030,13 +1006,13 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
             return backendService;
         }
         if (RegistryCenterEnum.Consul.equals(registryCenterEnum)) {
-            RegistryCenterDto registryCenter = registryCenterService.findByTypeAndAddr(serviceProxyDto.getRegistryCenterType(), serviceProxyDto.getRegistryCenterAddr());
+            RegistryCenterDto registryCenter = registryCenterService.findByType(serviceProxyDto.getRegistryCenterType());
             backendService = String.format(registryCenterEnum.getSuffix(), serviceProxyDto.getBackendService(), registryCenter.getRegistryAlias());
         }
 
         if (RegistryCenterEnum.Eureka.equals(registryCenterEnum)) {
             //针对nsf eureka做特殊处理，galley上生成se时，其host的格式为{applicationname}.nsf.{projectCode}.eureka
-            RegistryCenterDto registryCenterDto = registryCenterService.findByTypeAndAddr(serviceProxyDto.getRegistryCenterType(), serviceProxyDto.getRegistryCenterAddr().split(",")[0]);
+            RegistryCenterDto registryCenterDto = registryCenterService.findByType(serviceProxyDto.getRegistryCenterType());
             if (registryCenterDto != null && registryCenterDto.getRegistryAlias().contains(Const.NSF_EUREKA_ALIAS)) {
                 //以nsf eureka发布的服务，其对应的backendservice为{applicationname}.nsf.{projectCode}.eureka
                 long projectId = serviceInfoService.getServiceByServiceId(serviceProxyDto.getServiceId()).getProjectId();
@@ -1069,26 +1045,6 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
          *
          */
         return backendService.replace('_', '-');
-    }
-
-    @Override
-    public ErrorCode checkEurekaRegistryCenterAddr(String registryCenterAddr) {
-        if (StringUtils.isBlank(registryCenterAddr)) {
-            return CommonErrorCode.InvalidEurekaAddress;
-        }
-
-        RegistryCenterDto registryCenterDto;
-        String[] registryCenterList = registryCenterAddr.split(",");
-        for (String registryCenter : registryCenterList) {
-            if (!registryCenter.endsWith("/eureka/") && !registryCenter.startsWith("http://")) {
-                return CommonErrorCode.InvalidEurekaAddress;
-            }
-            registryCenterDto = registryCenterService.findByTypeAndAddr(RegistryCenterEnum.Eureka.getType(), registryCenter);
-            if (registryCenterDto == null) {
-                return CommonErrorCode.InvalidEurekaAddress;
-            }
-        }
-        return CommonErrorCode.Success;
     }
 
     @Override
