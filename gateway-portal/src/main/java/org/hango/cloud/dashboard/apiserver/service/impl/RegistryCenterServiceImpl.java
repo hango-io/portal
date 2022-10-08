@@ -140,7 +140,7 @@ public class RegistryCenterServiceImpl implements IRegistryCenterService {
     }
 
     @Override
-    public RegistryCenterDto findByTypeAndAddr(String registryType, String registryAddr) {
+    public RegistryCenterDto findByType(String registryType) {
         RegistryCenterEnum registryCenterEnum = RegistryCenterEnum.get(registryType);
         if (registryCenterEnum == null) {
             logger.info("Error  Registry Type {}", registryType);
@@ -153,10 +153,6 @@ public class RegistryCenterServiceImpl implements IRegistryCenterService {
 
         HashMap<String, Object> param = Maps.newHashMap();
         param.put("registryType", registryType);
-        if (StringUtils.isNotBlank(registryAddr)) {
-            param.put("registryAddr", registryAddr);
-        }
-
         List<RegistryCenterInfo> records = registryCenterDao.getRecordsByField(param);
         if (CollectionUtils.isEmpty(records)) {
             return null;

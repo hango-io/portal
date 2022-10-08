@@ -480,14 +480,6 @@ public class GetFromApiPlaneServiceImpl implements IGetFromApiPlaneService {
         if (RegistryCenterEnum.Kubernetes.equals(registryCenterEnum)) {
             return true;
         }
-        String[] registryCenterAddrList = StringUtils.split(serviceProxyDto.getRegistryCenterAddr(), ",");
-        for (String registryCenterAddr : registryCenterAddrList) {
-            RegistryCenterDto registryCenter = registryCenterService.findByTypeAndAddr(serviceProxyDto.getRegistryCenterType(), registryCenterAddr);
-            if (registryCenter == null) {
-                logger.warn("注册中心不存在 {}", registryCenter);
-                return false;
-            }
-        }
         return true;
     }
 

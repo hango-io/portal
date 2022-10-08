@@ -54,10 +54,9 @@ public interface IRegistryCenterService {
      * 所以该接口暂不需携带项目隔离信息
      *
      * @param registryType
-     * @param registryAddr
      * @return
      */
-    RegistryCenterDto findByTypeAndAddr(String registryType, String registryAddr);
+    RegistryCenterDto findByType(String registryType);
 
     /**
      * 通过类型获取项目下注册中心信息
