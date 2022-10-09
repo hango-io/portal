@@ -1,18 +1,15 @@
 package org.hango.cloud.dashboard.apiserver.service.impl;
 
 import org.hango.cloud.dashboard.BaseServiceImplTest;
-import org.hango.cloud.dashboard.apiserver.dto.RegistryCenterDto;
 import org.hango.cloud.dashboard.apiserver.meta.RegistryCenterEnum;
 import org.hango.cloud.dashboard.apiserver.meta.ServiceType;
 import org.hango.cloud.dashboard.apiserver.service.IRegistryCenterService;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.List;
 
 /**
@@ -25,15 +22,7 @@ public class RegistryCenterServiceImplTest extends BaseServiceImplTest {
     @Autowired
     private IRegistryCenterService registryCenterService;
 
-    @Autowired
-    private List<RegistryCenterDto> registryCenterDtoList;
-
-    @PostConstruct
-    public void init() {
-        registryCenterDtoList = registryCenterService.findAll();
-        registryCenterDtoList.stream().map(RegistryCenterDto::getId).forEach(registryCenterService::deleteRegistryCenter);
-    }
-
+    @Test
     public void testDescribeRegistryTypesByServiceType() {
         List<String> httpRegistryList = registryCenterService.describeRegistryTypesByServiceType(ServiceType.http.name());
         Assert.assertEquals(1, httpRegistryList.size());
@@ -47,10 +36,4 @@ public class RegistryCenterServiceImplTest extends BaseServiceImplTest {
         Assert.assertEquals(0, grpcRegistryList.size());
     }
 
-    @PreDestroy
-    public void destroy() {
-        if (!CollectionUtils.isEmpty(registryCenterDtoList)) {
-            registryCenterDtoList.forEach(registryCenterService::saveRegistryCenter);
-        }
-    }
 }
