@@ -1123,10 +1123,7 @@ public class EnvoyServiceProxyServiceImpl implements IServiceProxyService {
     @Override
     public Map<String, String> createServiceFilters(RegistryCenterDto registry) {
         Map<String, String> filters = new HashMap<>();
-        if (registry != null && registry.getRegistryAlias().contains(Const.NSF_EUREKA_ALIAS)) {
-            PermissionScopeDto projectScopeDto = gatewayProjectService.getProjectScopeDto(ProjectTraceHolder.getProId());
-            filters.put(Const.PREFIX_LABEL + Const.PROJECT_CODE, projectScopeDto.getPermissionScopeEnName());
-        }
+        // 此处可扩展服务过滤条件
         return filters;
     }
 }
