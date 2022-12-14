@@ -117,7 +117,11 @@ public class TrafficMarkController extends AbstractController {
      * @return 流量染色规则列表
      */
     @RequestMapping(params = {"Action=DescribeTrafficColorRuleList"}, method = RequestMethod.GET)
-    public Object trafficColorRuleList(@RequestParam(value = "ColorTag", required = false) String colorTag, @RequestParam(value = "Offset", required = false, defaultValue = "0") long offset, @RequestParam(value = "Limit", required = false, defaultValue = "20") long limit) {
+    public Object trafficColorRuleList(@RequestParam(value = "ColorTag", required = false) String colorTag,
+                                       @RequestParam(value = "SortByKey", required = false, defaultValue = "create_time") String sortKey,
+                                       @RequestParam(value = "SortByValue", required = false, defaultValue = "desc") String sortValue,
+                                       @RequestParam(value = "Offset", required = false, defaultValue = "0") long offset,
+                                       @RequestParam(value = "Limit", required = false, defaultValue = "20") long limit) {
         logger.info("获取当前染色标识下的染色规则列表，colorTag：{}", colorTag);
         //offset,limit校验
         ErrorCode errorCode = CommonUtil.checkOffsetAndLimit(offset, limit);
@@ -126,7 +130,7 @@ public class TrafficMarkController extends AbstractController {
         }
         Map<String, Object> result = Maps.newHashMap();
 
-        List<TrafficMarkInfo> trafficColorInfos = trafficMarkService.getTrafficColorByTagLimit(colorTag, offset, limit);
+        List<TrafficMarkInfo> trafficColorInfos = trafficMarkService.getTrafficColorByTagLimit(colorTag, sortKey, sortValue, offset, limit);
         if (CollectionUtils.isEmpty(trafficColorInfos)) {
             result.put("TrafficColorRuleCount", NumberUtils.INTEGER_ZERO);
             result.put("TrafficColorRuleList", Collections.EMPTY_LIST);

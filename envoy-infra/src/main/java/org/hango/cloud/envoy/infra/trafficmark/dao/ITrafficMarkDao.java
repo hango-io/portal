@@ -17,13 +17,16 @@ public interface ITrafficMarkDao extends IBaseDao<TrafficMarkInfo> {
     /**
      * 获取染色标识下的所有流量染色规则
      *
-     * @param colorTag 流量染色标识
-     * @param offset   偏移
-     * @param projectId   项目id
-     * @param limit    每页的条数
+     * @param colorTag  流量染色标识
+     * @param projectId 项目id
+     * @param sortKey   排序key
+     * @param sortValue 排序方式
+     * @param offset    偏移
+     * @param limit     每页的条数
      * @return 流量染色规则列表
      */
-    List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, long projectId, long offset, long limit);
+
+    List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, long projectId, String sortKey, String sortValue, long offset, long limit);
 
     /**
      * 根据id删除流量染色规则
