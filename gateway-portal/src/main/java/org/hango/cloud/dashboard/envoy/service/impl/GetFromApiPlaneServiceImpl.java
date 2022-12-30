@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.dashboard.apiserver.config.ApiServerConfig;
+import org.hango.cloud.dashboard.apiserver.dto.DubboInfoDto;
 import org.hango.cloud.dashboard.apiserver.dto.DubboMetaDto;
 import org.hango.cloud.dashboard.apiserver.dto.RegistryCenterDto;
 import org.hango.cloud.dashboard.apiserver.meta.GatewayInfo;
@@ -21,7 +22,6 @@ import org.hango.cloud.dashboard.apiserver.service.IRouteRuleInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IRouteRuleProxyService;
 import org.hango.cloud.dashboard.apiserver.service.IServiceInfoService;
 import org.hango.cloud.dashboard.apiserver.service.IServiceProxyService;
-import org.hango.cloud.dashboard.apiserver.service.impl.DubboServiceImpl;
 import org.hango.cloud.dashboard.apiserver.util.Const;
 import org.hango.cloud.dashboard.apiserver.web.holder.ActionInfoHolder;
 import org.hango.cloud.dashboard.apiserver.web.holder.UserPermissionHolder;
@@ -349,7 +349,6 @@ public class GetFromApiPlaneServiceImpl implements IGetFromApiPlaneService {
         body.put("Order", routeRuleProxyInfo.getOrders());
         body.put("ProjectId", routeRuleInfo.getProjectId());
         EnvoyRouteRuleHeaderOperationDto headerOperation = JSON.parseObject(routeRuleInfo.getHeaderOperation(), EnvoyRouteRuleHeaderOperationDto.class);
-        headerOperation = processDubboInfoForPublishOrDelete(routeRuleInfo, routeRuleProxyInfo, headerOperation);
         if (headerOperation != null) {
             body.put("RequestOperation", headerOperation.getRequestOperation());
         }
@@ -430,35 +429,69 @@ public class GetFromApiPlaneServiceImpl implements IGetFromApiPlaneService {
             body.put("MirrorTraffic", mirrorTraffic);
         }
 
+        body.put("MetaMap",processRouteMetadata(routeRuleProxyInfo));
         return body;
     }
 
     /**
-     * 处理Dubbo路由额外信息
-     * <p>
-     * 优先使用RouteRuleProxyInfo中的路由头信息
-     * 该属性仅在单独处理Dubbo转换信息时，才被填充{@link DubboServiceImpl}
+     * 添加路由 metadata 数据
      *
-     * @param routeRuleInfo
      * @param routeRuleProxyInfo
-     * @param headerOperation
      * @return
      */
-    private EnvoyRouteRuleHeaderOperationDto processDubboInfoForPublishOrDelete(RouteRuleInfo routeRuleInfo, RouteRuleProxyInfo routeRuleProxyInfo, EnvoyRouteRuleHeaderOperationDto headerOperation) {
-        //
-        //
-        if (routeRuleProxyInfo.getHeaderOperation() != null) {
-            return routeRuleProxyInfo.getHeaderOperation();
+    private Map<String, String> processRouteMetadata(RouteRuleProxyInfo routeRuleProxyInfo) {
+        Map<String, String> metaMap = routeRuleProxyInfo.getMetaMap() == null ? Maps.newHashMap() : routeRuleProxyInfo.getMetaMap();
+        //处理路由指标Meta数据
+        processRouteStatsMeta(routeRuleProxyInfo, metaMap);
+        //处理Dubbo Meta相关的数据
+        processDubboMeta(routeRuleProxyInfo, metaMap);
+        return metaMap;
+    }
+
+    /**
+     * 添加路由指标Meta数据
+     *
+     * @param routeRuleProxyInfo
+     * @param metaMap
+     */
+    private void processRouteStatsMeta(RouteRuleProxyInfo routeRuleProxyInfo, Map<String, String> metaMap) {
+        if (!apiServerConfig.getRouteMetricEnable()) {
+            return;
         }
-        //dubbo 路由Head-To-Add组装
-        ServiceInfo serviceInfo = serviceInfoService.getServiceById(String.valueOf(routeRuleInfo.getServiceId()));
+        String statsValue = apiServerConfig.getRouteMetricPathStats() ? routeRuleProxyInfo.getUri() : String.valueOf(routeRuleProxyInfo.getRouteRuleId());
+        Map<String, String> stats = Maps.newHashMap();
+        stats.put("route_rule_id", statsValue);
+        metaMap.put("StatsMeta", JSON.toJSONString(stats));
+    }
+
+    /**
+     * 添加Dubbo Meta相关的数据
+     *
+     * @param routeRuleProxyInfo
+     * @param metaMap
+     */
+    private void processDubboMeta(RouteRuleProxyInfo routeRuleProxyInfo, Map<String, String> metaMap) {
+        //如果已存在就不进行复写
+        //适用于Dubbo在创建、更新、删除的场景
+        //@see DubboServiceImpl publishToEnvoy
+        String dubboMeta = "DubboMeta";
+        if (metaMap.containsKey(dubboMeta)){
+            return;
+        }
+        ServiceInfo serviceInfo = serviceInfoService.getServiceById(String.valueOf(routeRuleProxyInfo.getServiceId()));
         if (serviceInfo == null) {
-            return headerOperation;
+            return;
         }
         if (!ServiceType.dubbo.name().equals(serviceInfo.getServiceType())) {
-            return headerOperation;
+            return;
         }
-        return dubboService.getDubboHeaderOperation(dubboService.getDubboDto(routeRuleProxyInfo.getId(), Const.ROUTE), headerOperation);
+        DubboInfoDto dubboDto = dubboService.getDubboDto(routeRuleProxyInfo.getId(), Const.ROUTE);
+        if (dubboDto == null) {
+            return;
+        }
+        dubboService.parseDefaultValue(dubboDto);
+        metaMap.put(dubboMeta, JSON.toJSONString(dubboDto));
+
     }
 
     /**
