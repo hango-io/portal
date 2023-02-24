@@ -168,7 +168,7 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
             return true;
         }
         DomainInfo dbDomain = domainInfoDao.get(domainInfoDTO.getId());
-        if (!Objects.equals(dbDomain.getCertificateId(), domainInfoDTO.getCertificateId())){
+        if (Objects.equals(dbDomain.getCertificateId(), domainInfoDTO.getCertificateId())){
             //证书未修改不需要刷新
             return true;
         }
