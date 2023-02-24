@@ -91,6 +91,7 @@ public class PluginInfoController extends AbstractController {
             pluginConfig = pluginBindingDto.getPluginConfiguration();
         }
         pluginBindingDtoInDB.setPluginConfiguration(pluginConfig);
+        pluginBindingDtoInDB.setTemplateId(pluginBindingDto.getTemplateId());
         long result = pluginInfoService.update(pluginBindingDtoInDB);
         if (BaseConst.ERROR_RESULT == result) {
             return apiReturn(CommonErrorCode.INTERNAL_SERVER_ERROR);
