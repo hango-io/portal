@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wsdl:definitions
+        xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+        xmlns:tns="http://tempuri.org/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:s="http://www.w3.org/2001/XMLSchema"
+        xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        targetNamespace="http://tempuri.org/">
+    <wsdl:types>
+        <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+            <s:element name="QueryMessage">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="inputXml" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="QueryMessageResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="QueryMessageResult" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="string" nillable="true" type="s:string"/>
+        </s:schema>
+    </wsdl:types>
+    <wsdl:message name="QueryMessageSoapIn">
+        <wsdl:part name="parameters" element="tns:QueryMessage"/>
+    </wsdl:message>
+    <wsdl:message name="QueryMessageSoapOut">
+        <wsdl:part name="parameters" element="tns:QueryMessageResponse"/>
+    </wsdl:message>
+    <wsdl:message name="QueryMessageHttpGetIn">
+        <wsdl:part name="inputXml" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="QueryMessageHttpGetOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="QueryMessageHttpPostIn">
+        <wsdl:part name="inputXml" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="QueryMessageHttpPostOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:portType name="MessageServiceSoap">
+        <wsdl:operation name="QueryMessage">
+            <wsdl:input message="tns:QueryMessageSoapIn"/>
+            <wsdl:output message="tns:QueryMessageSoapOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="MessageServiceHttpGet">
+        <wsdl:operation name="QueryMessage">
+            <wsdl:input message="tns:QueryMessageHttpGetIn"/>
+            <wsdl:output message="tns:QueryMessageHttpGetOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="MessageServiceHttpPost">
+        <wsdl:operation name="QueryMessage">
+            <wsdl:input message="tns:QueryMessageHttpPostIn"/>
+            <wsdl:output message="tns:QueryMessageHttpPostOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="MessageServiceSoap" type="tns:MessageServiceSoap">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="QueryMessage">
+            <soap:operation soapAction="http://tempuri.org/QueryMessage" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="MessageServiceSoap12" type="tns:MessageServiceSoap">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="QueryMessage">
+            <soap12:operation soapAction="http://tempuri.org/QueryMessage" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="MessageServiceHttpGet" type="tns:MessageServiceHttpGet">
+        <http:binding verb="GET"/>
+        <wsdl:operation name="QueryMessage">
+            <http:operation location="/QueryMessage"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="MessageServiceHttpPost" type="tns:MessageServiceHttpPost">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="QueryMessage">
+            <http:operation location="/QueryMessage"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="MessageService">
+        <wsdl:port name="MessageServiceSoap" binding="tns:MessageServiceSoap">
+            <soap:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/MessageService.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="MessageServiceSoap12" binding="tns:MessageServiceSoap12">
+            <soap12:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/MessageService.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="MessageServiceHttpGet" binding="tns:MessageServiceHttpGet">
+            <http:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/MessageService.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="MessageServiceHttpPost" binding="tns:MessageServiceHttpPost">
+            <http:address
+                    location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/MessageService.asmx"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

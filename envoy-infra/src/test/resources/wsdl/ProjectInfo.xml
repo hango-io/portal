@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wsdl:definitions
+        xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+        xmlns:tns="http://tempuri.org/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:s="http://www.w3.org/2001/XMLSchema"
+        xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        targetNamespace="http://tempuri.org/">
+    <wsdl:types>
+        <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+            <s:element name="GetProjectCode">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="1" maxOccurs="1" name="ProjectID" type="s:int"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="GetProjectCodeResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="GetProjectCodeResult" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="GetProjectName">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="1" maxOccurs="1" name="ProjectID" type="s:int"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="GetProjectNameResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element minOccurs="0" maxOccurs="1" name="GetProjectNameResult" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="string" nillable="true" type="s:string"/>
+        </s:schema>
+    </wsdl:types>
+    <wsdl:message name="GetProjectCodeSoapIn">
+        <wsdl:part name="parameters" element="tns:GetProjectCode"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectCodeSoapOut">
+        <wsdl:part name="parameters" element="tns:GetProjectCodeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectNameSoapIn">
+        <wsdl:part name="parameters" element="tns:GetProjectName"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectNameSoapOut">
+        <wsdl:part name="parameters" element="tns:GetProjectNameResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectCodeHttpGetIn">
+        <wsdl:part name="ProjectID" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectCodeHttpGetOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectNameHttpGetIn">
+        <wsdl:part name="ProjectID" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectNameHttpGetOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectCodeHttpPostIn">
+        <wsdl:part name="ProjectID" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectCodeHttpPostOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectNameHttpPostIn">
+        <wsdl:part name="ProjectID" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetProjectNameHttpPostOut">
+        <wsdl:part name="Body" element="tns:string"/>
+    </wsdl:message>
+    <wsdl:portType name="ProjectInfoSoap">
+        <wsdl:operation name="GetProjectCode">
+            <wsdl:input message="tns:GetProjectCodeSoapIn"/>
+            <wsdl:output message="tns:GetProjectCodeSoapOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <wsdl:input message="tns:GetProjectNameSoapIn"/>
+            <wsdl:output message="tns:GetProjectNameSoapOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="ProjectInfoHttpGet">
+        <wsdl:operation name="GetProjectCode">
+            <wsdl:input message="tns:GetProjectCodeHttpGetIn"/>
+            <wsdl:output message="tns:GetProjectCodeHttpGetOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <wsdl:input message="tns:GetProjectNameHttpGetIn"/>
+            <wsdl:output message="tns:GetProjectNameHttpGetOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="ProjectInfoHttpPost">
+        <wsdl:operation name="GetProjectCode">
+            <wsdl:input message="tns:GetProjectCodeHttpPostIn"/>
+            <wsdl:output message="tns:GetProjectCodeHttpPostOut"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <wsdl:input message="tns:GetProjectNameHttpPostIn"/>
+            <wsdl:output message="tns:GetProjectNameHttpPostOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="ProjectInfoSoap" type="tns:ProjectInfoSoap">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetProjectCode">
+            <soap:operation soapAction="http://tempuri.org/GetProjectCode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <soap:operation soapAction="http://tempuri.org/GetProjectName" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ProjectInfoSoap12" type="tns:ProjectInfoSoap">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetProjectCode">
+            <soap12:operation soapAction="http://tempuri.org/GetProjectCode" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <soap12:operation soapAction="http://tempuri.org/GetProjectName" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ProjectInfoHttpGet" type="tns:ProjectInfoHttpGet">
+        <http:binding verb="GET"/>
+        <wsdl:operation name="GetProjectCode">
+            <http:operation location="/GetProjectCode"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <http:operation location="/GetProjectName"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ProjectInfoHttpPost" type="tns:ProjectInfoHttpPost">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="GetProjectCode">
+            <http:operation location="/GetProjectCode"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetProjectName">
+            <http:operation location="/GetProjectName"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ProjectInfo">
+        <wsdl:port name="ProjectInfoSoap" binding="tns:ProjectInfoSoap">
+            <soap:address location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/ProjectInfo.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="ProjectInfoSoap12" binding="tns:ProjectInfoSoap12">
+            <soap12:address location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/ProjectInfo.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="ProjectInfoHttpGet" binding="tns:ProjectInfoHttpGet">
+            <http:address location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/ProjectInfo.asmx"/>
+        </wsdl:port>
+        <wsdl:port name="ProjectInfoHttpPost" binding="tns:ProjectInfoHttpPost">
+            <http:address location="http://projectmanagebak.chamc.com.cn/projectmanage/WebServices/ProjectInfo.asmx"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
