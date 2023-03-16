@@ -18,8 +18,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
  * @Date: 创建时间: 2017/12/4 上午10:33.
  */
-//@SpringBootApplication(exclude = {GsonAutoConfiguration.class, RedisAutoConfiguration.class, RedissonAutoConfiguration.class})
-@SpringBootApplication(exclude = {GsonAutoConfiguration.class})
+@SpringBootApplication(exclude = {GsonAutoConfiguration.class, RedisAutoConfiguration.class, RedissonAutoConfiguration.class})
 @EnableScheduling
 @ComponentScan(value = {"org.hango.cloud"})
 @MapperScan("org.hango.cloud.*.infra.base.mapper")
