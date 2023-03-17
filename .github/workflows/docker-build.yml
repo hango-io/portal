@@ -11,7 +11,7 @@ on:
       - "v*"
 
 jobs:
-  build:
+  buildx:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,5 +45,7 @@ jobs:
         with:
           context: .
           file: ./envoy-infra/Dockerfile
+          # 所需要的体系结构，可以在 Available platforms 步骤中获取所有的可用架构
+          platforms: linux/amd64,linux/arm64/v8
           push: ${{ github.ref_type == 'tag' }}
           tags: ${{ steps.meta.outputs.tags }}
