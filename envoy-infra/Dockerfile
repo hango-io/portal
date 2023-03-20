@@ -1,4 +1,4 @@
-FROM tomcat:8.5-jdk8
+FROM hangoio/tomcat-8.5-jdk8-openjdk-skiff:v1.8-221102-multi
 ENV TZ=Asia/Shanghai LANG=C.UTF-8 LANGUAGE=C.UTF-8 LC_ALL=C.UTF-8
 ENV ROTATE_LOG_SIZE=1000M
 ENV ROTATE_LOG_INTERVAL=86400
