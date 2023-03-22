@@ -174,6 +174,7 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
         PluginOrderDto pluginOrderDto = new PluginOrderDto();
         pluginOrderDto.setGatewayKind(virtualGatewayDto.getType());
         pluginOrderDto.setName(StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, "gw-cluster", gwClusterName, virtualGatewayDto.getCode()));
+        pluginOrderDto.setPort(virtualGatewayDto.getPort());
         return pluginOrderDto;
     }
 

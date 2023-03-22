@@ -26,6 +26,9 @@ import org.hango.cloud.common.infra.virtualgateway.dto.QueryVirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
+import org.hango.cloud.envoy.infra.gateway.dto.EnvoyServiceDTO;
+import org.hango.cloud.envoy.infra.gateway.dto.EnvoyServicePortDTO;
+import org.hango.cloud.envoy.infra.gateway.service.IEnvoyGatewayService;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.IstioGatewayDto;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.IstioGatewayServerDto;
@@ -76,6 +79,9 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
     @Autowired
     private IPluginInfoService pluginInfoService;
 
+    @Autowired
+    private IEnvoyGatewayService envoyGatewayService;
+
     //本迭代只支持单向Tls认证
     public static final String SIMPLE = "SIMPLE";
 
@@ -83,6 +89,8 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
 
     public static final String XFF = "xff";
 
+    public static final String NODE_PORT = "NodePort";
+    public static final String CLUSTER_IP = "ClusterIp";
 
     private static final Logger logger = LoggerFactory.getLogger(EnvoyVgServiceImpl.class);
 
@@ -449,5 +457,47 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
 
     private void recordExceptionLog(Exception e){
         logger.error("调用api-plane发布接口异常，e", e);
+    }
+
+    @Override
+    public List<String> getEnvoyListenerAddr(VirtualGatewayDto virtualGatewayDto) {
+        if (CollectionUtils.isEmpty(virtualGatewayDto.getProjectIdList())){
+            return null;
+        }
+        List<EnvoyServiceDTO> envoyServiceDTOS = envoyGatewayService.getEnvoyService(virtualGatewayDto.getGwId());
+        if (CollectionUtils.isEmpty(envoyServiceDTOS)){
+            return null;
+        }
+        //暂不考虑多服务的场景，只获取第一个服务配置。
+        EnvoyServiceDTO envoyServiceDTO = envoyServiceDTOS.get(0);
+        //ClusterIP
+        if (CLUSTER_IP.equalsIgnoreCase(envoyServiceDTO.getServiceType())){
+            return null;
+        }
+        List<String> ips = envoyServiceDTO.getIps();
+        if (CollectionUtils.isEmpty(ips)){
+            return null;
+        }
+
+        int targetPort = virtualGatewayDto.getPort();
+        if (NODE_PORT.equalsIgnoreCase(envoyServiceDTO.getServiceType())){
+            targetPort = getNodePort(virtualGatewayDto.getPort(), envoyServiceDTO.getPorts());
+        }
+        List<String> eps = new ArrayList<>();
+        for (String ip : ips) {
+            String ep = ip;
+            if (targetPort > 0){
+                ep = ep + ":" + targetPort;
+            }
+            eps.add(ep);
+        }
+        return eps;
+    }
+
+    private int getNodePort(int port, List<EnvoyServicePortDTO> servicePortDTOS){
+        if (CollectionUtils.isEmpty(servicePortDTOS)){
+            return 0;
+        }
+        return servicePortDTOS.stream().filter(o -> port == o.getPort()).map(EnvoyServicePortDTO::getNodePort).findFirst().orElse(0);
     }
 }

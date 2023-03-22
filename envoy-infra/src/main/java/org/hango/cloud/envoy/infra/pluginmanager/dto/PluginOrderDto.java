@@ -18,6 +18,12 @@ public class PluginOrderDto {
     @JSONField(name = "GatewayKind")
     private String gatewayKind;
 
+    /**
+     * plm对应端口
+     */
+    @JSONField(name = "Port")
+    private Integer port;
+
 
     @JSONField(name  = "Plugins")
     private List<PluginOrderItemDto> plugins;
@@ -46,5 +52,13 @@ public class PluginOrderDto {
 
     public void setGatewayKind(String gatewayKind) {
         this.gatewayKind = gatewayKind;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }
