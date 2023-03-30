@@ -13,6 +13,6 @@ COPY envoy-infra/target/*.jar webapps/ROOT
 RUN ls webapps/ROOT
 ENTRYPOINT ["java","-jar","/usr/local/tomcat/webapps/ROOT/envoy-infra-0.0.1-SNAPSHOT.jar", \
 "-DAsyncLoggerConfig.RingBufferSize=16384", \
-"-Xmx2048m", "-Xms512m", "-verbose:gc", "-XX:+PrintGCDetails", "-XX:SurvivorRatio=2", "-XX:NewRatio=1", \
+"-Xmx800m", "-Xms400m", "-verbose:gc", "-XX:+PrintGCDetails", "-XX:SurvivorRatio=2", "-XX:NewRatio=1", \
 "-XX:+PrintGCTimeStamps", "-Xloggc:/data/log/apigw-gateway/gc/gc.log", \
 "-XX:+UseG1GC", "-XX:MaxMetaspaceSize=256m", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=/data/log/hango-gateway/java_gateway_heapdump.hprof"]
