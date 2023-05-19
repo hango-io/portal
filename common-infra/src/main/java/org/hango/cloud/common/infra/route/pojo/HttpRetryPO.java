@@ -1,0 +1,44 @@
+package org.hango.cloud.common.infra.route.pojo;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+/**
+ * @Author zhufengwei
+ * @Date 2023/1/10
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class HttpRetryPO {
+    /**
+     * 是否需要重试
+     */
+    private Boolean isRetry;
+
+    /**
+     * 重试次数
+     */
+    private int attempts;
+
+    /**
+     * 重试超时时间，默认为ms
+     */
+    private long perTryTimeout;
+
+    /**
+     * 重试条件，，分割
+     * 5xx,gateway-error,refused-stream,connect-failure
+     */
+    private String retryOn;
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+}

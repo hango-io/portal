@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:tns="http://soap.ctsmgr.chamc.com/"
+        xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+        name="QuickRecoInterfaceService"
+        targetNamespace="http://soap.ctsmgr.chamc.com/">
+    <wsdl:types>
+        <xs:schema
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:tns="http://soap.ctsmgr.chamc.com/" attributeFormDefault="unqualified"
+                elementFormDefault="unqualified" targetNamespace="http://soap.ctsmgr.chamc.com/">
+            <xs:element name="quickReco" type="tns:quickReco"/>
+            <xs:element name="quickRecoNew" type="tns:quickRecoNew"/>
+            <xs:element name="quickRecoNewResponse" type="tns:quickRecoNewResponse"/>
+            <xs:element name="quickRecoResponse" type="tns:quickRecoResponse"/>
+            <xs:complexType name="quickReco">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="quickRecoResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="return" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="quickRecoNew">
+                <xs:sequence>
+                    <xs:element form="qualified" minOccurs="0" name="messageXml" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="quickRecoNewResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="return" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="Exception" type="tns:Exception"/>
+            <xs:complexType name="Exception">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="message" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="quickRecoNew">
+        <wsdl:part element="tns:quickRecoNew" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="quickRecoNewResponse">
+        <wsdl:part element="tns:quickRecoNewResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="quickReco">
+        <wsdl:part element="tns:quickReco" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="quickRecoResponse">
+        <wsdl:part element="tns:quickRecoResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="Exception">
+        <wsdl:part element="tns:Exception" name="Exception"/>
+    </wsdl:message>
+    <wsdl:portType name="QuickRecoSoap">
+        <wsdl:operation name="quickReco">
+            <wsdl:input message="tns:quickReco" name="quickReco"/>
+            <wsdl:output message="tns:quickRecoResponse" name="quickRecoResponse"/>
+            <wsdl:fault message="tns:Exception" name="Exception"/>
+        </wsdl:operation>
+        <wsdl:operation name="quickRecoNew">
+            <wsdl:input message="tns:quickRecoNew" name="quickRecoNew"/>
+            <wsdl:output message="tns:quickRecoNewResponse" name="quickRecoNewResponse"/>
+            <wsdl:fault message="tns:Exception" name="Exception"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="QuickRecoInterfaceServiceSoapBinding" type="tns:QuickRecoSoap">
+        <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="quickReco">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="quickReco">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="quickRecoResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap12:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="quickRecoNew">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="quickRecoNew">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="quickRecoNewResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="Exception">
+                <soap12:fault name="Exception" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="QuickRecoInterfaceService">
+        <wsdl:port binding="tns:QuickRecoInterfaceServiceSoapBinding" name="QuickRecoSoapPort">
+            <soap12:address location="http://bak-sys-ctsmgr.chamc.com.cn:8080/ctsmgr/webservice/quickRecognizeService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

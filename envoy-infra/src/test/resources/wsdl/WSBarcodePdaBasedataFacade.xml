@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:impl="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                  xmlns:tns1="urn:client.barcodepdabasedatafacade"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  targetNamespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade">
+    <!--WSDL created by Apache Axis version: 1.4.1-SNAPSHOT
+Built on Jun 15, 2017 (10:55:06 UTC)-->
+    <wsdl:types>
+        <schema targetNamespace="urn:client.barcodepdabasedatafacade"
+                xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+            <complexType name="WSInvokeException">
+                <sequence/>
+            </complexType>
+        </schema>
+    </wsdl:types>
+    <wsdl:message name="importBillResponse">
+        <wsdl:part name="importBillReturn" type="xsd:string"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="WSInvokeException">
+        <wsdl:part name="fault" type="tns1:WSInvokeException"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMethodResponse">
+        <wsdl:part name="getMethodReturn" type="xsd:string"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="uploadDataRequest">
+        <wsdl:part name="argumentStr" type="xsd:string"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="uploadDataResponse">
+        <wsdl:part name="uploadDataReturn" type="xsd:base64Binary"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="importBillRequest">
+        <wsdl:part name="xmlStr" type="xsd:string"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMethodRequest">
+        <wsdl:part name="argumentXml" type="xsd:string"></wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="WSBarcodePdaBasedataFacadeSrvProxy">
+        <wsdl:operation name="getMethod" parameterOrder="argumentXml">
+            <wsdl:input message="impl:getMethodRequest" name="getMethodRequest"></wsdl:input>
+            <wsdl:output message="impl:getMethodResponse" name="getMethodResponse"></wsdl:output>
+            <wsdl:fault message="impl:WSInvokeException" name="WSInvokeException"></wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="importBill" parameterOrder="xmlStr">
+            <wsdl:input message="impl:importBillRequest" name="importBillRequest"></wsdl:input>
+            <wsdl:output message="impl:importBillResponse" name="importBillResponse"></wsdl:output>
+            <wsdl:fault message="impl:WSInvokeException" name="WSInvokeException"></wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="uploadData" parameterOrder="argumentStr">
+            <wsdl:input message="impl:uploadDataRequest" name="uploadDataRequest"></wsdl:input>
+            <wsdl:output message="impl:uploadDataResponse" name="uploadDataResponse"></wsdl:output>
+            <wsdl:fault message="impl:WSInvokeException" name="WSInvokeException"></wsdl:fault>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="WSBarcodePdaBasedataFacadeSoapBinding" type="impl:WSBarcodePdaBasedataFacadeSrvProxy">
+        <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="getMethod">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="getMethodRequest">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://app.pda.barcode.eas.kingdee.com" use="encoded"/>
+            </wsdl:input>
+            <wsdl:output name="getMethodResponse">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                               use="encoded"/>
+            </wsdl:output>
+            <wsdl:fault name="WSInvokeException">
+                <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="WSInvokeException"
+                                namespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                                use="encoded"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="importBill">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="importBillRequest">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://app.pda.barcode.eas.kingdee.com" use="encoded"/>
+            </wsdl:input>
+            <wsdl:output name="importBillResponse">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                               use="encoded"/>
+            </wsdl:output>
+            <wsdl:fault name="WSInvokeException">
+                <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="WSInvokeException"
+                                namespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                                use="encoded"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="uploadData">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="uploadDataRequest">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://app.pda.barcode.eas.kingdee.com" use="encoded"/>
+            </wsdl:input>
+            <wsdl:output name="uploadDataResponse">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                               use="encoded"/>
+            </wsdl:output>
+            <wsdl:fault name="WSInvokeException">
+                <wsdlsoap:fault encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" name="WSInvokeException"
+                                namespace="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"
+                                use="encoded"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="WSBarcodePdaBasedataFacadeSrvProxyService">
+        <wsdl:port binding="impl:WSBarcodePdaBasedataFacadeSoapBinding" name="WSBarcodePdaBasedataFacade">
+            <wsdlsoap:address location="http://re.kingdee.com:7900/ormrpc/services/WSBarcodePdaBasedataFacade"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

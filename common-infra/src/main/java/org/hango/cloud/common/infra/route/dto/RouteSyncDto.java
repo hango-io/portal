@@ -1,0 +1,39 @@
+package org.hango.cloud.common.infra.route.dto;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.Min;
+import java.util.List;
+
+/**
+ * @Author zhufengwei
+ * @Date 2023/1/11
+ */
+@Getter
+@Setter
+public class RouteSyncDto {
+
+    /**
+     * 路由规则发布指定的网关id
+     */
+    @NotEmpty
+    @JSONField(name = "VirtualGwIds")
+    private List<Long> virtualGwIds;
+
+    /**
+     * 发布指定的路由规则id
+     */
+    @JSONField(name = "RouteRuleId")
+    @Min(1)
+    private Long routeRuleId;
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+}
