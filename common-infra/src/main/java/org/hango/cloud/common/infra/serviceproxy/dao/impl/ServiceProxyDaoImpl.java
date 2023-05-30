@@ -62,7 +62,7 @@ public class ServiceProxyDaoImpl implements IServiceProxyDao {
     @Override
     public List<ServiceProxyInfo> getByConditionOptional(ServiceProxyQuery query) {
         LambdaQueryWrapper<ServiceProxyInfo> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(ServiceProxyInfo::getProjectId, query.getProjectId());
+        wrapper.eq(NumberUtils.LONG_ZERO < query.getProjectId(), ServiceProxyInfo::getProjectId, query.getProjectId());
         wrapper.eq(StringUtils.isNotBlank(query.getPattern()), ServiceProxyInfo::getName, query.getPattern());
         wrapper.eq(NumberUtils.LONG_ZERO < query.getVirtualGwId(), ServiceProxyInfo::getVirtualGwId, query.getVirtualGwId());
         wrapper.in(CollectionUtils.isNotEmpty(query.getNameList()), ServiceProxyInfo::getName, query.getNameList());

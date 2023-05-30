@@ -209,6 +209,8 @@ public class BaseConst {
 
     public static final String RESULT = "Result";
 
+    public static final String TOTAL = "Total";
+
     public static final String RESULT_LIST = "List";
 
     public static final String ACCOUNT_ID = "AccountId";
