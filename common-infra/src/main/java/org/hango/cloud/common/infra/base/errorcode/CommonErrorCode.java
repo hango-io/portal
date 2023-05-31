@@ -96,6 +96,7 @@ public class CommonErrorCode extends ErrorCode {
     public static final ErrorCode INVALID_LABEL = new ErrorCode(ErrorCodeEnum.INVALID_LABEL);
     public static final ErrorCode NO_SUBSET_OF_SERVICE = new ErrorCode(ErrorCodeEnum.NO_SUBSET_OF_SERVICE);
     public static final ErrorCode PROJECT_NOT_ASSOCIATED_GATEWAY = new ErrorCode(ErrorCodeEnum.PROJECT_NOT_ASSOCIATED_GATEWAY);
+    public static final ErrorCode GW_NOT_ASSOCIATED_DOMAIN = new ErrorCode(ErrorCodeEnum.GW_NOT_ASSOCIATED_DOMAIN);
     public static final ErrorCode CANNOT_DELETE_VIRTUAL_GATEWAY = new ErrorCode(ErrorCodeEnum.CANNOT_DELETE_VIRTUAL_GATEWAY);
     public static final ErrorCode ROUTE_HAS_TRAFFIC_MARK_RULES = new ErrorCode(ErrorCodeEnum.ROUTE_HAS_TRAFFIC_MARK_RULES);
 

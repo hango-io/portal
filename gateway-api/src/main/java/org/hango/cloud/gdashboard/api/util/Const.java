@@ -188,7 +188,7 @@ public class Const {
 
     public static final String KUBERNETES_GATEWAY = "KubernetesGateway";
 
-    public static final String KUBERNETES_INGRESS = "KubernetesIngress";
+    public static final String KUBERNETES_INGRESS = "Ingress";
 
     public static final String AUTO_GENERATE = "Auto Generate";
 

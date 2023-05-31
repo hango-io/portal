@@ -36,6 +36,19 @@ public class QueryVirtualGatewayDto extends PageQuery implements Serializable {
     private String pattern;
 
     /**
+     * 虚拟网关类型
+     */
+    @JSONField(name = "Type")
+    private String type;
+
+
+    /**
+     * 网关id
+     */
+    @JSONField(name = "GwId")
+    private Long gwId;
+
+    /**
      * 虚拟网关ID
      */
     @JSONField(name = "VirtualGwId")
@@ -96,5 +109,21 @@ public class QueryVirtualGatewayDto extends PageQuery implements Serializable {
 
     public void setDomainId(Long domainId) {
         this.domainId = domainId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getGwId() {
+        return gwId;
+    }
+
+    public void setGwId(Long gwId) {
+        this.gwId = gwId;
     }
 }

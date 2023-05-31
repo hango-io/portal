@@ -33,8 +33,7 @@ import java.util.stream.Collectors;
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PLUGIN_PATH;
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_VERSION;
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.MODULE_API_PLANE;
-import static org.hango.cloud.gdashboard.api.util.Const.ACTION;
-import static org.hango.cloud.gdashboard.api.util.Const.VERSION;
+import static org.hango.cloud.gdashboard.api.util.Const.*;
 
 /**
  * @author zhangbj
@@ -172,8 +171,16 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
             gwClusterName = gatewayDto.getGwClusterName();
         }
         PluginOrderDto pluginOrderDto = new PluginOrderDto();
+        pluginOrderDto.setGwCluster(gwClusterName);
         pluginOrderDto.setGatewayKind(virtualGatewayDto.getType());
-        pluginOrderDto.setName(StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, "gw-cluster", gwClusterName, virtualGatewayDto.getCode()));
+        String name;
+        //多个ingress共用plm
+        if (KUBERNETES_INGRESS.equals(virtualGatewayDto.getType())){
+            name = StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, "ingress", gwClusterName);
+        }else {
+            name = StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, "gw-cluster", gwClusterName, virtualGatewayDto.getCode());
+        }
+        pluginOrderDto.setName(name);
         pluginOrderDto.setPort(virtualGatewayDto.getPort());
         return pluginOrderDto;
     }

@@ -11,6 +11,7 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
+import org.hango.cloud.envoy.infra.virtualgateway.dto.IngressDTO;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayInfo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_GATEWAY;
 
 /**
  * @Description 封装对plane的远程调用
@@ -58,7 +61,7 @@ public class VirtualGatewayRpcService {
                 return new ArrayList<>();
             }
             List<KubernetesGatewayInfo> gatewayDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), KubernetesGatewayInfo.class);
-            return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).collect(Collectors.toList());
+            return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).peek(o -> o.setType(KUBERNETES_GATEWAY)).collect(Collectors.toList());
         } catch (Exception e) {
             log.error("调用api-plane发布接口异常，e:", e);
             return new ArrayList<>();
@@ -101,5 +104,47 @@ public class VirtualGatewayRpcService {
             return new ArrayList<>();
         }
         return result;
+    }
+
+    /**
+     * 查询K8s Ingress
+     *
+     * @param confAddr    apiPlane服务地址
+     * @param gatewayName 网关名字
+     * @return K8s Gateway列表对象
+     */
+    public List<IngressDTO> getKubernetesIngress(String confAddr, String gatewayName) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("Action", "GetIngress");
+        params.put("Version", "2022-12-31");
+        if (StringUtils.isNotEmpty(gatewayName)) {
+            String[] split = gatewayName.split("/");
+            if (split.length != 2 || StringUtils.isEmpty(split[0]) || StringUtils.isEmpty(split[1])){
+                log.error("ingress name错误, ingressName:{}", gatewayName);
+                return new ArrayList<>();
+            }
+            params.put("GatewayName", split[0]);
+            params.put("Namespace", split[1]);
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpClientResponse response = HttpClientUtil.getRequest(confAddr + "/api/ingress", params, headers, EnvoyConst.MODULE_API_PLANE);
+            if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+                log.error("调用api-plane发布服务接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+                return new ArrayList<>();
+            }
+            JSONObject jsonObject = JSON.parseObject(response.getResponseBody());
+            if (jsonObject == null) {
+                log.info("未查询到有效数据");
+                return new ArrayList<>();
+            }
+            List<IngressDTO> gatewayDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), IngressDTO.class);
+            return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("调用api-plane发布接口异常，e:", e);
+            return new ArrayList<>();
+        }
     }
 }

@@ -21,7 +21,7 @@ public interface IVirtualGatewayInfoService extends CommonService<VirtualGateway
     /**
      * 通过gwId和虚拟网关类型查询列表信息
      */
-    List<VirtualGatewayDto> getVirtualGatewayList(long gwId, String type);
+    List<VirtualGatewayDto> getKubernetesGatewayList(long gwId);
 
 
     /**
@@ -54,6 +54,7 @@ public interface IVirtualGatewayInfoService extends CommonService<VirtualGateway
      * @return 网关列表
      */
     List<VirtualGatewayDto> getVirtualGatewayList(QueryVirtualGatewayDto query);
+
 
     /**
      * 是否存在虚拟网关

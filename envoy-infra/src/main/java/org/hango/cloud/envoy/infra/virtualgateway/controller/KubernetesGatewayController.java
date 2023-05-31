@@ -6,8 +6,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.meta.Result;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
-import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayDTO;
-import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayHttpRouteDTO;
+import org.hango.cloud.envoy.infra.virtualgateway.dto.*;
 import org.hango.cloud.envoy.infra.virtualgateway.service.IKubernetesGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -60,6 +59,17 @@ public class KubernetesGatewayController extends AbstractController {
         String kubernetesGatewayYaml = kubernetesGatewayService.getKubernetesGatewayYaml(virtualGwId);
         return apiReturn(new Result(kubernetesGatewayYaml));
     }
+
+    /**
+     * 查询k8s gateway info
+     * @return
+     */
+    @GetMapping(params = {"Action=DescribeIngress"})
+    public Object describeIngress(@RequestParam("VirtualGatewayId") long virtualGwId) {
+        IngressViewDTO ingressDTO = kubernetesGatewayService.getIngress(virtualGwId);
+        return apiReturn(new Result(ingressDTO));
+    }
+
 
     /**
      * 查询K8s httpRoute列表

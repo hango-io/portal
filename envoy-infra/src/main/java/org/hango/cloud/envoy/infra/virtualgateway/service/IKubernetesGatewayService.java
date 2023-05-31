@@ -1,8 +1,7 @@
 package org.hango.cloud.envoy.infra.virtualgateway.service;
 
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
-import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayDTO;
-import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayHttpRouteDTO;
+import org.hango.cloud.envoy.infra.virtualgateway.dto.*;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public interface IKubernetesGatewayService {
     List<KubernetesGatewayDTO> getKubernetesGatewayList(Long virtualGatewayId);
 
     /**
-     * @Description: 查询gateway.yaml配置
+     * @Description: 查询k8s gateway配置
      * @param virtualGatewayId 虚拟网关ID
      * @return Yaml格式的字符串
      * @author xianyanglin
@@ -47,4 +46,11 @@ public interface IKubernetesGatewayService {
      * @date 2022/12/24 20:58
      */
     List<KubernetesGatewayHttpRouteDTO> getKubernetesGatewayHTTPRouteList(Long virtualGatewayId);
+
+
+    /**
+     * 查询ingress资源
+     */
+    IngressViewDTO getIngress(Long virtualGatewayId);
+
 }

@@ -57,6 +57,12 @@ public class KubernetesGatewayInfo {
     @JSONField(name = "Port")
     private int port;
 
+    /**
+     * k8s gateway类型 gateway api/ingress
+     */
+    @JSONField(name = "Type")
+    private String type;
+
 
 
     /**
