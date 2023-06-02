@@ -45,16 +45,20 @@ public class ServiceProxyDaoImpl implements IServiceProxyDao {
         wrapper.eq(NumberUtils.INTEGER_ZERO != query.getVirtualGwId(), ServiceProxyInfo::getVirtualGwId, query.getVirtualGwId());
         wrapper.eq(StringUtils.isNotBlank(query.getProtocol()), ServiceProxyInfo::getProtocol,query.getProtocol());
         if (StringUtils.isNotBlank(query.getPattern())) {
-            wrapper.like(ServiceProxyInfo::getName, query.getPattern())
-                    .or()
-                    .like(ServiceProxyInfo::getAlias, query.getPattern());
+            wrapper.and(
+                    i -> i.like(ServiceProxyInfo::getName, query.getPattern())
+                            .or()
+                            .like(ServiceProxyInfo::getAlias, query.getPattern())
+            );
         }
         if (StringUtils.isNotBlank(query.getCondition())) {
-            wrapper.like(ServiceProxyInfo::getName, query.getCondition())
-                    .or()
-                    .like(ServiceProxyInfo::getAlias, query.getCondition())
-                    .or()
-                    .like(ServiceProxyInfo::getHosts, query.getCondition());
+            wrapper.and(
+                    i -> i.like(ServiceProxyInfo::getName, query.getCondition())
+                            .or()
+                            .like(ServiceProxyInfo::getAlias, query.getCondition())
+                            .or()
+                            .like(ServiceProxyInfo::getHosts, query.getCondition())
+            );
         }
         return pageRecordsByField(wrapper, query.of());
     }

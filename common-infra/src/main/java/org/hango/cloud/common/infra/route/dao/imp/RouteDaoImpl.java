@@ -88,11 +88,13 @@ public class RouteDaoImpl implements IRouteDao {
             query.eq(RoutePO::getEnableState, ruleInfoQuery.getEnableStatus());
         }
         if (StringUtils.hasText(ruleInfoQuery.getPattern())) {
-            query.like(RoutePO::getName, ruleInfoQuery.getPattern())
-                    .or()
-                    .like(RoutePO::getAlias, ruleInfoQuery.getPattern())
-                    .or()
-                    .like(RoutePO::getUri, ruleInfoQuery.getPattern());
+            query.and(
+                    i -> i.like(RoutePO::getName, ruleInfoQuery.getPattern())
+                            .or()
+                            .like(RoutePO::getAlias, ruleInfoQuery.getPattern())
+                            .or()
+                            .like(RoutePO::getUri, ruleInfoQuery.getPattern())
+            );
         }
         if (ruleInfoQuery.getServiceId() != null) {
             query.apply("find_in_set ('" + ruleInfoQuery.getServiceId() + "', service_ids )");
