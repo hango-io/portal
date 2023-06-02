@@ -62,8 +62,13 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
     private final IServiceProxyService serviceProxyService;
 
     @Override
-    public void run(String... args) throws Exception {
-        compensate();
+    public void run(String... args) {
+        try {
+            compensate();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void compensate() {
