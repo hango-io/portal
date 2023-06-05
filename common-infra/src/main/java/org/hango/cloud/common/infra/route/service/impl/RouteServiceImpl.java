@@ -464,7 +464,6 @@ public class RouteServiceImpl implements IRouteService {
     @SuppressWarnings("java:S3776")
     private ErrorCode checkServiceAndSubsetExist(List<ServiceMetaForRouteDto> serviceMetaList, ServiceProxyDto serviceProxyDto) {
         if (serviceProxyDto == null) {
-            logger.error("路由规则关联的服务不存在! serviceId: {}", serviceProxyDto.getId());
             return CommonErrorCode.NO_SUCH_SERVICE;
         }
         for (ServiceMetaForRouteDto serviceMeta : serviceMetaList) {

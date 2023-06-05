@@ -10,7 +10,6 @@ import org.hango.cloud.common.infra.base.annotation.StringCheckInList;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Objects;
 
 import static org.hango.cloud.common.infra.base.meta.RegexConst.REGEX_MATCH_KEY;
 
@@ -44,11 +43,6 @@ public class RouteMapMatchDto {
     @StringCheckInList(max = 100, unique = true, message = "路由规则匹配值支持最长100个字符，不允许重复")
     @JSONField(name = "Value")
     private List<String> value;
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getKey(), getType(), getValue());
-    }
 
     @Override
     public String toString() {

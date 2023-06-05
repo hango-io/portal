@@ -225,7 +225,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         Set<String> targetHost = CommonUtil.splitStringToStringSet(hosts, ",");
 
         //域名相同不需要刷新
-        if (CommonUtil.equal(dbHost, targetHost)){
+        if (CommonUtil.equalSet(dbHost, targetHost)){
             return Boolean.TRUE;
         }
         return envoyServiceRefreshService.refreshRoute(vgId, serviceId, targetHost);

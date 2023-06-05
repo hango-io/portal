@@ -254,7 +254,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             log.warn("gateway filter|protocol is null|name:{}", gatewayInfo.getName());
             return false;
         }
-        if (!HTTP.equalsIgnoreCase(protocol) && !HTTP.equalsIgnoreCase(protocol)){
+        if (!Arrays.asList(HTTP, HTTPS).contains(protocol)){
             log.warn("gateway filter|protocol is error|name:{}, protocol:{}", gatewayInfo.getName(), protocol);
             return false;
         }

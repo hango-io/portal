@@ -26,6 +26,7 @@ import org.hango.cloud.common.infra.virtualgateway.dto.QueryVirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
+import org.hango.cloud.envoy.infra.base.util.LogUtil;
 import org.hango.cloud.envoy.infra.gateway.dto.EnvoyServiceDTO;
 import org.hango.cloud.envoy.infra.gateway.dto.EnvoyServicePortDTO;
 import org.hango.cloud.envoy.infra.gateway.service.IEnvoyGatewayService;
@@ -293,11 +294,11 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.postRequest(gatewayDto.getConfAddr() + PLANE_PORTAL_PATH, JSONObject.toJSONString(istioGatewayDto), params, headers, EnvoyConst.MODULE_API_PLANE);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                recordErrorLog(response);
+                logger.error(LogUtil.buildPlaneErrorLog(response));
                 return false;
             }
         } catch (Exception e) {
-            recordExceptionLog(e);
+            logger.error(LogUtil.buildPlaneExceptionLog(), e);
             return false;
         }
         return true;
@@ -324,11 +325,11 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.postRequest(gatewayDto.getConfAddr() + PLANE_PORTAL_PATH, JSONObject.toJSONString(istioGatewayDto), params, headers, EnvoyConst.MODULE_API_PLANE);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                recordErrorLog(response);
+                logger.error(LogUtil.buildPlaneErrorLog(response));
                 return false;
             }
         } catch (Exception e) {
-            recordExceptionLog(e);
+            logger.error(LogUtil.buildPlaneExceptionLog(), e);
             return false;
         }
         return true;
@@ -352,11 +353,11 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + "/api", JSONObject.toJSONString(param), params, headers, EnvoyConst.MODULE_API_PLANE);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                recordErrorLog(response);
+                logger.error(LogUtil.buildPlaneErrorLog(response));
                 return false;
             }
         } catch (Exception e) {
-            recordExceptionLog(e);
+            logger.error(LogUtil.buildPlaneExceptionLog(), e);
             return false;
         }
         return true;
@@ -378,11 +379,11 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + "/api", JSONObject.toJSONString(param), params, headers, EnvoyConst.MODULE_API_PLANE);
             if (response.getStatusCode() != HttpStatus.SC_OK) {
-                recordErrorLog(response);
+                logger.error(LogUtil.buildPlaneErrorLog(response));
                 return CommonErrorCode.INTERNAL_SERVER_ERROR;
             }
         } catch (Exception e) {
-            recordExceptionLog(e);
+            logger.error(LogUtil.buildPlaneExceptionLog(), e);
             return CommonErrorCode.INTERNAL_SERVER_ERROR;
         }
         return CommonErrorCode.SUCCESS;
@@ -450,14 +451,6 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
         return param;
     }
 
-
-    private void recordErrorLog(HttpClientResponse response){
-        logger.error("调用api-plane发布服务接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
-    }
-
-    private void recordExceptionLog(Exception e){
-        logger.error("调用api-plane发布接口异常，e", e);
-    }
 
     @Override
     public List<String> getEnvoyListenerAddr(VirtualGatewayDto virtualGatewayDto) {

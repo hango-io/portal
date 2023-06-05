@@ -11,6 +11,7 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
+import org.hango.cloud.envoy.infra.base.util.LogUtil;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.IngressDTO;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayInfo;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.hango.cloud.common.infra.base.meta.BaseConst.ACTION;
 import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_GATEWAY;
 
 /**
@@ -32,6 +34,8 @@ import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_GATEWAY;
 @Slf4j
 @Service
 public class VirtualGatewayRpcService {
+
+    public static final String GATEWAY_NAME = "GatewayName";
     /**
      * 查询K8s Gateway列表
      *
@@ -41,10 +45,9 @@ public class VirtualGatewayRpcService {
      */
     public List<KubernetesGatewayInfo> getKubernetesGateway(String confAddr, String gatewayName) {
         Map<String, Object> params = Maps.newHashMap();
-        params.put("Action", "GetKubernetesGateway");
-        params.put("Version", "2022-12-31");
+        params.put(ACTION, "GetKubernetesGateway");
         if (StringUtils.isNotEmpty(gatewayName)) {
-            params.put("GatewayName", gatewayName);
+            params.put(GATEWAY_NAME, gatewayName);
         }
 
         try {
@@ -52,7 +55,7 @@ public class VirtualGatewayRpcService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.getRequest(confAddr + "/api/gatewayapi", params, headers, EnvoyConst.MODULE_API_PLANE);
             if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
-                log.error("调用api-plane发布服务接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+                log.error(LogUtil.buildPlaneErrorLog(response));
                 return new ArrayList<>();
             }
             JSONObject jsonObject = JSON.parseObject(response.getResponseBody());
@@ -63,7 +66,7 @@ public class VirtualGatewayRpcService {
             List<KubernetesGatewayInfo> gatewayDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), KubernetesGatewayInfo.class);
             return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).peek(o -> o.setType(KUBERNETES_GATEWAY)).collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("调用api-plane发布接口异常，e:", e);
+            log.error(LogUtil.buildPlaneExceptionLog(), e);
             return new ArrayList<>();
         }
     }
@@ -78,17 +81,16 @@ public class VirtualGatewayRpcService {
     public List<HTTPRoute> getKubernetesGatewayHttpRoute(String confAddr, String gatewayName) {
         List<HTTPRoute> result = new ArrayList<>();
         Map<String, Object> params = Maps.newHashMap();
-        params.put("Action", "GetHTTPRoute");
-        params.put("Version", "2022-12-31");
+        params.put(ACTION, "GetHTTPRoute");
         if (StringUtils.isNotEmpty(gatewayName)) {
-            params.put("GatewayName", gatewayName);
+            params.put(GATEWAY_NAME, gatewayName);
         }
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.getRequest(confAddr + "/api/gatewayapi", params, headers, EnvoyConst.MODULE_API_PLANE);
             if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
-                log.error("调用api-plane发布服务接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+                log.error(LogUtil.buildPlaneErrorLog(response));
                 return new ArrayList<>();
             }
             log.info("ResponseBody :{}", response.getResponseBody());
@@ -100,7 +102,7 @@ public class VirtualGatewayRpcService {
             List<HTTPRoute> kubernetesGatewayHttpRouteList = JSON.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), HTTPRoute.class);
             result.addAll(kubernetesGatewayHttpRouteList);
         } catch (Exception e) {
-            log.error("调用api-plane发布接口异常，e:", e);
+            log.error(LogUtil.buildPlaneExceptionLog(), e);
             return new ArrayList<>();
         }
         return result;
@@ -115,15 +117,14 @@ public class VirtualGatewayRpcService {
      */
     public List<IngressDTO> getKubernetesIngress(String confAddr, String gatewayName) {
         Map<String, Object> params = Maps.newHashMap();
-        params.put("Action", "GetIngress");
-        params.put("Version", "2022-12-31");
+        params.put(ACTION, "GetIngress");
         if (StringUtils.isNotEmpty(gatewayName)) {
             String[] split = gatewayName.split("/");
             if (split.length != 2 || StringUtils.isEmpty(split[0]) || StringUtils.isEmpty(split[1])){
                 log.error("ingress name错误, ingressName:{}", gatewayName);
                 return new ArrayList<>();
             }
-            params.put("GatewayName", split[0]);
+            params.put(GATEWAY_NAME, split[0]);
             params.put("Namespace", split[1]);
         }
 
@@ -132,7 +133,7 @@ public class VirtualGatewayRpcService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpClientResponse response = HttpClientUtil.getRequest(confAddr + "/api/ingress", params, headers, EnvoyConst.MODULE_API_PLANE);
             if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
-                log.error("调用api-plane发布服务接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+                log.error(LogUtil.buildPlaneErrorLog(response));
                 return new ArrayList<>();
             }
             JSONObject jsonObject = JSON.parseObject(response.getResponseBody());
@@ -143,7 +144,7 @@ public class VirtualGatewayRpcService {
             List<IngressDTO> gatewayDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), IngressDTO.class);
             return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("调用api-plane发布接口异常，e:", e);
+            log.error(LogUtil.buildPlaneExceptionLog(), e);
             return new ArrayList<>();
         }
     }
