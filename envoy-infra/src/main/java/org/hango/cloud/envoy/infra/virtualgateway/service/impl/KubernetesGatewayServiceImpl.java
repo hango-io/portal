@@ -55,6 +55,8 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
     @Autowired
     private IPluginManagerService pluginManagerService;
 
+    @Autowired
+    private IKubernetesGatewayService kubernetesGatewayService;
 
     @Override
     public ErrorCode refreshK8sGateway() {
@@ -142,6 +144,11 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
         return ingressViewDTO;
     }
 
+    @Override
+    public void fillGatewayInfo(List<KubernetesGatewayInfo> gatewayInfoList) {
+        return;
+    }
+
     private void fillPluginInfo(IngressViewDTO ingressRuleViewDTO, Long virtualGatewayId){
         if (ingressRuleViewDTO == null){
             return;
@@ -219,6 +226,10 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
         }
         List<KubernetesGatewayInfo> ingressGatewayList = ingress.stream().map(Trans::toGateway).filter(Objects::nonNull).collect(Collectors.toList());
         targetResources.addAll(ingressGatewayList);
+        //设置projectId
+        kubernetesGatewayService.fillGatewayInfo(targetResources);
+        //过滤projectId
+        targetResources = targetResources.stream().filter(o -> o.getProjectId() != null).collect(Collectors.toList());
         return targetResources;
     }
 
@@ -254,7 +265,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             log.warn("gateway filter|protocol is null|name:{}", gatewayInfo.getName());
             return false;
         }
-        if (!Arrays.asList(HTTP, HTTPS).contains(protocol)){
+        if (!Arrays.asList(HTTP, HTTPS).contains(protocol.toLowerCase())){
             log.warn("gateway filter|protocol is error|name:{}, protocol:{}", gatewayInfo.getName(), protocol);
             return false;
         }

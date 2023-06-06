@@ -64,7 +64,7 @@ public class VirtualGatewayRpcService {
                 return new ArrayList<>();
             }
             List<KubernetesGatewayInfo> gatewayDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), KubernetesGatewayInfo.class);
-            return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).peek(o -> o.setType(KUBERNETES_GATEWAY)).collect(Collectors.toList());
+            return gatewayDTOS.stream().filter(o -> StringUtils.isNotBlank(o.getProjectCode())).peek(o -> o.setType(KUBERNETES_GATEWAY)).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(LogUtil.buildPlaneExceptionLog(), e);
             return new ArrayList<>();
@@ -141,8 +141,8 @@ public class VirtualGatewayRpcService {
                 log.info("未查询到有效数据");
                 return new ArrayList<>();
             }
-            List<IngressDTO> gatewayDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), IngressDTO.class);
-            return gatewayDTOS.stream().filter(o -> o.getProjectId() != null).collect(Collectors.toList());
+            List<IngressDTO> ingressDTOS = JSONArray.parseArray(jsonObject.getString(BaseConst.RESULT_LIST), IngressDTO.class);
+            return ingressDTOS.stream().filter(o -> StringUtils.isNotBlank(o.getProjectCode())).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(LogUtil.buildPlaneExceptionLog(), e);
             return new ArrayList<>();

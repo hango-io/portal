@@ -312,5 +312,5 @@ public class BaseConst {
     public static final String ROUTE_RULE_PROXY_LIST = "RouteList";
 
 
-
+    public static final String HANGO = "hango";
 }

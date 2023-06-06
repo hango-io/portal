@@ -53,4 +53,10 @@ public interface IKubernetesGatewayService {
      */
     IngressViewDTO getIngress(Long virtualGatewayId);
 
+
+    /**
+     * 填充gatewayinfo信息
+     */
+    void fillGatewayInfo(List<KubernetesGatewayInfo> gatewayInfoList);
+
 }

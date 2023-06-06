@@ -29,13 +29,19 @@ public class IngressDTO implements Serializable {
 
 
     /**
+     * 所属项目code
+     */
+    @JSONField(name = "ProjectCode")
+    private String projectCode;
+
+    /**
      * 所属项目id
      */
     @JSONField(name = "ProjectId")
     private Long projectId;
 
     /**
-     * 所属项目id
+     * ingress路由规则
      */
     @JSONField(name = "IngressRule")
     private List<IngressRuleDTO> ingressRuleDTOS;

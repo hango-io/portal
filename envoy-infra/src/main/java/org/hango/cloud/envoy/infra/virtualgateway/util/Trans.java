@@ -194,7 +194,7 @@ public class Trans {
         }
         KubernetesGatewayInfo gatewayInfo = new KubernetesGatewayInfo();
         gatewayInfo.setName(ingressDTO.getName() + "/" + ingressDTO.getNamespace());
-        gatewayInfo.setProjectId(ingressDTO.getProjectId());
+        gatewayInfo.setProjectCode(ingressDTO.getProjectCode());
         //ingress指定80端口
         gatewayInfo.setPort(80);
         gatewayInfo.setProtocol("HTTP");

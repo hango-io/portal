@@ -28,7 +28,13 @@ public class KubernetesGatewayInfo {
 
 
     /**
-     * 所属项目
+     * 所属项目Code
+     */
+    @JSONField(name = "ProjectCode")
+    private String projectCode;
+
+    /**
+     * 所属项目id
      */
     @JSONField(name = "ProjectId")
     private Long projectId;
