@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +39,8 @@ public class KubernetesVgHooker extends AbstractKubernetesVgHooker<VirtualGatewa
                 .filter(StringUtils::isNotBlank)
                 .map(platformPermissionScopeService::getPermissionScope)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(PermissionScopeDto::getPermissionScopeEnName, Function.identity()));
+                .collect(Collectors.groupingBy(PermissionScopeDto::getPermissionScopeEnName,
+                        Collectors.collectingAndThen(Collectors.toList(), list -> list.get(0))));
 
         for (KubernetesGatewayInfo kubernetesGatewayInfo : gatewayInfoList) {
             String projectCode = kubernetesGatewayInfo.getProjectCode();
