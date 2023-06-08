@@ -107,6 +107,8 @@ public class VirtualGatewayController extends AbstractController {
     public Object get(@RequestParam(name = "VirtualGwId") long virtualGwId) {
         logger.info("通过Id获取虚拟网关信息! virtualGwId = {}", virtualGwId);
         VirtualGatewayDto virtualGatewayDto = virtualGatewayService.get(virtualGwId);
+        //填充listener addr
+        virtualGatewayService.fillVirtualGatewayInfo(virtualGatewayDto);
         return apiReturn(new Result<>(virtualGatewayDto));
     }
 

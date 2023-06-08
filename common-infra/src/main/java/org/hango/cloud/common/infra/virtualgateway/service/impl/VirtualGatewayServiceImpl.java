@@ -299,6 +299,11 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
     }
 
     @Override
+    public void fillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto) {
+        return;
+    }
+
+    @Override
     public Boolean exist(VirtualGatewayQuery query) {
         return virtualGatewayDao.exist(query);
     }

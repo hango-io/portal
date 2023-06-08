@@ -87,6 +87,11 @@ public interface IVirtualGatewayInfoService extends CommonService<VirtualGateway
      * 查询虚拟网关配置
      */
     GatewaySettingDTO getGatewaySetting(Long id);
+
+    /**
+     * 填充virtualgateway 信息
+     */
+    void fillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto);
 }
 
 

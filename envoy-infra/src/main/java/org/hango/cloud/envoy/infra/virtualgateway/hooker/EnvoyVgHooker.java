@@ -56,16 +56,15 @@ public class EnvoyVgHooker extends AbstractVirtualGatewayHooker<VirtualGateway, 
     }
 
     @Override
-    protected Object findSingleEnhancement(Object o) {
-        if (o instanceof VirtualGatewayDto) {
-            VirtualGatewayDto virtualGatewayDto = (VirtualGatewayDto)o;
-            try {
-                List<String> listenerAddr = envoyVgService.getEnvoyListenerAddr(virtualGatewayDto);
-                virtualGatewayDto.setListenerAddr(listenerAddr);
-            }catch (Exception e){
-                log.error("get listener addr error, gwClusterName:{}", virtualGatewayDto.getGwClusterName(), e);
-            }
+    protected void fillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto) {
+        if (virtualGatewayDto == null){
+            return;
         }
-        return o;
+        try {
+            List<String> listenerAddr = envoyVgService.getEnvoyListenerAddr(virtualGatewayDto);
+            virtualGatewayDto.setListenerAddr(listenerAddr);
+        }catch (Exception e){
+            log.error("get listener addr error, gwClusterName:{}", virtualGatewayDto.getGwClusterName(), e);
+        }
     }
 }
