@@ -2,7 +2,6 @@ package org.hango.cloud.envoy.infra.grpc.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -72,7 +71,6 @@ public class EnvoyGrpcController extends AbstractController {
      * @param serviceId
      * @return
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=CheckUploadPbFile"}, method = RequestMethod.POST)
     public Object uploadPbFile(@RequestParam("File") MultipartFile file, @RequestParam("ServiceId") long serviceId) {
         logger.info("校验上传的Pb文件,serviceId:{}", serviceId);
@@ -109,7 +107,6 @@ public class EnvoyGrpcController extends AbstractController {
      * @param pbServiceList
      * @return
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=SaveAndPublishedPbFile"}, method = RequestMethod.POST)
     @Audit(eventName = "PublishPbFile", description = "发布pb文件")
     public Object publishPbFile(@RequestParam("ServiceId") long serviceId, @RequestParam("VirtualGwId") long virtualGwId, @RequestParam("PbServiceList") List<String> pbServiceList, @RequestParam("File") MultipartFile file) {
@@ -128,7 +125,6 @@ public class EnvoyGrpcController extends AbstractController {
      * @param serviceId
      * @return
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=DescribePublishedPbFileList"}, method = RequestMethod.GET)
     public Object describePublishedPbFileList(@RequestParam("ServiceId") long serviceId) {
         logger.info("查询已发布的pb详情, serviceId:{}", serviceId);
@@ -145,7 +141,6 @@ public class EnvoyGrpcController extends AbstractController {
      * @param serviceId
      * @return
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=OfflinePbFile"}, method = RequestMethod.GET)
     @Audit(eventName = "OfflinePbFile", description = "下线pb文件")
     public Object offlinePbFile(@RequestParam("ServiceId") long serviceId) {

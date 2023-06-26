@@ -3,7 +3,6 @@ package org.hango.cloud.common.infra.virtualgateway.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -194,7 +193,6 @@ public class VirtualGatewayController extends AbstractController {
     /**
      * 虚拟网关绑定域名
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=BindDomainInfo"}, method = RequestMethod.POST)
     public Object bindDomainInfo(@RequestBody DomainBindDTO domainInfoDTO) {
         logger.info("start bind domain param:{}", JSONObject.toJSONString(domainInfoDTO));
@@ -209,7 +207,6 @@ public class VirtualGatewayController extends AbstractController {
     /**
      * 虚拟网关绑定域名
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=UnbindDomainInfo"}, method = RequestMethod.POST)
     public Object unbindDomainInfo(@RequestBody DomainBindDTO domainInfoDTO) {
         logger.info("start unbind domain param:{}", JSONObject.toJSONString(domainInfoDTO));

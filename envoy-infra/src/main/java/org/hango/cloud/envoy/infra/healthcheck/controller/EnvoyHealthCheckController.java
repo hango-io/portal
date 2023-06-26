@@ -1,6 +1,5 @@
 package org.hango.cloud.envoy.infra.healthcheck.controller;
 
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -40,7 +39,6 @@ public class EnvoyHealthCheckController extends AbstractController {
     @Autowired
     private IServiceProxyService serviceProxyService;
 
-    @MethodReentrantLock
     @Audit(eventName = "UpdateHealthCheckRule", description = "更新服务健康检查规则")
     @RequestMapping(params = {"Action=UpdateHealthCheckRule"}, method = RequestMethod.POST)
     public String updateHealthCheckRule(@Validated @RequestBody HealthCheckRuleDto healthCheckRuleDto) {

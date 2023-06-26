@@ -3,7 +3,6 @@ package org.hango.cloud.envoy.infra.webservice.controller;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -61,7 +60,6 @@ public class EnvoyWebServiceController extends AbstractController {
      * @param serviceId   服务id
      * @return 成功码或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=CheckUploadWsdlFile"}, method = RequestMethod.POST)
     public Object checkUploadWsdlFile(@RequestParam("File") MultipartFile file, @RequestParam("VirtualGwId") long virtualGwId, @RequestParam("ServiceId") long serviceId) {
         logger.info("上传并校验wsdl文件,virtualGwId:{}, serviceId:{}", virtualGwId, serviceId);
@@ -91,7 +89,6 @@ public class EnvoyWebServiceController extends AbstractController {
      * @param serviceId   服务id
      * @return 解析后的wsdl信息，或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=DescribeUploadWsdlFile"}, method = RequestMethod.GET)
     public Object describeUploadWsdlFile(@RequestParam("ServiceId") long serviceId) {
         logger.info("查询wsdl解析后的信息, serviceId:{}", serviceId);
@@ -116,7 +113,6 @@ public class EnvoyWebServiceController extends AbstractController {
      *
      * @return 成功码或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=UpdateRouteWsParam"}, method = RequestMethod.POST)
     public Object updateRouteWsParam(@Validated @RequestBody EnvoyRouteWsParamDto wsParam) {
         logger.info("新增或更新路由上webservice转rest的配置, virtualGwId:{}, serviceId:{}, routeId:{}, wsPortType:{}, wsOperation:{}, wsBinding:{}",
@@ -163,7 +159,6 @@ public class EnvoyWebServiceController extends AbstractController {
      * @param routeId     路由id
      * @return 成功码或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=DescribeRouteWsParam"}, method = RequestMethod.GET)
     public Object describeRouteWsParam(@RequestParam("VirtualGwId") long virtualGwId,
                                        @RequestParam("ServiceId") long serviceId,
@@ -200,7 +195,6 @@ public class EnvoyWebServiceController extends AbstractController {
      * @param routeId     路由id
      * @return 成功码或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=DeleteRouteWsParam"}, method = RequestMethod.GET)
     public Object deleteRouteWsParam(@RequestParam("VirtualGwId") long virtualGwId,
                                      @RequestParam("ServiceId") long serviceId,
@@ -242,7 +236,6 @@ public class EnvoyWebServiceController extends AbstractController {
      * @param wsBinding   webservice的binding
      * @return 请求模板或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=CreateWsRequestTemplate"}, method = RequestMethod.GET)
     public Object createWsRequestTemplate(@RequestParam("VirtualGwId") long virtualGwId,
                                           @RequestParam("ServiceId") long serviceId,
@@ -294,7 +287,6 @@ public class EnvoyWebServiceController extends AbstractController {
      * @param renderWsRequestDto 请求模板
      * @return 请求模板或错误码
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=RenderWsRequestTemplate"}, method = RequestMethod.POST)
     public Object renderWsRequestTemplate(@Validated @RequestBody EnvoyRenderWsRequestDto renderWsRequestDto) {
         logger.info("测试渲染webservice请求模板");

@@ -1,15 +1,7 @@
 package org.hango.cloud.gdashboard.api.service.impl.swagger;
 
 import com.google.common.collect.Maps;
-import io.swagger.models.ArrayModel;
-import io.swagger.models.ComposedModel;
-import io.swagger.models.Model;
-import io.swagger.models.ModelImpl;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.RefModel;
-import io.swagger.models.Response;
-import io.swagger.models.Swagger;
+import io.swagger.models.*;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.FormParameter;
 import io.swagger.models.parameters.Parameter;
@@ -21,11 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.gdashboard.api.dto.ApiParamDto;
 import org.hango.cloud.gdashboard.api.dto.CreateApiModelDto;
-import org.hango.cloud.gdashboard.api.meta.ApiBody;
-import org.hango.cloud.gdashboard.api.meta.ApiHeader;
-import org.hango.cloud.gdashboard.api.meta.ApiInfo;
-import org.hango.cloud.gdashboard.api.meta.ApiParamType;
-import org.hango.cloud.gdashboard.api.meta.ApiStatusCode;
+import org.hango.cloud.gdashboard.api.meta.*;
 import org.hango.cloud.gdashboard.api.meta.errorcode.ApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.errorcode.CommonApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.swagger.SwaggerApiInfo;
@@ -43,11 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ImportSwaggerServiceImpl implements ImportSwaggerService {

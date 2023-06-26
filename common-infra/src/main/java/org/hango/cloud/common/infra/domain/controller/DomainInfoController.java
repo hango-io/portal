@@ -3,7 +3,6 @@ package org.hango.cloud.common.infra.domain.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -39,7 +38,6 @@ public class DomainInfoController extends AbstractController {
     /**
      * 创建域名
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=CreateDomain"}, method = RequestMethod.POST)
     public Object createDomain(@Validated @RequestBody DomainInfoDTO domainInfoDTO) {
         log.info("start create domain param:{}", JSONObject.toJSONString(domainInfoDTO));
@@ -56,7 +54,6 @@ public class DomainInfoController extends AbstractController {
     /**
      * 更新域名
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=UpdateDomain"}, method = RequestMethod.POST)
     public Object updateDomain(@RequestBody DomainInfoDTO domainInfoDTO) {
         log.info("start update domain param:{}", JSONObject.toJSONString(domainInfoDTO));
@@ -72,7 +69,6 @@ public class DomainInfoController extends AbstractController {
     /**
      * 删除域名
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=DeleteDomain"}, method = RequestMethod.GET)
     public Object deleteDomain(@RequestParam(value = "DomainId") long id) {
         log.info("start delete domain id:{}", id);

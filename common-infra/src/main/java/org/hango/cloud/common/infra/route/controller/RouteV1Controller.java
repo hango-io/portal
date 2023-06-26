@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -51,7 +50,6 @@ public class RouteV1Controller extends AbstractController {
     @Autowired
     private ICopyRoute copyRouteRuleProxy;
 
-    @MethodReentrantLock
     @Audit(eventName = "CreateRoute", description = "创建路由")
     @PostMapping(params = {"Action=CreateRoute"})
     public String createRoute(@Valid @RequestBody RouteDto routeDto) {
@@ -97,7 +95,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, result);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "UpdateRoute", description = "更新路由")
     @PostMapping(params = {"Action=UpdateRoute"})
     public String updateRoute(@Validated @RequestBody UpdateRouteDto updateRouteDto) {
@@ -116,7 +113,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturn(new Result(routeDto.getId()));
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "DeleteRoute", description = "下线规则")
     @PostMapping(params = {"Action=DeleteRoute"})
     public String deleteRoute(@Min(1) @RequestParam(value = "RouteId") long routeId) {
@@ -134,7 +130,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturn(new Result(routeDto.getId()));
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "UpdateRouteEnableState", description = "更新路由使能状态")
     @PostMapping(params = {"Action=UpdateRouteEnableState"})
     public Object updateRouteEnableState(@Min(1) @RequestParam(value = "RouteId") long routeId,
@@ -153,7 +148,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturnSuccess(null);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "CopyRoute", description = "项目下跨网关拷贝路由")
     @PostMapping(params = {"Action=CopyRoute"})
     public Object copyRoute(@Min(1) @RequestParam(value = "RouteId") long routeId,
@@ -173,7 +167,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturnSuccess(copyRouteId);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "PublishRouteMirror", description = "发布路由流量镜像规则")
     @PostMapping(params = {"Action=PublishRouteMirror"})
     public String publishRouteMirror(@Valid @RequestBody RouteMirrorDto routeMirrorDto) {

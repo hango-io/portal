@@ -1,6 +1,5 @@
 package org.hango.cloud.envoy.infra.serviceproxy.hooker;
 
-import jodd.typeconverter.Converter;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.exception.ErrorCodeException;
@@ -81,10 +80,9 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
 
     @Override
     protected List<? extends BackendServiceWithPortDto> postGetBackendServicesHook(List l) {
-        Converter converter = new Converter();
-        Long virtualGwId = converter.toLong(MethodAroundHolder.getNextParam());
-        String name = converter.toString(MethodAroundHolder.getNextParam());
-        String registryCenterType = converter.toString(MethodAroundHolder.getNextParam());
+        Long virtualGwId = (Long)MethodAroundHolder.getNextParam();
+        String name = (String)MethodAroundHolder.getNextParam();
+        String registryCenterType = (String)MethodAroundHolder.getNextParam();
         return envoyServiceProxyService.getServiceListFromApiPlane(virtualGwId, name, registryCenterType);
     }
 

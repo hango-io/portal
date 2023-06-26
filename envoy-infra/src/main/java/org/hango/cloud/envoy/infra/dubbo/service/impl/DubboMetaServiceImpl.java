@@ -324,8 +324,8 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
 
     @Transactional(rollbackFor = Exception.class)
     public synchronized void saveDubboMeta(long virtualGwId, String igv, List<DubboMetaDto> dubboMetaDtoList) {
-        String redisKey = String.format(EnvoyConst.DUBBO_META_REFRESH_KEY_TEMPLATE, virtualGwId, igv);
-        logger.info("dubbo meta redis key is {}", redisKey);
+        String cacheKey = String.format(EnvoyConst.DUBBO_META_REFRESH_KEY_TEMPLATE, virtualGwId, igv);
+        logger.info("dubbo meta cacheKey key is {}", cacheKey);
         if (null == dubboMetaDtoList) {
             logger.warn("调用api-plane 失败，查询条件为 : 网关ID = {} , IGV = {}  无返回 ", virtualGwId, igv);
             return;
@@ -339,7 +339,7 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
         }
         //批量新增数据
         batchCreateDubboMeta(dubboMetaDtoList);
-         cacheService.setValue(redisKey, true, envoyConfig.getMetaRefreshInterval());
+        cacheService.setValue(cacheKey, "", envoyConfig.getMetaRefreshInterval());
     }
 
     @Override
@@ -354,7 +354,7 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
             return Collections.emptyList();
         }
         String redisKey = String.format(EnvoyConst.DUBBO_META_REFRESH_KEY_TEMPLATE, virtualGwId, igv);
-        logger.info("dubbo meta redis key is {}", redisKey);
+        logger.info("dubbo meta cache key is {}", redisKey);
         if (cacheService.hasKey(redisKey)) {
             logger.info("距离上次更新不足 {} 毫秒，本次不再更新 ", envoyConfig.getMetaRefreshInterval());
             return findByIgv(virtualGwId, igv);

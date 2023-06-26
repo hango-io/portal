@@ -1,5 +1,6 @@
 package org.hango.cloud.envoy.infra.base.config;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
  * @Desc
  * @date 2022/9/20
  */
+@Getter
 @Component
 public class EnvoyConfig {
 
@@ -20,24 +22,12 @@ public class EnvoyConfig {
     /**
      * Dubbo 元数据刷新时间
      */
-    @Value("${metaRefreshInterval:30000}")
-    private Integer metaRefreshInterval;
+    @Value("${metaRefreshInterval:30}")
+    private Long metaRefreshInterval;
 
     /**
      * 请求排行榜Top N
      */
     @Value("${topN:10}")
     private Integer topN;
-
-    public Integer getMetaRefreshInterval() {
-        return metaRefreshInterval;
-    }
-
-    public String getBakApiPlaneAddr() {
-        return bakApiPlaneAddr;
-    }
-
-    public Integer getTopN() {
-        return topN;
-    }
 }

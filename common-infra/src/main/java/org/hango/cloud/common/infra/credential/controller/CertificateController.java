@@ -2,7 +2,6 @@ package org.hango.cloud.common.infra.credential.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * @Author zhufengwei
@@ -35,7 +34,6 @@ public class CertificateController extends AbstractController {
      * @param certificateInfoDTO 证书信息
      * @return 证书id
      */
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=CreateCertificate"}, method = RequestMethod.POST)
     public Object addCertificate(@RequestBody @Validated CertificateInfoDTO certificateInfoDTO) {
         log.info("start create certificate param:{}", JSONObject.toJSONString(certificateInfoDTO));

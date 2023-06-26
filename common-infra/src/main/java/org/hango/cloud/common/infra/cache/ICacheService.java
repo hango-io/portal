@@ -13,47 +13,23 @@ public interface ICacheService {
      * 获取缓存值
      *
      * @param key
-     * @param <K>
-     * @param <V>
-     * @return
      */
-    <K, V> V getValue(K key);
+    String getValue(String key);
 
     /**
      * 设置缓存
      *
-     * @param key
-     * @param value
-     * @param expire
-     * @param <K>
-     * @param <V>
+     * @param key   缓存key
+     * @param value  缓存value
+     * @param expire 过期时间(s)
      */
-    <K, V> void setValue(K key, V value, long expire);
+    void setValue(String key, String value, Long expire);
 
-    /**
-     * 获取锁
-     *
-     * @param key
-     * @param value
-     * @param expire
-     * @param <K>
-     * @param <V>
-     * @return
-     */
-    <K, V> Boolean getLock(K key, V value, long expire);
 
-    /**
-     * 删除缓存
-     * @param key
-     * @param <K>
-     */
-    <K> void deleteKey(K key);
 
     /**
      * 判断是否存在对应的key
      * @param key
-     * @return
-     * @param <K>
      */
-    <K> boolean hasKey(K key);
+    boolean hasKey(String key);
 }

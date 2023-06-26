@@ -8,11 +8,9 @@ package org.hango.cloud.envoy.infra.base.task;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Maps;
-import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.dto.DataCorrectResultDTO;
 import org.hango.cloud.common.infra.base.dto.ResourceCheckResultDTO;
 import org.hango.cloud.common.infra.base.dto.ResourceDTO;
@@ -24,9 +22,9 @@ import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
-import org.hango.cloud.common.infra.route.pojo.RouteQuery;
 import org.hango.cloud.common.infra.route.dao.IRouteDao;
 import org.hango.cloud.common.infra.route.pojo.RoutePO;
+import org.hango.cloud.common.infra.route.pojo.RouteQuery;
 import org.hango.cloud.common.infra.serviceproxy.convert.ServiceProxyConvert;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
@@ -50,20 +48,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_GLOBAL;
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_HOST;
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE;
+import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.*;
 
 /**
  * @Author: zhufengwei.sx
@@ -122,7 +112,6 @@ public class MultiClusterTask {
         }
     }
 
-    @MethodReentrantLock(tryLockTimeout = 1, interrupt = true)
     public void startDataCheck() {
         logger.info("============================");
         logger.info("多集群校验 | 开始执行校验任务");
@@ -212,7 +201,7 @@ public class MultiClusterTask {
     public List<? extends VirtualGatewayDto> findVirtualGatewayInfo(){
         if (StringUtils.hasText(gwClusterNames)){
             List<String> gwClusterNameList = Stream.of(gwClusterNames.split(","))
-                    .filter(StringUtil::isNotEmpty)
+                    .filter(StringUtils::hasText)
                     .collect(Collectors.toList());
             List<Long> gwIds = gatewayService.findAll().stream().filter(o -> gwClusterNameList.contains(o.getGwClusterName())).map(GatewayDto::getId).collect(Collectors.toList());
             return virtualGatewayInfoService.getVirtualGatewayList(gwIds);

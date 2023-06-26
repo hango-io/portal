@@ -1,19 +1,20 @@
 package org.hango.cloud.common.infra.cache.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
+import org.hango.cloud.common.infra.base.mapper.CacheInfoMapper;
 import org.hango.cloud.common.infra.cache.ICacheService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.data.redis.core.ValueOperations;
+import org.hango.cloud.common.infra.cache.meta.CacheInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author zhangbj
@@ -23,95 +24,72 @@ import java.util.concurrent.TimeUnit;
  * @date 2023/1/5
  */
 
+@Slf4j
 @Service
-@ConditionalOnProperty(name = "spring.redis.sentinel.nodes", havingValue = "true")
-public class CacheServiceImpl implements ICacheService {
-    private static final Logger logger = LoggerFactory.getLogger(CacheServiceImpl.class);
+public class CacheServiceImpl extends ServiceImpl<CacheInfoMapper, CacheInfo> implements ICacheService {
 
-    @Resource(name = "redisTemplate")
-    private RedisTemplate client;
+    private final Lock lock = new ReentrantLock();
+
+    // 默认缓存时间 10分钟
+    Long defaultExpireTime = 10 * 60L;
 
     @Override
-    public <K, V> V getValue(K key) {
-        try {
-            ValueOperations<K, V> valueOperations = client.opsForValue();
-            return valueOperations.get(key);
-        } catch (Exception e) {
-            logger.error(e.toString());
+    public String getValue(String key) {
+        if (!StringUtils.hasText(key)) {
+            return Strings.EMPTY;
         }
-        return null;
+        LambdaQueryWrapper<CacheInfo> query = Wrappers.lambdaQuery();
+        query.gt(CacheInfo::getExpireTime, LocalDateTime.now());
+        query.eq(CacheInfo::getCacheKey, key);
+        CacheInfo cacheInfo = getOne(query);
+        return cacheInfo == null ? Strings.EMPTY : cacheInfo.getCacheValue();
+    }
+
+    @Override
+    public void setValue(String key, String value, Long expire) {
+        CacheInfo cacheInfo = new CacheInfo();
+        cacheInfo.setCacheKey(key);
+        cacheInfo.setCacheValue(value);
+        //默认失效时间
+        if (expire == null || expire <= 0) {
+            expire = defaultExpireTime;
+        }
+        LocalDateTime localDateTime = LocalDateTime.now().plusSeconds(expire);
+        long timestamp = localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+        cacheInfo.setExpireTime(timestamp);
+        //创建或更新缓存
+        LambdaQueryWrapper<CacheInfo> updateCondition = Wrappers.lambdaQuery();
+        updateCondition.eq(CacheInfo::getCacheKey, key);
+        saveOrUpdate(cacheInfo, updateCondition);
+        //删除过期缓存
+        removeExpireCache();
+
+    }
+
+    @Override
+    public boolean hasKey(String key) {
+        return StringUtils.hasText(getValue(key));
     }
 
     /**
-     * expire in milliseconds
+     * 删除过期缓存
      */
-    @Override
-    public <K, V> void setValue(K key, V value, long expire) {
+    private void removeExpireCache() {
+        LambdaQueryWrapper<CacheInfo> query = Wrappers.lambdaQuery();
+        query.lt(CacheInfo::getExpireTime, LocalDateTime.now());
+        boolean locked = false;
         try {
-            ValueOperations<K, V> valueOperations = client.opsForValue();
-            valueOperations.set(key, value, expire, TimeUnit.MILLISECONDS);
+            locked = lock.tryLock();
+            if (locked) {
+                remove(query);
+            }
         } catch (Exception e) {
-            logger.error(e.toString());
+            log.error("removeExpireCache error: {}", e.getMessage(), e);
+        } finally {
+            if (locked) {
+                lock.unlock();
+            }
         }
-    }
 
-    @Override
-    public <K, V> Boolean getLock(K key, V value, long expire) {
-        try {
-            // in redis transaction.
-            SessionCallback<Boolean> sessionCallback = new SessionCallback<Boolean>() {
-                @Override
-                public Boolean execute(RedisOperations operations) throws DataAccessException {
-                    Boolean result = false;
-                    ValueOperations valueOperation = operations.opsForValue();
-                    logger.debug("获取锁{}，执行setnx操作之前", key);
-                    if (valueOperation.setIfAbsent(key, value)) {
-                        logger.debug("获取锁{}，执行setnx操作之后，设置expire之前", key);
-                        result = operations.expire(key, expire, TimeUnit.MILLISECONDS);
-                        logger.debug("获取锁{}，执行setnx操作之后，设置expire之后", key);
-                        if (!result) {
-                            logger.warn("set ttl fail! lockKey = " + key + ", ttl = " + expire + "s");
-                        }
-                    } else {
-                        // 死锁检查，如果出现，进行报警
-                        Long expireTime = operations.getExpire(key);
-                        logger.debug("key{}, expire time: {}", key, String.valueOf(expireTime));
-                        if (expireTime != null && expireTime == -1L) {
-                            logger.debug("获取锁{}，发现死锁，进行死锁补偿之前", key);
-                            boolean expireResult = operations.expire(key, expire, TimeUnit.MILLISECONDS);
-                            logger.debug("获取锁{}，发现死锁，进行死锁补偿之后", key);
-                            if (!expireResult) {
-                                logger.warn("死锁补偿时，set ttl fail! lockKey = " + key + ", ttl = " + expire + "s");
-                            }
-                        }
-                    }
-                    return result;
-                }
-            };
-            return Boolean.valueOf(String.valueOf(client.execute(sessionCallback)));
-        } catch (Exception e) {
-            logger.warn("redis setLock error.", e);
-            throw e;
-        }
-    }
-
-    @Override
-    public <K> void deleteKey(K key) {
-        try {
-            client.delete(key);
-        } catch (Exception e) {
-            logger.warn("redis op error.", e);
-        }
-    }
-
-
-    @Override
-    public <K> boolean hasKey(K key) {
-        try {
-            return client.hasKey(key);
-        } catch (Exception e) {
-            logger.warn("redis op error.", e);
-        }
-        return false;
     }
 }

@@ -2,7 +2,6 @@ package org.hango.cloud.envoy.infra.dubbo.controller;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -48,7 +47,6 @@ public class DubboController extends AbstractController {
      * @param dubboBindingDto
      * @return
      */
-    @MethodReentrantLock
     @PostMapping(params = {"Action=PublishDubbo", "Version=2020-10-29"})
     @Audit(eventName = "PublishEnvoyDubbo", description = "路由Dubbo转换发布")
     public String publishEnvoyDubbo(@RequestBody @Validated DubboBindingDto dubboBindingDto) {
@@ -72,7 +70,6 @@ public class DubboController extends AbstractController {
      * @param objectType
      * @return
      */
-    @MethodReentrantLock
     @GetMapping(params = {"Action=OfflineDubbo", "Version=2020-10-29"})
     @Audit(eventName = "OfflineEnvoyDubbo", description = "路由Dubbo转换下线")
     public String offlineEnvoyDubbo(@RequestParam(value = "ObjectId") long objectId,
@@ -92,7 +89,6 @@ public class DubboController extends AbstractController {
      * @param objectType
      * @return
      */
-    @MethodReentrantLock
     @GetMapping(params = {"Action=DescribePublishedDubbo", "Version=2020-10-29"})
     public String describeEnvoyDubbo(@RequestParam(value = "ObjectId") long objectId,
                                      @RequestParam(value = "ObjectType", required = false, defaultValue = ApiConst.ROUTE) String objectType) {
@@ -110,7 +106,6 @@ public class DubboController extends AbstractController {
      * @param method
      * @return
      */
-    @MethodReentrantLock
     @GetMapping(params = {"Action=DescribeDubboMeta", "Version=2021-10-30"})
     public String describeDubboMeta(@RequestParam(value = "VirtualGwId") long virtualGwId,
                                     @RequestParam(value = "Igv") String igv,
@@ -137,7 +132,6 @@ public class DubboController extends AbstractController {
      * @param method
      * @return
      */
-    @MethodReentrantLock
     @GetMapping(params = {"Action=RefreshDubboMeta", "Version=2021-10-30"})
     public String refreshDubboMeta(@RequestParam(value = "VirtualGwId") long virtualGwId,
                                    @RequestParam(value = "Igv") String igv,

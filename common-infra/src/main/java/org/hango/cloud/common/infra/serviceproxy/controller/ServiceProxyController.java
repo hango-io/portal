@@ -3,7 +3,6 @@ package org.hango.cloud.common.infra.serviceproxy.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -55,7 +54,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "CreateService", description = "创建服务")
     @RequestMapping(params = {"Action=CreateService"}, method = RequestMethod.POST)
     public String publishService(@Validated @RequestBody ServiceProxyDto serviceProxyDto) {
@@ -70,7 +68,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(id);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "UpdateService", description = "更新服务")
     @RequestMapping(params = {"Action=UpdateService"}, method = RequestMethod.POST)
     public String updatePublishService(@Validated @RequestBody ServiceProxyUpdateDto serviceProxyUpdateDto) {
@@ -92,7 +89,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @MethodReentrantLock
     @RequestMapping(params = {"Action=DeleteService"}, method = RequestMethod.GET)
     public String deleteServiceProxy(@Min(1) @RequestParam(value = "Id") long id) {
         logger.info("下线已经关联的服务，id:{}", id);
