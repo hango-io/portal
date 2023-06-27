@@ -1,6 +1,5 @@
-package org.hango.cloud.common.infra.base.dto;
+package org.hango.cloud.common.infra.base.meta;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,21 +8,19 @@ import lombok.Setter;
  * @version 1.0
  * @Type
  * @Desc
- * @date 2022/11/11
+ * @date 2023/6/5
  */
 @Getter
 @Setter
-public class TimeQueryDto {
+public class TimeQuery {
 
     /**
      * 起止时间
      */
-    @JSONField(name = "StartTime")
     private long startTime;
 
     /**
      * 截止时间
      */
-    @JSONField(name = "EndTime")
     private long endTime;
 }

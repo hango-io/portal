@@ -157,9 +157,33 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
 
         dpServiceProxyDto.setTrafficPolicy(trafficPolicy);
+
+        processServiceMetadata(virtualGatewayDto, serviceProxyDto, dpServiceProxyDto);
         return dpServiceProxyDto;
     }
 
+    /**
+     * 添加路由 metadata 数据
+     */
+    private void processServiceMetadata(VirtualGatewayDto virtualGatewayDto,
+                                                     ServiceProxyDto serviceDto,DpServiceProxyDto dpServiceProxyDto) {
+        Map<String, Map<String,String>> metaMap = dpServiceProxyDto.getMetaMap() == null ? Maps.newHashMap() : dpServiceProxyDto.getMetaMap();
+        //处理服务指标Meta数据
+        processServiceStatsMeta(virtualGatewayDto, serviceDto, metaMap);
+        dpServiceProxyDto.setMetaMap(metaMap);
+    }
+
+    /**
+     * 添加服务指标Meta数据
+     */
+    private void processServiceStatsMeta(VirtualGatewayDto virtualGatewayDto,ServiceProxyDto serviceProxy, Map<String, Map<String,String>>metaMap) {
+        Map<String, String> stats = Maps.newHashMap();
+        stats.put("service_name", serviceProxy.getName());
+        stats.put("virtual_gateway_code", virtualGatewayDto.getCode());
+        //此处用服务标识，一方面与服务告警模板保持一致，另一方面，服务标识不存在修改的情况。
+        stats.put("project_id", String.valueOf(serviceProxy.getProjectId()));
+        metaMap.put("StatsMeta",stats);
+    }
 
     public HttpClientResponse proxyToApiPlane(String apiPlaneUrl, Map<String, Object> params, String body, HttpHeaders headers) {
         HttpClientResponse response = HttpClientUtil.postRequest(apiPlaneUrl, body, params, headers, EnvoyConst.MODULE_API_PLANE);

@@ -360,4 +360,12 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         return virtualGatewaySetting;
     }
 
+    @Override
+    public VirtualGatewayDto getByCode(String code) {
+        Page<VirtualGateway> virtualGatewayPage = virtualGatewayDao.getVirtualGatewayPage(VirtualGatewayQuery.builder().code(code).build());
+        if (CollectionUtils.isEmpty(virtualGatewayPage.getRecords())){
+            return null;
+        }
+        return toView(virtualGatewayPage.getRecords().get(0));
+    }
 }

@@ -92,6 +92,11 @@ public interface IVirtualGatewayInfoService extends CommonService<VirtualGateway
      * 填充virtualgateway 信息
      */
     void fillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto);
+
+    /**
+     * 通过Code查询虚拟网关，不进行hooker
+     */
+    VirtualGatewayDto getByCode(String code);
 }
 
 

@@ -35,4 +35,13 @@ public interface IGatewayService extends CommonService<Gateway, GatewayDto> {
     List<GatewayDto> findByName(String name, long offset, long limit);
 
 
+    /**
+     * 通过网关clusterName获取网关信息
+     *
+     * @param clusterName 网关clusterName
+     * @return
+     */
+    GatewayDto getByClusterName(String clusterName);
+
+
 }

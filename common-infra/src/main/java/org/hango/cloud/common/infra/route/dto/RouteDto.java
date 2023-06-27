@@ -17,7 +17,6 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.RegexConst.REGEX_NAME;
@@ -64,6 +63,9 @@ public class RouteDto extends RouteMatchDto {
 
     @JSONField(name = "VirtualGwName")
     private String virtualGwName;
+
+    @JSONField(name = "VirtualGwCode")
+    private String virtualGwCode;
 
     /**
      * 来源于网关信息

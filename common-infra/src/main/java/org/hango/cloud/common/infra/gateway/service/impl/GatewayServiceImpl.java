@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -110,6 +111,15 @@ public class GatewayServiceImpl implements IGatewayService {
         return gatewayList.stream().map(this::toView).collect(Collectors.toList());
     }
 
+    @Override
+    public GatewayDto getByClusterName(String clusterName) {
+        HashMap<String,Object> param = Maps.newHashMap();
+        List<Gateway> recordsByField = gatewayDao.getRecordsByField(param);
+        if (CollectionUtils.isEmpty(recordsByField)) {
+            return null;
+        }
+        return toView(recordsByField.get(0));
+    }
 
     @Override
     public int countByName(String name) {

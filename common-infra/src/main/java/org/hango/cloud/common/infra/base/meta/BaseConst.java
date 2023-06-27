@@ -215,6 +215,8 @@ public class BaseConst {
 
     public static final String ACCOUNT_ID = "AccountId";
 
+    public static final String GATEWAY = "Gateway";
+
     /**
      * 可以直接放行的接口
      */

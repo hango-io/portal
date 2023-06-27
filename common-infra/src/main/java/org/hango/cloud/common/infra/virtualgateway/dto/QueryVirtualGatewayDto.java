@@ -1,6 +1,12 @@
 package org.hango.cloud.common.infra.virtualgateway.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.With;
 import org.hango.cloud.common.infra.base.meta.PageQuery;
 
 import java.io.Serializable;
@@ -13,6 +19,12 @@ import java.util.List;
  * @Desc
  * @date 2022/10/26
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@With
 public class QueryVirtualGatewayDto extends PageQuery implements Serializable {
 
     private static final long serialVersionUID = 6163983923024228367L;
@@ -63,67 +75,4 @@ public class QueryVirtualGatewayDto extends PageQuery implements Serializable {
     @JSONField(serialize = false)
     private Long domainId;
 
-    public List<Long> getProjectIdList() {
-        return projectIdList;
-    }
-
-    public void setProjectIdList(List<Long> projectIdList) {
-        this.projectIdList = projectIdList;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
-    }
-
-    public long getVirtualGwId() {
-        return virtualGwId;
-    }
-
-    public void setVirtualGwId(long virtualGwId) {
-        this.virtualGwId = virtualGwId;
-    }
-
-    public Long getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(Long serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public Boolean getManaged() {
-        return managed;
-    }
-
-    public void setManaged(Boolean managed) {
-        this.managed = managed;
-    }
-
-    public Long getDomainId() {
-        return domainId;
-    }
-
-    public void setDomainId(Long domainId) {
-        this.domainId = domainId;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Long getGwId() {
-        return gwId;
-    }
-
-    public void setGwId(Long gwId) {
-        this.gwId = gwId;
-    }
 }
