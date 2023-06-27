@@ -6,13 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.hango.cloud.common.infra.base.mapper.CacheInfoMapper;
+import org.hango.cloud.common.infra.base.util.TimeUtil;
 import org.hango.cloud.common.infra.cache.ICacheService;
 import org.hango.cloud.common.infra.cache.meta.CacheInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,7 +39,7 @@ public class CacheServiceImpl extends ServiceImpl<CacheInfoMapper, CacheInfo> im
             return Strings.EMPTY;
         }
         LambdaQueryWrapper<CacheInfo> query = Wrappers.lambdaQuery();
-        query.gt(CacheInfo::getExpireTime, LocalDateTime.now());
+        query.gt(CacheInfo::getExpireTime, TimeUtil.getMillTime(LocalDateTime.now()));
         query.eq(CacheInfo::getCacheKey, key);
         CacheInfo cacheInfo = getOne(query);
         return cacheInfo == null ? Strings.EMPTY : cacheInfo.getCacheValue();
@@ -55,15 +55,13 @@ public class CacheServiceImpl extends ServiceImpl<CacheInfoMapper, CacheInfo> im
             expire = defaultExpireTime;
         }
         LocalDateTime localDateTime = LocalDateTime.now().plusSeconds(expire);
-        long timestamp = localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
-        cacheInfo.setExpireTime(timestamp);
+        cacheInfo.setExpireTime(TimeUtil.getMillTime(localDateTime));
         //创建或更新缓存
         LambdaQueryWrapper<CacheInfo> updateCondition = Wrappers.lambdaQuery();
         updateCondition.eq(CacheInfo::getCacheKey, key);
         saveOrUpdate(cacheInfo, updateCondition);
         //删除过期缓存
         removeExpireCache();
-
     }
 
     @Override
@@ -76,7 +74,7 @@ public class CacheServiceImpl extends ServiceImpl<CacheInfoMapper, CacheInfo> im
      */
     private void removeExpireCache() {
         LambdaQueryWrapper<CacheInfo> query = Wrappers.lambdaQuery();
-        query.lt(CacheInfo::getExpireTime, LocalDateTime.now());
+        query.lt(CacheInfo::getExpireTime, TimeUtil.getMillTime(LocalDateTime.now()));
         boolean locked = false;
         try {
             locked = lock.tryLock();

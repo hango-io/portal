@@ -42,7 +42,7 @@ public class CertificateInfoPO extends CommonExtension {
     /**
      * 证书域名
      */
-    private String domain;
+    private String host;
 
     /**
      * 公钥指纹

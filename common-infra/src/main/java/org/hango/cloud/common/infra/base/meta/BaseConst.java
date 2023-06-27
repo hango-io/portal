@@ -280,6 +280,8 @@ public class BaseConst {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String ZONE_ID= "Asia/Shanghai";
+
     public static final String SUCCESS = "Success";
 
     /**

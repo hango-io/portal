@@ -29,7 +29,7 @@ public class CertificateUtil {
         certificateInfoPO.setContent(content);
         String domain = certificate.getSubjectDN().getName();
         String agencyName = certificate.getIssuerX500Principal().getName();
-        certificateInfoPO.setDomain(parseCnName(domain));
+        certificateInfoPO.setHost(parseCnName(domain));
         certificateInfoPO.setSignature(getThumbprint(certificate.getSignature()));
         certificateInfoPO.setIssuingAgency(parseCnName(agencyName));
         certificateInfoPO.setIssuingTime(certificate.getNotBefore().getTime());
