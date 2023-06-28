@@ -19,12 +19,23 @@ public enum ActionPermissionEnum {
     //服务相关
     CreateService("CreateService", "service", "create", null),
     UpdateService("UpdateService", "service", "update", null),
+    UpdateHealthCheckRule("UpdateHealthCheckRule", "service", "update", null),
+    CheckUploadWsdlFile("CheckUploadWsdlFile", "service", "update", null),
+    SaveAndPublishedPbFile("SaveAndPublishedPbFile", "service", "update", null),
+    OfflinePbFile("OfflinePbFile", "service", "update", null),
+    PublicPbService("PublicPbService", "service", "update", null),
+    OfflinePbService("OfflinePbService", "service", "update", null),
     DeleteService("DeleteService", "service", "delete", null),
     GetSwaggerDetailsByLocation("GetSwaggerDetailsByLocation", "service", "loadInterfaces", null),
 
     // 路由规则
     CreateRoute("CreateRoute", "routeRule", "create", null),
     UpdateRoute("UpdateRoute", "routeRule", "update", null),
+    PublishRouteMirror("PublishRouteMirror", "routeRule", "update", null),
+    PublishDubbo("PublishDubbo", "routeRule", "update", null),
+    UpdateRouteWsParam("UpdateRouteWsParam", "routeRule", "update", null),
+    RenderWsRequestTemplate("RenderWsRequestTemplate", "routeRule", "update", null),
+    DeleteRouteWsParam("DeleteRouteWsParam", "routeRule", "update", null),
     DeleteRoute("DeleteRoute", "routeRule", "delete", null),
     CopyRoute("CopyRoute", "routeRule", "copy", null),
     UpdateRouteEnableState("UpdateRouteEnableState", "routeRule", "updateStatus", null),
@@ -32,6 +43,12 @@ public enum ActionPermissionEnum {
     //API相关
     CreateApi("CreateApi", "api", "create", null),
     UpdateApi("UpdateApi", "api", "update", null),
+    CreateQueryString("CreateQueryString", "api", "update", null),
+    CreateRequestHeader("CreateRequestHeader", "api", "update", null),
+    CreateRequestBody("CreateRequestBody", "api", "update", null),
+    CreateResponseHeader("CreateResponseHeader", "api", "update", null),
+    CreateResponseBody("CreateResponseBody", "api", "update", null),
+    CreateStatusCode("CreateStatusCode", "api", "update", null),
     DeleteApiById("DeleteApiById", "api", "delete", null),
 
     //数据模型相关
@@ -41,6 +58,7 @@ public enum ActionPermissionEnum {
 
     // 插件
     BindingPlugin("BindingPlugin", "plugin", "create", PostMethodSpecResourceHandler.getInstance()),
+    CopyGlobalPlugin("CopyGlobalPlugin", "plugin", "create", PostMethodSpecResourceHandler.getInstance()),
     UnbindingPlugin("UnbindingPlugin", "plugin", "delete", PluginGetMethodSpecResourceHandler.getInstance()),
     UpdatePluginConfiguration("UpdatePluginConfiguration", "plugin", "updateConfiguration", PluginPostMethodSpecResourceHandler.getInstance()),
     UpdatePluginBindingStatus("UpdatePluginBindingStatus", "plugin", "updatePluginStatus", PluginGetMethodSpecResourceHandler.getInstance()),
@@ -48,6 +66,7 @@ public enum ActionPermissionEnum {
     // 模板管理
     CreatePluginTemplate("CreatePluginTemplate", "Template", "createPrivate", null),
     UpdatePluginTemplate("UpdatePluginTemplate", "Template", "update", null),
+    SyncPluginTemplates("SyncPluginTemplates", "Template", "update", null),
     DeletePluginTemplate("DeletePluginTemplate", "Template", "delete", null),
     CreateGlobalPluginTemplate("CreateGlobalPluginTemplate", "Template", "createPublic", null),
 
@@ -65,6 +84,7 @@ public enum ActionPermissionEnum {
     //虚拟网关管理
     CreateVirtualGateway("CreateVirtualGateway", "virtualGateway", "create", null),
     UpdateVirtualGateway("UpdateVirtualGateway", "virtualGateway", "update", null),
+    UpdateVirtualGatewaySetting("UpdateVirtualGatewaySetting", "virtualGateway", "update", null),
     DeleteVirtualGateway("DeleteVirtualGateway", "virtualGateway", "delete", null),
     UpdateProjectBinding("UpdateProjectBinding", "virtualGateway", "attachProject", null),
     UpdatePluginManager("UpdatePluginManager", "virtualGateway", "plugin", null),
