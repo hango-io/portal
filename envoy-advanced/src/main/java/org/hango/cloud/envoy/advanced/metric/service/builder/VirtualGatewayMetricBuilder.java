@@ -1,7 +1,7 @@
 package org.hango.cloud.envoy.advanced.metric.service.builder;
 
 import com.google.common.collect.Iterables;
-import org.hango.cloud.common.advanced.metric.meta.MetricBaseQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricBaseQuery;
 
 import java.util.List;
 import java.util.Map;

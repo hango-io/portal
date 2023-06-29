@@ -3,29 +3,33 @@ package org.hango.cloud.envoy.advanced.metric.service.impl;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.advanced.base.meta.AdvanceErrorCode;
 import org.hango.cloud.common.advanced.base.meta.AdvancedConst;
+import org.hango.cloud.common.advanced.gateway.dto.GatewayAdvancedDto;
 import org.hango.cloud.common.advanced.gateway.service.IGatewayAdvancedService;
-import org.hango.cloud.common.advanced.metric.dto.MetricDataDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricDataQueryDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricRankDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricStatisticsDto;
-import org.hango.cloud.common.advanced.metric.meta.CountDataQuery;
-import org.hango.cloud.common.advanced.metric.meta.MetricDataQuery;
-import org.hango.cloud.common.advanced.metric.meta.RankDataQuery;
-import org.hango.cloud.common.advanced.metric.service.IMetricService;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
-import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
+import org.hango.cloud.common.infra.virtualgateway.meta.VirtualGatewayQuery;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
+import org.hango.cloud.envoy.advanced.metric.dto.CountDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricRankDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricStatisticsDto;
+import org.hango.cloud.envoy.advanced.metric.dto.RankDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.meta.CountDataQuery;
 import org.hango.cloud.envoy.advanced.metric.meta.DimensionType;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricDataQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricTypeEnum;
+import org.hango.cloud.envoy.advanced.metric.meta.RankDataQuery;
 import org.hango.cloud.envoy.advanced.metric.service.IEnvoyMetricService;
 import org.hango.cloud.envoy.advanced.metric.service.builder.AbstractMetricBuilder;
-import org.hango.cloud.envoy.infra.base.config.EnvoyConfig;
+import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,98 +62,9 @@ public class EnvoyMetricServiceImpl implements IEnvoyMetricService {
     @Autowired
     private IGatewayAdvancedService gatewayAdvancedService;
 
-
-    @Autowired
-    private IMetricService metricService;
-
     @Autowired
     private IServiceProxyService serviceProxyService;
 
-    @Autowired
-    private EnvoyConfig envoyConfig;
-
-    @Autowired
-    private IRouteService routeService;
-
-//
-//    /**
-//     * prometheus表达式模板存储集
-//     * <p
-//     * Map<MetricType, Prometheus_QL_template>
-//     */
-//    public static final Map<String, String> promTemplateMap = Maps.newHashMap();
-//
-//
-//    static {
-//        promTemplateMap.put(AdvancedConst.SUCCESS_COUNT, "sum(increase(envoy_detailed_route_requests_total{response_code!~\"4|5\",<filter>}[<time_interval>s]))");
-//        promTemplateMap.put(AdvancedConst.QPS, "ceil(sum(increase(envoy_detailed_route_requests_total{<filter>}[<time_interval>s]))/<step>)");
-//        promTemplateMap.put(AdvancedConst.TOTAL_COUNT, "ceil(sum(increase(envoy_detailed_route_requests_total{<filter>}[<time_interval>s])))");
-//        promTemplateMap.put(AdvancedConst.DURATION_AVG, "ceil(sum(rate(envoy_detailed_route_request_duration_milliseconds_sum{<filter>}[<time_interval>s]))/sum(rate(envoy_detailed_route_requests_total{<filter>}[<time_interval>s])))");
-//        promTemplateMap.put(AdvancedConst.BAD_REQUEST, "ceil(sum(increase(envoy_detailed_route_requests_total{response_code=~\"4\\\\d{2}\",<filter>}[<time_interval>s])))");
-//        promTemplateMap.put(AdvancedConst.FAILED_RATE, "sum(rate(envoy_detailed_route_requests_total{response_code=~\"5\\\\d{2}\",<filter>}[<time_interval>s]))/sum(rate(envoy_detailed_route_requests_total{<filter>}[<time_interval>s]))");
-//        promTemplateMap.put(AdvancedConst.ERROR_REQUEST, "ceil(sum(increase(envoy_detailed_route_requests_total{response_code=~\"5\\\\d{2}\",<filter>}[<time_interval>s])))");
-//        promTemplateMap.put(AdvancedConst.DURATION_95, "(histogram_quantile(0.95, sum by(<sumBy>, le) (increase(envoy_detailed_route_request_duration_milliseconds_bucket{<filter>}[<time_interval>s]))))");
-//        promTemplateMap.put(AdvancedConst.DURATION_99, "(histogram_quantile(0.99, sum by(<sumBy>, le) (increase(envoy_detailed_route_request_duration_milliseconds_bucket{<filter>}[<time_interval>s]))))");
-//
-//        promTemplateMap.put(AdvancedConst.RANK_FAILED_COUNT, "topk(<topN>,(sum by(<sumBy>)(increase(envoy_detailed_route_requests_total{response_code=~\"5\\\\d{2}\",<filter>}[<time_interval>s]))))");
-//        promTemplateMap.put(AdvancedConst.RANK_BAD_REQUEST_COUNT, "topk(<topN>,(sum by(<sumBy>)(increase(envoy_detailed_route_requests_total{response_code=~\"4\\\\d{2}\",<filter>}[<time_interval>s]))))");
-//        promTemplateMap.put(AdvancedConst.RANK_TOTAL_COUNT, "topk(<topN>,(sum by(<sumBy>)(increase(envoy_detailed_route_requests_total{<filter>}[<time_interval>s]))))");
-//    }
-//
-//    @Override
-//    public Map<String, List<MetricDataDto>> describeMetricDatas(MetricDataQueryDto query) {
-//        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(query.getVirtualGwId());
-//        if (virtualGatewayDto == null){
-//            return null;
-//        }
-//        logger.info("metric = {} ", JSON.toJSONString(query));
-//        GatewayDto gatewayDto1 = gatewayService.get(virtualGatewayDto.getGwId());
-//        logger.info("gatewayDto1 = {}" , JSON.toJSONString(gatewayDto1));
-//        GatewayAdvancedDto gatewayDto = ((GatewayAdvancedDto) gatewayDto1);
-//        if (gatewayDto == null){
-//            return null;
-//        }
-//
-//        Map<String, String> target = Maps.newHashMap();
-//        PromUtils.PromExpTemplate promExpTemplate = new PromUtils.PromExpTemplate();
-//        target.put("cluster_name", gatewayDto.getGwClusterName());
-//        target.put("virtual_gateway_code", CommonUtil.genGatewayStrForRoute(virtualGatewayDto));
-//        DimensionType dimension = DimensionType.getByDimensionType(query.getDimensionType());
-//        if (dimension == null) {
-//            logger.info("未找到维度类型对应的数据，dimensionType = {}", query.getDimensionType());
-//            return null;
-//        }
-//        List<String> sumBy = Lists.newArrayList();
-//        sumBy.add("cluster_name");
-//        sumBy.add("virtual_gateway_code");
-//        promExpTemplate.baseParams = PromUtils.params().p("time_interval", query.getStep()).p("step", query.getStep());
-//        if (DimensionType.SERVICE.equals(dimension)) {
-//            sumBy.add("service_name");
-//            target.put("service_name", String.valueOf(query.getDimensionId()));
-//        } else if (DimensionType.ROUTE.equals(dimension)) {
-//            RouteDto routeDto = routeService.get(query.getDimensionId());
-//            if (routeDto == null) {
-//                return null;
-//            }
-//            sumBy.add("route_rule_id");
-//            target.put("route_rule_id", routeDto.getName());
-//        } else if (query.getProjectDivided()) {
-//            sumBy.add("project_id");
-//            target.put("project_id", String.valueOf(ProjectTraceHolder.getProId()));
-//        }
-//        Map<String, List<MetricDataDto>> result = Maps.newHashMap();
-//
-//        promExpTemplate.baseParams.p("sumBy", StringUtils.join(sumBy, ","));
-//        for (String metricType : query.getMetricTypes()) {
-//            if (promTemplateMap.containsKey(metricType)) {
-//                promExpTemplate.template =promTemplateMap.get(metricType);
-//                String promQL = PromUtils.makeExpr(promExpTemplate, (List) Lists.newArrayList((Object[]) new Map[]{target}));
-//                Map<String, List<MetricDataDto>> metricData = PromUtils.getMetricDataForProm(metricType, gatewayDto.getMetricUrl(), promQL, query.getStartTime(), query.getEndTime(), query.getStep());
-//                result.putAll(metricData);
-//            }
-//        }
-//        return result;
-//    }
 
     @Override
     public Map<String, List<MetricDataDto>> describeMetricData(MetricDataQuery query) {
@@ -206,6 +121,16 @@ public class EnvoyMetricServiceImpl implements IEnvoyMetricService {
 
     @Override
     public ErrorCode validMetricQueryParam(MetricDataQueryDto query) {
+        for (String metricType : query.getMetricTypes()) {
+            MetricTypeEnum metricTypeEnum = MetricTypeEnum.get(metricType);
+            if (metricTypeEnum == null) {
+                return AdvanceErrorCode.invalidParameterMetricType(metricType);
+            }
+        }
+        ErrorCode errorCode = validTimeParam(query.getStartTime(), query.getEndTime());
+        if (errorCode != CommonErrorCode.SUCCESS) {
+            return errorCode;
+        }
         DimensionType dimensionType = DimensionType.getByDimensionType(query.getDimensionType());
         if (dimensionType == null) {
             logger.info("维度类型不符合预期，dimensionType = {}", query.getDimensionType());
@@ -224,5 +149,109 @@ public class EnvoyMetricServiceImpl implements IEnvoyMetricService {
             return CommonErrorCode.NO_SUCH_VIRTUAL_GATEWAY;
         }
         return CommonErrorCode.SUCCESS;
+    }
+
+    @Override
+    public MetricDataQuery transMetric(MetricDataQueryDto query) {
+        MetricDataQuery metricDataQuery = new MetricDataQuery();
+        metricDataQuery.setStartTime(query.getStartTime());
+        metricDataQuery.setEndTime(query.getEndTime());
+        metricDataQuery.setStep(query.getStep());
+        metricDataQuery.setMetricTypes(query.getMetricTypes());
+        metricDataQuery.setDimensionType(query.getDimensionType());
+        metricDataQuery.setDimensionCode(query.getDimensionCode());
+        if (BaseConst.GATEWAY.equals(query.getDimensionType())){
+            metricDataQuery.setClusterName(query.getDimensionCode());
+            GatewayDto gatewayDto = gatewayService.getByClusterName(query.getDimensionCode());
+            GatewayAdvancedDto gatewayAdvancedDto = gatewayAdvancedService.get(gatewayDto.getId());
+            metricDataQuery.setClusterName(gatewayDto.getGwClusterName());
+            metricDataQuery.setMetricAddress(gatewayAdvancedDto.getMetricUrl());
+        }else {
+            VirtualGatewayDto virtualGateway = virtualGatewayInfoService.getByCode(query.getVirtualGwCode());
+            GatewayAdvancedDto gatewayDto = ((GatewayAdvancedDto) gatewayService.get(virtualGateway.getGwId()));
+            metricDataQuery.setClusterName(virtualGateway.getGwClusterName());
+            metricDataQuery.setMetricAddress(gatewayDto.getMetricUrl());
+            metricDataQuery.setVirtualGwCode(virtualGateway.getCode());
+            metricDataQuery.setVirtualGatewayPort(virtualGateway.getPort());
+        }
+        return metricDataQuery;
+    }
+
+    @Override
+    public CountDataQuery transCount(CountDataQueryDto query) {
+        CountDataQuery countQuery = new CountDataQuery();
+        countQuery.setStartTime(query.getStartTime());
+        countQuery.setEndTime(query.getEndTime());
+        VirtualGatewayDto virtualGateway = virtualGatewayInfoService.getByCode(query.getVirtualGwCode());
+        GatewayAdvancedDto gatewayDto = ((GatewayAdvancedDto) gatewayService.get(virtualGateway.getGwId()));
+        countQuery.setClusterName(virtualGateway.getGwClusterName());
+        countQuery.setMetricAddress(gatewayDto.getMetricUrl());
+        countQuery.setVirtualGatewayPort(virtualGateway.getPort());
+        countQuery.setDimensionCode(query.getDimensionCode());
+        countQuery.setDimensionType(query.getDimensionType());
+        countQuery.setVirtualGwCode(query.getVirtualGwCode());
+        return countQuery;
+    }
+
+    @Override
+    public RankDataQuery transRank(RankDataQueryDto query) {
+        RankDataQuery rankQuery = new RankDataQuery();
+        rankQuery.setRankFields(query.getDimensionTypes());
+        rankQuery.setTopN(query.getTopN());
+        rankQuery.setMetricTypes(query.getMetricTypes());
+        rankQuery.setStartTime(query.getStartTime());
+        rankQuery.setEndTime(query.getEndTime());
+        VirtualGatewayDto virtualGateway = virtualGatewayInfoService.getByCode(query.getVirtualGwCode());
+        GatewayAdvancedDto gatewayDto = ((GatewayAdvancedDto) gatewayService.get(virtualGateway.getGwId()));
+        rankQuery.setClusterName(virtualGateway.getGwClusterName());
+        rankQuery.setVirtualGwCode(virtualGateway.getCode());
+        rankQuery.setVirtualGatewayPort(virtualGateway.getPort());
+        rankQuery.setMetricAddress(gatewayDto.getMetricUrl());
+        return rankQuery;
+    }
+
+    @Override
+    public ErrorCode checkServiceRankQueryParam(RankDataQueryDto query) {
+        return validCommonParam(query.getStartTime(), query.getEndTime(),query.getVirtualGwCode());
+    }
+
+    public ErrorCode validCommonParam(long startTime, long endTime ,String virtualGwCode) {
+        ErrorCode errorCode = validTimeParam(startTime, endTime);
+        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
+            return errorCode;
+        }
+        Boolean exist = virtualGatewayInfoService.exist(VirtualGatewayQuery.builder().code(virtualGwCode).build());
+        if (!exist) {
+            logger.info("虚拟网关未找到");
+            return CommonErrorCode.NO_SUCH_VIRTUAL_GATEWAY;
+        }
+        return CommonErrorCode.SUCCESS;
+    }
+
+    public ErrorCode validTimeParam(long startTime, long endTime) {
+        if (NumberUtils.INTEGER_ZERO == startTime || NumberUtils.INTEGER_ZERO == endTime) {
+            endTime = System.currentTimeMillis();
+            startTime = endTime - Const.MS_OF_HOUR;
+        }
+        if (endTime - startTime > AdvancedConst.QUERY_MAX_DAY * Const.MS_OF_DAY) {
+            return CommonErrorCode.timeRangeTooLarge(String.valueOf(AdvancedConst.QUERY_MAX_DAY));
+        }
+        if (startTime >= endTime) {
+            return CommonErrorCode.QUERY_TIME_ILLEGAL;
+        }
+        return CommonErrorCode.SUCCESS;
+    }
+
+
+
+    /**
+     * 校验参数
+     *
+     * @param
+     * @return
+     */
+    @Override
+    public ErrorCode validStatisticsParam(CountDataQueryDto query) {
+        return  validCommonParam(query.getStartTime(), query.getEndTime(),query.getVirtualGwCode());
     }
 }

@@ -1,16 +1,16 @@
-package org.hango.cloud.common.advanced.metric.controller;
+package org.hango.cloud.envoy.advanced.metric.controller;
 
 import com.alibaba.fastjson.JSON;
-import org.hango.cloud.common.advanced.metric.dto.CountDataQueryDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricDataDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricDataQueryDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricRankDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricStatisticsDto;
-import org.hango.cloud.common.advanced.metric.dto.RankDataQueryDto;
-import org.hango.cloud.common.advanced.metric.service.IMetricService;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
+import org.hango.cloud.envoy.advanced.metric.dto.CountDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricRankDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricStatisticsDto;
+import org.hango.cloud.envoy.advanced.metric.dto.RankDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.service.IEnvoyMetricService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,7 @@ public class MetricController extends AbstractController {
 
 
     @Autowired
-    private IMetricService metricService;
+    private IEnvoyMetricService metricService;
 
 
     @RequestMapping(params = {"Action=DescribeMetricData"}, method = RequestMethod.GET)

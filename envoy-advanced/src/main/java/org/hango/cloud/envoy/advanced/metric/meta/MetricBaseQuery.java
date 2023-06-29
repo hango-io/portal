@@ -1,4 +1,4 @@
-package org.hango.cloud.common.advanced.metric.meta;
+package org.hango.cloud.envoy.advanced.metric.meta;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +35,7 @@ public class MetricBaseQuery extends TimeQuery {
     /**
      * 监控类型
      *
-     * @see org.hango.cloud.common.advanced.metric.meta.MetricTypeEnum
+     * @see MetricTypeEnum
      */
     private String[] metricTypes;
 

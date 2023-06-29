@@ -1,8 +1,10 @@
-package org.hango.cloud.common.advanced.metric.meta;
+package org.hango.cloud.envoy.advanced.metric.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
+import org.hango.cloud.common.infra.base.dto.TimeQueryDto;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricTypeEnum;
 
 import javax.validation.constraints.NotNull;
 
@@ -11,12 +13,11 @@ import javax.validation.constraints.NotNull;
  * @version 1.0
  * @Type
  * @Desc
- * @date 2023/6/5
+ * @date 2022/11/11
  */
 @Getter
 @Setter
-public class MetricDataQuery extends MetricBaseQuery {
-
+public class MetricDataQueryDto extends TimeQueryDto {
     /**
      * 维度类型
      *
@@ -38,4 +39,18 @@ public class MetricDataQuery extends MetricBaseQuery {
      */
     @JSONField(name = "Step")
     private long step = 60;
+
+    /**
+     * 虚拟网关Code,检索网关指标时不必填，其他场景必填
+     */
+    @JSONField(name = "VirtualGwCode")
+    private String virtualGwCode;
+
+    /**
+     * 监控类型
+     *
+     * @see MetricTypeEnum
+     */
+    @JSONField(name = "MetricTypes")
+    private String[] metricTypes;
 }

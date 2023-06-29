@@ -1,11 +1,11 @@
-package org.hango.cloud.common.advanced.base.util;
+package org.hango.cloud.envoy.advanced.base.util;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpStatus;
 import org.hango.cloud.common.advanced.base.meta.AdvancedConst;
-import org.hango.cloud.common.advanced.metric.meta.PromResponse;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
+import org.hango.cloud.envoy.advanced.metric.meta.PromResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +73,7 @@ public class PromUtils {
         return String.join(OR, vars);
     }
 
+    @SuppressWarnings("java:S3776")
     private static String mkString(Object value) {
         if (value == null) {
             return "";

@@ -1,12 +1,14 @@
 package org.hango.cloud.envoy.advanced.metric.service;
 
-import org.hango.cloud.common.advanced.metric.dto.MetricDataDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricDataQueryDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricRankDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricStatisticsDto;
-import org.hango.cloud.common.advanced.metric.meta.CountDataQuery;
-import org.hango.cloud.common.advanced.metric.meta.MetricDataQuery;
-import org.hango.cloud.common.advanced.metric.meta.RankDataQuery;
+import org.hango.cloud.envoy.advanced.metric.dto.CountDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricRankDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricStatisticsDto;
+import org.hango.cloud.envoy.advanced.metric.dto.RankDataQueryDto;
+import org.hango.cloud.envoy.advanced.metric.meta.CountDataQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricDataQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.RankDataQuery;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 
 import java.util.List;
@@ -53,4 +55,45 @@ public interface IEnvoyMetricService {
      * @return
      */
     ErrorCode validMetricQueryParam(MetricDataQueryDto query);
+
+    /**
+     * 转换查询参数
+     *
+     * @param query
+     * @return
+     */
+    MetricDataQuery transMetric(MetricDataQueryDto query);
+
+    /**
+     * 排行榜参数校验
+     *
+     * @param query
+     * @return
+     */
+    RankDataQuery transRank(RankDataQueryDto query);
+
+    /**
+     * 统计查询参数校验
+     *
+     * @param query
+     * @return
+     */
+    CountDataQuery transCount(CountDataQueryDto query);
+
+    /**
+     * 参数校验
+     *
+     * @param query
+     * @return
+     */
+    ErrorCode checkServiceRankQueryParam(RankDataQueryDto query);
+
+
+    /**
+     * 参数校验
+     *
+     * @param query
+     * @return
+     */
+    ErrorCode validStatisticsParam(CountDataQueryDto query);
 }

@@ -6,15 +6,15 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hango.cloud.common.advanced.base.util.PromUtils;
-import org.hango.cloud.common.advanced.metric.dto.MetricDataDto;
-import org.hango.cloud.common.advanced.metric.dto.MetricRankDto;
-import org.hango.cloud.common.advanced.metric.meta.CountDataQuery;
-import org.hango.cloud.common.advanced.metric.meta.MetricBaseQuery;
-import org.hango.cloud.common.advanced.metric.meta.MetricDataQuery;
-import org.hango.cloud.common.advanced.metric.meta.MetricTypeEnum;
-import org.hango.cloud.common.advanced.metric.meta.PromResponse;
-import org.hango.cloud.common.advanced.metric.meta.RankDataQuery;
+import org.hango.cloud.envoy.advanced.base.util.PromUtils;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricDataDto;
+import org.hango.cloud.envoy.advanced.metric.dto.MetricRankDto;
+import org.hango.cloud.envoy.advanced.metric.meta.CountDataQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricBaseQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricDataQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.MetricTypeEnum;
+import org.hango.cloud.envoy.advanced.metric.meta.PromResponse;
+import org.hango.cloud.envoy.advanced.metric.meta.RankDataQuery;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.envoy.advanced.metric.meta.DimensionType;
 import org.hango.cloud.envoy.advanced.metric.service.MetricFunction;
@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -101,7 +102,9 @@ public abstract class AbstractMetricBuilder {
             for (Map.Entry<String, Future<R>> entry : futures.entrySet()) {
                 result.put(entry.getKey(), entry.getValue().get());
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return result;

@@ -1,4 +1,4 @@
-package org.hango.cloud.common.advanced.metric.meta;
+package org.hango.cloud.envoy.advanced.metric.meta;
 
 import lombok.Getter;
 import lombok.Setter;

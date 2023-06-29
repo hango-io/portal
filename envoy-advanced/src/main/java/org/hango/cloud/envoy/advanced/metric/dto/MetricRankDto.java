@@ -1,4 +1,4 @@
-package org.hango.cloud.common.advanced.metric.dto;
+package org.hango.cloud.envoy.advanced.metric.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
