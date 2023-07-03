@@ -23,7 +23,7 @@ public class ProjectGatewayMetricBuilder extends GatewayMetricBuilder {
     private static final Map<String, String> METRIC_TEMPLATE = Maps.newHashMap();
 
     static {
-        METRIC_TEMPLATE.put(AdvancedConst.SUCCESS_COUNT, "sum(increase(envoy_detailed_cluster_requests_total{response_code!~\"4|5\",<filter>}[<time_interval>s]))");
+        METRIC_TEMPLATE.put(AdvancedConst.SUCCESS_COUNT, "sum(increase(envoy_detailed_cluster_requests_total{response_code!~\"4\\\\d{2}|5\\\\d{2}\",<filter>}[<time_interval>s]))");
         METRIC_TEMPLATE.put(AdvancedConst.QPS, "ceil(sum(increase(envoy_detailed_cluster_requests_total{<filter>}[<time_interval>s]))/<step>)");
         METRIC_TEMPLATE.put(AdvancedConst.TOTAL_COUNT, "ceil(sum(increase(envoy_detailed_cluster_requests_total{<filter>}[<time_interval>s])))");
         METRIC_TEMPLATE.put(AdvancedConst.DURATION_AVG, "ceil(sum(rate(envoy_detailed_cluster_request_duration_milliseconds_sum{<filter>}[<time_interval>s]))/sum(rate(envoy_detailed_cluster_requests_total{<filter>}[<time_interval>s])))");
