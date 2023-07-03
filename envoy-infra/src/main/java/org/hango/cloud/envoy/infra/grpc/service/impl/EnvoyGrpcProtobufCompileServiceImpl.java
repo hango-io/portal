@@ -279,7 +279,7 @@ public class EnvoyGrpcProtobufCompileServiceImpl implements IEnvoyGrpcProtobufCo
         final Map<String, Object> map = new HashMap<>();
         map.put(RESULT, true);
         for (String currentPbFileContent : pbFileContentList) {
-            if (pbFileContentToFile(serviceId, currentPbFileContent.getBytes(), sourcePathList, pbFileList, map)) {
+            if (!pbFileContentToFile(serviceId, currentPbFileContent.getBytes(), sourcePathList, pbFileList, map)) {
                 logger.warn("compileMultiPb 已上传/已发布pb内容写文件失败");
                 return new Pair<>(EnvoyErrorCode.PARSE_PROTOBUF_FAILED, null);
             }

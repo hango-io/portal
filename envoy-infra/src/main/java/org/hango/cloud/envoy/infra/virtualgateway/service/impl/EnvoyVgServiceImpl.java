@@ -107,6 +107,10 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
         List<Long> targetDomainIds = virtualGatewayDto.getDomainInfos().stream().map(DomainInfoDTO::getId).collect(Collectors.toList());
         targetDomainIds.addAll(domainBindDTO.getDomainIds());
         List<DomainInfoDTO> domainInfos = domainInfoService.getDomainInfos(new ArrayList<>(targetDomainIds));
+        if (CollectionUtils.isEmpty(domainInfos)){
+            logger.error("绑定的域名已失效，绑定失败");
+            return false;
+        }
         virtualGatewayDto.setDomainInfos(domainInfos);
         //更新域名
         return publishToGateway(virtualGatewayDto);
