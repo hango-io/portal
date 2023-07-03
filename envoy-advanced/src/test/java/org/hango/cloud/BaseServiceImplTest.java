@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Arrays;
 
+@SuppressWarnings({"java:S1192"})
 public class BaseServiceImplTest {
   public static RouteDto routeDto;
   public static ServiceProxyDto serviceDto;

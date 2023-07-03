@@ -3,14 +3,14 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>hango-gateway-portal-parent</artifactId>
         <groupId>org.hango.cloud</groupId>
+        <artifactId>hango-gateway-portal-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>envoy-infra</artifactId>
-    <packaging>jar</packaging>
+
+    <artifactId>common-advanced</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
         <!-- Sonar -->
@@ -23,25 +23,12 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <spring.boot.version>2.5.14</spring.boot.version>
-        <start-class>org.hango.cloud.envoy.infra.EnvoyApplication</start-class>
-        <grpc.version>1.11.0</grpc.version>
-
     </properties>
+
+    <packaging>jar</packaging>
 
 
     <dependencies>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-model-gatewayapi</artifactId>
-            <version>6.2.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>kubernetes-model-common</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>org.hango.cloud</groupId>
             <artifactId>common-infra</artifactId>
@@ -49,74 +36,21 @@
         </dependency>
 
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-            <version>${grpc.version}</version>
+            <groupId>io.searchbox</groupId>
+            <artifactId>jest</artifactId>
+            <version>5.3.3</version>
         </dependency>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-core</artifactId>
         </dependency>
-
-        <!--webservice依赖-->
-        <dependency>
-            <groupId>com.predic8</groupId>
-            <artifactId>soa-model-core</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hubspot.jinjava</groupId>
-            <artifactId>jinjava</artifactId>
-            <version>2.5.6</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jsoup</artifactId>
-                    <groupId>org.jsoup</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.15.4</version>
-        </dependency>
-
-        <!--groovy-->
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>2.4.15</version>
-            <type>pom</type>
-        </dependency>
-
-
-        <!-- unit test -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mvnsearch</groupId>
-            <artifactId>h2-functions-4-mysql</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
     </dependencies>
+
+
 
     <build>
         <plugins>
@@ -171,29 +105,15 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>1.0-rc-4</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generateStubs</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <!--使用hango时打开-->
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

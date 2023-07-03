@@ -102,9 +102,7 @@ public abstract class AbstractMetricBuilder {
             for (Map.Entry<String, Future<R>> entry : futures.entrySet()) {
                 result.put(entry.getKey(), entry.getValue().get());
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return result;

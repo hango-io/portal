@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -27,13 +25,8 @@ public class PromUtils {
 
     public static final Logger logger = LoggerFactory.getLogger(PromUtils.class);
 
-    public static final String PROM_ALERT_TEMPLATE = "gateway:<level>:<type>:minute{<filter>} <algorithm>";
-
-    public static final String ALERT_MSG_TEMPLATE = "您的<dimension_desc> {{label.<dimension_name>}} 的<metric_desc>已 <op> <value> <unit>, 当前值{{value}} <unit>, 链接: <domain><suffix>?tenantId=<tenantId>&projectId=<projectId>";
-
     private final static String OR = " \tor\t ";
 
-    private final static String ALL = ".*";
 
     public static Params params() {
         return new Params();
@@ -116,20 +109,6 @@ public class PromUtils {
         }
     }
 
-    /**
-     * 获取第一组匹配的数据
-     *
-     * @param exprStr
-     * @param regex
-     * @return
-     */
-    public static String firstMatch(String exprStr, String regex) {
-        final Matcher matcher = Pattern.compile(regex).matcher(exprStr);
-        if (matcher.find()) {
-            return matcher.group(0);
-        }
-        return "";
-    }
 
     public static PromResponse readPromData(String queryAddr, Map<String, Object> queryParams) {
         logger.info("prometheus query params is {}", JSON.toJSONString(queryParams));
