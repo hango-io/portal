@@ -69,14 +69,6 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
         return envoyServiceProxyService.checkDeleteParam(nextParam);
     }
 
-    @Override
-    protected Object findSingleEnhancement(Object o) {
-        if (!(o instanceof ServiceProxyDto)) {
-            return o;
-        }
-        ((ServiceProxyDto) o).setHealthyStatus(envoyServiceProxyService.getServiceWithHealthStatus(((ServiceProxyDto) o)));
-        return o;
-    }
 
     @Override
     protected List<? extends BackendServiceWithPortDto> postGetBackendServicesHook(List l) {

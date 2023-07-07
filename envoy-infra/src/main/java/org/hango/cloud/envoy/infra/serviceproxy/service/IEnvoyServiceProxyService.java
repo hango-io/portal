@@ -88,12 +88,6 @@ public interface IEnvoyServiceProxyService extends CommonService<ServiceProxyInf
      */
     String getBackendServiceSendToApiPlane(ServiceProxyDto serviceProxyDto);
 
-
-    /**
-     * 获取服务健康检查状态
-     */
-    Integer getServiceWithHealthStatus(ServiceProxyDto serviceProxyDto);
-
     /**
      * 获取subsetsName
      *

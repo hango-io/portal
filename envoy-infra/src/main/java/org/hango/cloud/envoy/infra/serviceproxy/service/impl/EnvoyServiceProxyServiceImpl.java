@@ -33,8 +33,6 @@ import org.hango.cloud.envoy.infra.base.meta.EnvoyErrorCode;
 import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
 import org.hango.cloud.envoy.infra.grpc.meta.EnvoyServiceProtobufProxy;
 import org.hango.cloud.envoy.infra.grpc.service.IEnvoyGrpcProtobufService;
-import org.hango.cloud.envoy.infra.healthcheck.dto.EnvoyServiceInstanceDto;
-import org.hango.cloud.envoy.infra.healthcheck.dto.HealthStatusEnum;
 import org.hango.cloud.envoy.infra.healthcheck.service.IEnvoyHealthCheckService;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.DpServiceProxyDto;
 import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceProxyService;
@@ -50,12 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
@@ -284,30 +277,6 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         envoyWebServiceService.deleteServiceWsdlInfo(serviceProxyDto.getVirtualGwId(),serviceProxyDto.getId());
     }
 
-    /**
-     * 用于仅删除服务版本，服务更新时
-     *
-     * @param serviceProxyDto
-     * @return
-     */
-    DpServiceProxyDto deleteSomeSubset(ServiceProxyDto serviceProxyDto) {
-        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyDto.getVirtualGwId());
-        if (virtualGatewayDto == null) {
-            return null;
-        }
-        DpServiceProxyDto envoyDpServiceProxyDto = new DpServiceProxyDto();
-        envoyDpServiceProxyDto.setCode(ServiceProxyConvert.getCode(serviceProxyDto));
-        //网关集群名称
-        envoyDpServiceProxyDto.setGateway(virtualGatewayDto.getGwClusterName());
-        envoyDpServiceProxyDto.setBackendService(serviceProxyDto.getBackendService());
-        envoyDpServiceProxyDto.setType(serviceProxyDto.getPublishType());
-        envoyDpServiceProxyDto.setServiceTag(serviceProxyDto.getName());
-        envoyDpServiceProxyDto.setProtocol(serviceProxyDto.getProtocol());
-        envoyDpServiceProxyDto.setSubsets(serviceProxyDto.getSubsets());
-        //网关集群名称
-        envoyDpServiceProxyDto.setGateway(virtualGatewayDto.getGwClusterName());
-        return envoyDpServiceProxyDto;
-    }
 
     @Override
     public Map<String, String> getExtraServiceParams(String registry) {
@@ -362,18 +331,6 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
 
         return backendService.replace('_', '-');
-    }
-
-    @Override
-    public Integer getServiceWithHealthStatus(ServiceProxyDto serviceProxyDto) {
-        Integer status = HealthStatusEnum.HEALTHY.getValue();
-        List<EnvoyServiceInstanceDto> serviceInstanceDtos = envoyHealthCheckService.getServiceInstanceList(serviceProxyDto);
-        for (EnvoyServiceInstanceDto serviceInstanceDto : serviceInstanceDtos) {
-            if (HealthStatusEnum.UNHEALTHY.getValue().equals(serviceInstanceDto.getStatus())){
-                return HealthStatusEnum.UNHEALTHY.getValue();
-            }
-        }
-        return status;
     }
 
     @Override

@@ -204,7 +204,9 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         if (virtualGateway != null) {
             return CommonErrorCode.ALREADY_EXIST_VIRTUAL_GW_NAME;
         }
-        VirtualGatewayQuery query = VirtualGatewayQuery.builder().code(virtualGatewayDto.getCode()).build();
+        VirtualGatewayQuery query = VirtualGatewayQuery.builder()
+                .gwIds(Collections.singletonList(virtualGatewayDto.getGwId()))
+                .code(virtualGatewayDto.getCode()).build();
         if (virtualGatewayDao.exist(query)) {
             return CommonErrorCode.ALREADY_EXIST_VIRTUAL_GW_CODE;
         }
