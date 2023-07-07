@@ -77,6 +77,9 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     @Autowired
     private VersionManagerService versionManagerService;
 
+    //带有网关属性的插件
+    public static final List<String> GATEWAY_PROPERTIES_PLUGINS = Arrays.asList("basic-rbac", "dynamic-downgrade");
+
     @Override
     public ErrorCode checkDescribePlugin(long virtualGwId) {
         if (0 < virtualGwId) {
@@ -119,16 +122,20 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
                 .filter(Objects::nonNull)
                 .flatMap(Collection::stream).distinct()
                 .map(EnvoyPluginInfoServiceImpl::fromMeta)
-                .filter(item -> filter(pluginScopeFilter, item))
+                .filter(item -> filter(virtualGwId, pluginScopeFilter, item))
                 .collect(Collectors.toList());
     }
 
-    private static boolean filter(String pluginScope, PluginDto item) {
+    private static boolean filter(long virtualGwId, String pluginScope, PluginDto item) {
         if (StringUtils.isBlank(item.getPluginScope())) {
             return false;
         }
         if (StringUtils.isBlank(pluginScope)) {
             return true;
+        }
+        //未传虚拟网关，不允许展示网关属性插件
+        if (virtualGwId <= 0 && GATEWAY_PROPERTIES_PLUGINS.contains(item.getPluginType())){
+            return false;
         }
         Set<String> pluginScopeSet = Arrays.stream(item.getPluginScope().split(",")).map(String::trim).collect(Collectors.toSet());
         return pluginScopeSet.contains(pluginScope);
