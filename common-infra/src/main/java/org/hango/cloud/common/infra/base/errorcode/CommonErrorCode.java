@@ -132,7 +132,9 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode NO_SUCH_PLUGIN_BINDING = new ErrorCode((ErrorCodeEnum.NO_SUCH_PLUGIN_BINDING));
 
+    public static final ErrorCode EXISTS_PLUGIN_WITH_THE_SAME_NAME = new ErrorCode((ErrorCodeEnum.EXISTS_PLUGIN_WITH_THE_SAME_NAME));
     public static final ErrorCode NO_SUCH_PLUGIN_TEMPLATE = new ErrorCode(ErrorCodeEnum.NO_SUCH_PLUGIN_TEMPLATE);
+    public static final ErrorCode PLUGIN_IS_BOUND = new ErrorCode(ErrorCodeEnum.PLUGIN_IS_BOUND);
 
     public static final ErrorCode SAME_NAME_PLUGIN_TEMPLATE_EXIST = new ErrorCode(ErrorCodeEnum.SAME_NAME_PLUGIN_TEMPLATE_EXIST);
 

@@ -13,6 +13,8 @@ import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
+import org.hango.cloud.envoy.infra.plugin.util.Trans;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
@@ -30,10 +32,11 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PLUGIN_PATH;
-import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_VERSION;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.MODULE_API_PLANE;
-import static org.hango.cloud.gdashboard.api.util.Const.*;
+import static org.hango.cloud.gdashboard.api.util.Const.ACTION;
+import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_INGRESS;
+import static org.hango.cloud.gdashboard.api.util.Const.VERSION;
 
 /**
  * @author zhangbj
@@ -55,7 +58,7 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
 
     @Override
     public List<PluginManagerDto> getPluginManager(long virtualGwId) {
-        List<PluginOrderItemDto> plugins = getPluginManagers(virtualGwId);
+        List<PluginOrderItemDto> plugins = getPluginOrder(virtualGwId).getPlugins();
         if (CollectionUtils.isEmpty(plugins)) {
             return Collections.emptyList();
         }
@@ -70,6 +73,80 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
             return CommonErrorCode.NO_SUCH_GATEWAY;
         }
         return CommonErrorCode.SUCCESS;
+    }
+
+    /**
+     * 从数据面获取pluginManager
+     */
+    @Override
+    public PluginOrderDto getPluginOrder(Long vgId) {
+        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(vgId);
+        if (virtualGatewayDto == null) {
+            return new PluginOrderDto();
+        }
+        PluginOrderDto query = buildPluginOrder(virtualGatewayDto);
+        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        params.put(ACTION, "GetPluginOrder");
+        params.put(VERSION, PLANE_VERSION);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(query), params, headers, MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error("获取网关插件配置失败，返回http status code非2xx，httpStatusCode:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+            return new PluginOrderDto();
+        }
+        JSONObject jsonObject = JSON.parseObject(response.getResponseBody());
+        String result = jsonObject.getString(BaseConst.RESULT);
+        if (StringUtils.isBlank(result)) {
+            logger.info("调用api-plane查询插件配置失败，返回结果为空");
+            return new PluginOrderDto();
+        }
+        return JSON.parseObject(result, PluginOrderDto.class);
+    }
+
+
+    @Override
+    public Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, String pluginType, String operate) {
+        EngineRuleDTO engineRuleDTO = new EngineRuleDTO();
+        engineRuleDTO.setOperate(operate);
+        engineRuleDTO.setFilename("/usr/local/lib/rider/plugins/" + pluginType + ".lua");
+        engineRuleDTO.setName(pluginType);
+        PluginOrderItemDto pluginOrderItemDto = Trans.buildEngineRulePlugin(engineRuleDTO, virtualGatewayDto);
+        return updatePluginManager(virtualGatewayDto.getId(), pluginOrderItemDto);
+    }
+
+    @Override
+    public boolean updatePluginManager(long virtualGwId, PluginOrderItemDto itemDto) {
+        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(virtualGwId);
+        Map<String, Object> params = Maps.newHashMap();
+        params.put(ACTION, "UpdatePluginOrderItem");
+        params.put(VERSION, PLANE_VERSION);
+
+        PluginOrderDto pluginOrderDto = buildPluginOrder(virtualGatewayDto);
+        pluginOrderDto.setPlugins(Collections.singletonList(itemDto));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginOrderDto), params, headers, MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error("调用api-plane下线插件配置接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+            return false;
+        }
+        return true;
+    }
+    @Override
+    public boolean offlinePluginManager(VirtualGatewayDto virtualGatewayDto) {
+        PluginOrderDto pluginManagers = buildPluginOrder(virtualGatewayDto);
+        Map<String, Object> params = Maps.newHashMap();
+        params.put(ACTION, "DeletePluginOrder");
+        params.put(VERSION, PLANE_VERSION);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginManagers), params, headers, MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error("调用api-plane下线插件配置接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -100,44 +177,6 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
         }
         PluginOrderDto pluginOrderDto = JSON.parseObject(result, PluginOrderDto.class);
         return pluginOrderDto.getPlugins();
-    }
-
-    @Override
-    public boolean updatePluginManager(long virtualGwId, String name, boolean enable) {
-        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(virtualGwId);
-        Map<String, Object> params = Maps.newHashMap();
-        params.put(ACTION, "UpdatePluginOrder");
-        params.put(VERSION, PLANE_VERSION);
-
-        PluginOrderDto pluginOrderDto = buildPluginOrder(virtualGatewayDto);
-        PluginOrderItemDto pluginOrderItemDto = new PluginOrderItemDto();
-        pluginOrderItemDto.setName(name);
-        pluginOrderItemDto.setEnable(enable);
-        pluginOrderDto.setPlugins(Collections.singletonList(pluginOrderItemDto));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginOrderDto), params, headers, MODULE_API_PLANE);
-        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
-            logger.error("调用api-plane下线插件配置接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean offlinePluginManager(VirtualGatewayDto virtualGatewayDto) {
-        PluginOrderDto pluginManagers = buildPluginOrder(virtualGatewayDto);
-        Map<String, Object> params = Maps.newHashMap();
-        params.put(ACTION, "DeletePluginOrder");
-        params.put(VERSION, PLANE_VERSION);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginManagers), params, headers, MODULE_API_PLANE);
-        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
-            logger.error("调用api-plane下线插件配置接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
-            return false;
-        }
-        return true;
     }
 
     @Override

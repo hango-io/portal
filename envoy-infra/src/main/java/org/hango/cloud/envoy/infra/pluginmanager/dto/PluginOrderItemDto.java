@@ -1,51 +1,24 @@
 package org.hango.cloud.envoy.infra.pluginmanager.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class PluginOrderItemDto {
 
-    @JSONField(name ="enable")
-    private boolean enable;
+    private Boolean enable;
 
-    @JSONField(name ="name")
     private String name;
 
-    @JSONField(name ="port")
+    private String subName;
+
     private Integer port;
 
-    @JSONField(name ="inline")
     private Object inline;
 
-    public Boolean getEnable() {
-        return enable;
-    }
+    private Object rider;
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public Object getInline() {
-        return inline;
-    }
-
-    public void setInline(Object inline) {
-        this.inline = inline;
-    }
+    private String operate;
 
 }

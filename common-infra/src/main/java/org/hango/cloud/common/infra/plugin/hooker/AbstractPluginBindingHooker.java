@@ -27,7 +27,6 @@ public abstract class AbstractPluginBindingHooker<T extends PluginBindingInfo,S 
     protected List<Triple<String, String, String>> put() {
         List<Triple<String, String, String>> triples = new ArrayList<>();
         triples.add(MutableTriple.of("copyGlobalPluginToGatewayByVirtualGwId", "doPreCopyGlobalPluginToGatewayByVirtualGwId", StringUtils.EMPTY));
-        triples.add(MutableTriple.of("getPluginInfoFromDataPlane", StringUtils.EMPTY, "doPostGetPluginInfoFromDataPlane"));
         return triples;
     }
     @Override
@@ -46,15 +45,4 @@ public abstract class AbstractPluginBindingHooker<T extends PluginBindingInfo,S 
 
     protected abstract boolean preCopyGlobalPluginToGatewayByVirtualGwId(CopyGlobalPluginDto copyGlobalPlugin);
 
-    public final PluginInfo doPostGetPluginInfoFromDataPlane(PluginInfo pluginInfo) {
-        pluginInfo = postGetPluginInfoFromDataPlane(pluginInfo);
-        if (nextHooker != null && nextHooker instanceof AbstractPluginBindingHooker) {
-            pluginInfo = ((AbstractPluginBindingHooker<PluginBindingInfo, PluginBindingDto>) nextHooker).doPostGetPluginInfoFromDataPlane(pluginInfo);
-        }
-        return pluginInfo;
-    }
-
-    protected PluginInfo postGetPluginInfoFromDataPlane(PluginInfo pluginInfo) {
-        return pluginInfo;
-    }
 }

@@ -5,6 +5,7 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -52,7 +53,10 @@ public class PluginManagerController extends AbstractController {
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return apiReturn(errorCode);
         }
-        boolean result = pluginManagerService.updatePluginManager(virtualGwId, name, enable);
+        PluginOrderItemDto itemDto = new PluginOrderItemDto();
+        itemDto.setName(name);
+        itemDto.setEnable(enable);
+        boolean result = pluginManagerService.updatePluginManager(virtualGwId, itemDto);
         return apiReturnSuccess(result);
     }
 

@@ -37,16 +37,6 @@ public class PluginDto extends CommonExtensionDto {
     @Pattern(regexp = "([\\s\\S]){1,254}", message = "参数 Author 不能")
     private String author;
     /**
-     * 插件创建时间，时间戳格式，精确到毫秒
-     */
-    @JSONField(name = "CreateTime")
-    private long createTime;
-    /**
-     * 插件更新时间，时间戳格式，精确到毫秒
-     */
-    @JSONField(name = "UpdateTime")
-    private long updateTime;
-    /**
      * 插件作用范围，即可绑定对象，可选值为route rule、service、global
      */
     @JSONField(name = "PluginScope")
@@ -61,16 +51,7 @@ public class PluginDto extends CommonExtensionDto {
      */
     @JSONField(name = "PluginSchema")
     private String pluginSchema;
-    /**
-     * 插件逻辑，用于网关使用
-     */
-    @JSONField(name = "PluginHandler")
-    private String pluginHandler;
-    /**
-     * 插件优先级，数字越小优先级越高，不允许重复
-     */
-    @JSONField(name = "PluginPriority")
-    private long pluginPriority;
+
 
     @JSONField(name = "CategoryKey")
     private String categoryKey;
@@ -113,21 +94,6 @@ public class PluginDto extends CommonExtensionDto {
         this.author = author;
     }
 
-    public long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
-
-    public long getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
-    }
 
     public String getPluginScope() {
         return pluginScope;
@@ -151,22 +117,6 @@ public class PluginDto extends CommonExtensionDto {
 
     public void setPluginSchema(String pluginSchema) {
         this.pluginSchema = pluginSchema;
-    }
-
-    public String getPluginHandler() {
-        return pluginHandler;
-    }
-
-    public void setPluginHandler(String pluginHandler) {
-        this.pluginHandler = pluginHandler;
-    }
-
-    public long getPluginPriority() {
-        return pluginPriority;
-    }
-
-    public void setPluginPriority(long pluginPriority) {
-        this.pluginPriority = pluginPriority;
     }
 
     public String getCategoryKey() {

@@ -125,11 +125,6 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         return CommonErrorCode.SUCCESS;
     }
 
-    @Override
-    public PluginInfo getPluginInfoFromDataPlane(String pluginType) {
-        return null;
-    }
-
 
     @Override
     @SuppressWarnings("java:S3776")

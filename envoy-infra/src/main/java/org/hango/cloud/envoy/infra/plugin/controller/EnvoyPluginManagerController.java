@@ -39,13 +39,14 @@ public class EnvoyPluginManagerController extends AbstractController {
     private IVirtualGatewayInfoService virtualGatewayInfoService;
 
     @GetMapping(params = {"Action=DescribePluginInfo"})
-    public String getPluginInfo(@RequestParam(value = "PluginType") String pluginType, @RequestParam(value = "VirtualGwId", required = false, defaultValue = "0") long virtualGwId) {
+    public String getPluginInfo(@RequestParam(value = "PluginType") String pluginType,
+                                @RequestParam(value = "VirtualGwId", required = false, defaultValue = "0") long virtualGwId) {
         logger.info("查询插件详情, pluginType:{}, virtualGwId:{}", pluginType, virtualGwId);
         ErrorCode checkResult = envoyPluginInfoService.checkDescribePlugin(virtualGwId);
         if (!CommonErrorCode.SUCCESS.equals(checkResult)) {
             return apiReturn(checkResult);
         }
-        PluginDto pluginDto = envoyPluginInfoService.getPluginInfoFromApiPlane(virtualGwId, pluginType);
+        PluginDto pluginDto = envoyPluginInfoService.getPluginInfo(virtualGwId, pluginType);
         if (null == pluginDto) {
             return apiReturn(CommonErrorCode.NO_SUCH_PLUGIN);
         }
@@ -62,7 +63,7 @@ public class EnvoyPluginManagerController extends AbstractController {
             return apiReturn(checkResult);
         }
         Map<String, Object> result = Maps.newHashMap();
-        List<PluginDto> pluginInfoList = envoyPluginInfoService.getPluginInfoListFromApiPlane(virtualGwId, pluginScope);
+        List<PluginDto> pluginInfoList = envoyPluginInfoService.getPluginInfoList(virtualGwId, pluginScope);
         result.put("PluginDtoList", pluginInfoList);
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, result);
     }

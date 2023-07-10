@@ -43,5 +43,4 @@ public interface IGatewayService extends CommonService<Gateway, GatewayDto> {
      */
     GatewayDto getByClusterName(String clusterName);
 
-
 }

@@ -157,9 +157,4 @@ public class EnvoyPluginBindingHooker extends AbstractPluginBindingHooker<Plugin
         return true;
     }
 
-    @Override
-    protected PluginInfo postGetPluginInfoFromDataPlane(PluginInfo pluginInfo) {
-        String pluginType = MethodAroundHolder.getNextParam(String.class);
-        return envoyPluginInfoService.getPluginInfoByPluginType(pluginType);
-    }
 }

@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  * @author hzchenzhongyang 2019-11-11
  */
 @Component
+@SuppressWarnings("java:S1192")
 public class PluginBindingInfoDaoImpl extends BaseDao implements IPluginBindingInfoDao {
     private static final Logger logger = LoggerFactory.getLogger(PluginBindingInfoDaoImpl.class);
 
@@ -201,6 +202,31 @@ public class PluginBindingInfoDaoImpl extends BaseDao implements IPluginBindingI
             params.put("bindingObjectIdList", bindingObjectIdList);
         }
         return namedParameterJdbcTemplate.query(sql, params, new PluginBindingInfoRowMapper());
+    }
+
+    @Override
+    public List<PluginBindingInfo> getBindingPluginList(String pluginType, String bindingObjectType, long offset, long limit) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("pluginType", pluginType);
+        String sql = "select * from hango_plugin_binding where plugin_type=:pluginType";
+        if (StringUtils.isNotBlank(bindingObjectType)) {
+            params.put("bindingObjectType", bindingObjectType);
+            sql = sql + " and binding_object_type=:bindingObjectType";
+        }
+        sql = sql + " order by update_time limit :limit offset :offset";
+        params.put("limit", limit);
+        params.put("offset", offset);
+        return namedParameterJdbcTemplate.query(sql, params, new PluginBindingInfoRowMapper());
+    }
+
+    @Override
+    public long getBindingPluginCount(String pluginType, String bindingObjectType) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("pluginType", pluginType);
+        params.put("bindingObjectType", bindingObjectType);
+        String head = "select count(*) from hango_plugin_binding where ";
+        String sql = getQueryCondition(head, params);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
     }
 
     class PluginBindingInfoRowMapper implements RowMapper<PluginBindingInfo> {

@@ -1,5 +1,7 @@
 package org.hango.cloud.envoy.infra.plugin.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,8 +30,14 @@ import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayProjec
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
 import org.hango.cloud.envoy.infra.base.meta.PluginConstant;
 import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
+import org.hango.cloud.envoy.infra.plugin.dao.ICustomPluginInfoDao;
 import org.hango.cloud.envoy.infra.plugin.dto.GatewayPluginDto;
+import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
+import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfoQuery;
+import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusStatus;
+import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
+import org.hango.cloud.envoy.infra.plugin.util.Trans;
 import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +50,9 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PLUGIN_PATH;
-import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.MODULE_API_PLANE;
+import static org.hango.cloud.gdashboard.api.util.Const.ACTION;
 
 /**
  * @author xin li
@@ -54,9 +62,6 @@ import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.MODULE_API_PLANE;
 public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     private static final Logger logger = LoggerFactory.getLogger(EnvoyPluginInfoServiceImpl.class);
 
-    private static final String ACTION = "Action";
-    private static final String VERSION = "Version";
-    private static final String VERSION_VALUE = "2019-07-25";
     @Autowired
     private IPluginInfoService pluginInfoService;
     @Autowired
@@ -77,8 +82,11 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     @Autowired
     private VersionManagerService versionManagerService;
 
-    //带有网关属性的插件
-    public static final List<String> GATEWAY_PROPERTIES_PLUGINS = Arrays.asList("basic-rbac", "dynamic-downgrade");
+    @Autowired
+    private ICustomPluginInfoDao customPluginInfoDao;
+
+    @Autowired
+    private CustomPluginInfoService customPluginInfoService;
 
     @Override
     public ErrorCode checkDescribePlugin(long virtualGwId) {
@@ -94,80 +102,54 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     }
 
     @Override
-    public List<PluginDto> getPluginInfoListFromApiPlane(long virtualGwId, String pluginScope) {
-        List<? extends VirtualGatewayDto> virtualGateways = null;
-        if (0 < virtualGwId) {
-            VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(virtualGwId);
-            if (null != virtualGateway) {
-                virtualGateways = Collections.singletonList(virtualGateway);
-            }
-        } else {
-            virtualGateways = virtualGatewayInfoService.findAll();
-        }
+    public List<PluginDto> getPluginInfoList(long virtualGwId, String pluginScope) {
+        List<? extends VirtualGatewayDto> virtualGateways = getVirtualGatewayDtos(virtualGwId);
         if (CollectionUtils.isEmpty(virtualGateways)) {
             logger.error("网关信息不存在! virtualGwId:{}", virtualGwId);
             return Collections.emptyList();
         }
-
-        // 全局插件与host插件一致，此处将host直接当做global处理
-        if (pluginScope.equals(PluginConstant.PLUGIN_SCOPE_HOST)) {
-            pluginScope = PluginConstant.PLUGIN_SCOPE_GLOBAL;
-        }
-
-        //查询、聚合、去重获取网关插件 放开插件回显
-        String pluginScopeFilter = pluginScope;
-        return virtualGateways.stream()
+        //查询系统插件
+        List<PluginDto> plugins = virtualGateways.stream()
                 .filter(virtualGateway -> EnvoyConst.ENVOY_GATEWAY_TYPE.equals(virtualGateway.getGwType()))
-                .map(this::getEnvoyPluginInfos)
+                .map(this::getSystemPluginInfos)
                 .filter(Objects::nonNull)
-                .flatMap(Collection::stream).distinct()
-                .map(EnvoyPluginInfoServiceImpl::fromMeta)
-                .filter(item -> filter(virtualGwId, pluginScopeFilter, item))
+                .flatMap(Collection::stream)
+                .distinct()
+                .map(Trans::fromMeta)
+                .collect(Collectors.toList());
+        //查询自定义插件
+        List<PluginDto> customPluginInfos = customPluginInfoDao.findAll().stream()
+                .filter(pluginDto-> PluginStatusStatus.ONLINE.equals(pluginDto.getPluginStatus()))
+                .map(Trans::fromCustomPluginMeta).collect(Collectors.toList());
+        plugins.addAll(customPluginInfos);
+        //根据pluginScope进行过滤/普西绪
+        return plugins.stream()
+                .filter(item -> filter(pluginScope, item))
+                .distinct()
+                .sorted(Comparator.comparing(PluginDto::getCategoryKey))
                 .collect(Collectors.toList());
     }
 
-    private static boolean filter(long virtualGwId, String pluginScope, PluginDto item) {
+    private boolean filter(String pluginScope, PluginDto item) {
         if (StringUtils.isBlank(item.getPluginScope())) {
             return false;
         }
         if (StringUtils.isBlank(pluginScope)) {
             return true;
         }
-        //未传虚拟网关，不允许展示网关属性插件
-        if (virtualGwId <= 0 && GATEWAY_PROPERTIES_PLUGINS.contains(item.getPluginType())){
-            return false;
+        // 全局插件与host插件一致，此处将host直接当做global处理
+        if (pluginScope.equals(PluginConstant.PLUGIN_SCOPE_HOST)) {
+            pluginScope = PluginConstant.PLUGIN_SCOPE_GLOBAL;
         }
         Set<String> pluginScopeSet = Arrays.stream(item.getPluginScope().split(",")).map(String::trim).collect(Collectors.toSet());
         return pluginScopeSet.contains(pluginScope);
     }
 
-    public static PluginDto fromMeta(PluginInfo pluginInfo) {
-        if (null == pluginInfo) {
-            return null;
-        }
-        PluginDto pluginDto = new PluginDto();
-        pluginDto.setId(pluginInfo.getId());
-        pluginDto.setAuthor(pluginInfo.getAuthor());
-        pluginDto.setCreateTime(pluginInfo.getCreateTime());
-        pluginDto.setUpdateTime(pluginInfo.getUpdateTime());
-        pluginDto.setPluginName(pluginInfo.getPluginName());
-        pluginDto.setPluginType(pluginInfo.getPluginType());
-        pluginDto.setPluginScope(pluginInfo.getPluginScope());
-        pluginDto.setPluginSchema(pluginInfo.getPluginSchema());
-        pluginDto.setPluginPriority(pluginInfo.getPluginPriority());
-        // FIXME
-        pluginDto.setPluginHandler(pluginInfo.getPluginHandler());
-        pluginDto.setInstructionForUse(pluginInfo.getInstructionForUse());
-        pluginDto.setCategoryKey(pluginInfo.getCategoryKey());
-        pluginDto.setCategoryName(pluginInfo.getCategoryName());
-        pluginDto.setPluginGuidance(pluginInfo.getPluginGuidance());
-        return pluginDto;
-    }
 
-    private List<PluginInfo> getEnvoyPluginInfos(VirtualGatewayDto virtualGateway) {
+    private List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway) {
         Map<String, Object> params = Maps.newHashMap();
         params.put(ACTION, "GetPluginList");
-        params.put(VERSION, VERSION_VALUE);
+        params.put(VERSION, PLANE_VERSION);
         params.put("GatewayKind", virtualGateway.getType());
         HttpClientResponse response = HttpClientUtil.getRequest(virtualGateway.getConfAddr() + PLANE_PLUGIN_PATH, params, MODULE_API_PLANE);
 
@@ -175,47 +157,63 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
             logger.error("调用api-plane查询插件列表接口失败，返回http status code非2xx，httpStatusCoed:{}, errMsg:{}", response.getStatusCode(), response.getResponseBody());
             return Lists.newArrayList();
         }
+        JSONObject jsonObject = JSON.parseObject(response.getResponseBody());
+        if (jsonObject == null) {
+            logger.info("未查询到有效数据");
+            return new ArrayList<>();
+        }
+        List<String> plugins = JSONArray.parseArray(jsonObject.getString("Plugins"), String.class);
 
-        JSONObject result = JSONObject.parseObject(response.getResponseBody());
-        return result.getJSONArray("Plugins").stream().map(item -> {
-            JSONObject pluginInfo = JSONObject.parseObject(item.toString());
-            return getEnvoyPluginInfoFromJsonObject(pluginInfo, null);
-        }).collect(Collectors.toList());
+        return plugins.stream().map(Trans::parsePlugin).collect(Collectors.toList());
     }
 
     @Override
-    public PluginDto getPluginInfoFromApiPlane(long virtualGwId, String pluginType) {
-        List<? extends VirtualGatewayDto> virtualGateways = null;
-        if (0 < virtualGwId) {
-            VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(virtualGwId);
-            if (null != virtualGateway) {
-                virtualGateways = Collections.singletonList(virtualGateway);
-            }
-        } else {
-            virtualGateways = virtualGatewayInfoService.findAll();
-        }
+    public PluginDto getPluginInfo(long virtualGwId, String pluginType) {
+        List<? extends VirtualGatewayDto> virtualGateways = getVirtualGatewayDtos(virtualGwId);
         if (CollectionUtils.isEmpty(virtualGateways)) {
             logger.error("网关信息不存在! virtualGwId:{}", virtualGwId);
             return null;
         }
-        // 如果不传网关id，只要任意一个网关查询到即可
+
         for (VirtualGatewayDto virtualGateway : virtualGateways) {
-            if (EnvoyConst.ENVOY_GATEWAY_TYPE.equals(virtualGateway.getGwType())) {
-                PluginInfo envoyPluginInfo = getEnvoyPluginInfo(virtualGateway, pluginType);
-                if (null != envoyPluginInfo) {
-                    return fromMeta(envoyPluginInfo);
-                }
+            PluginDto pluginInfo = getPluginInfo(virtualGateway, pluginType);
+            if (null != pluginInfo) {
+                return pluginInfo;
             }
         }
         return null;
     }
 
+    private PluginDto getPluginInfo(VirtualGatewayDto virtualGateway, String pluginType){
+        if (!EnvoyConst.ENVOY_GATEWAY_TYPE.equals(virtualGateway.getGwType())) {
+            return null;
+        }
+        CustomPluginInfoQuery query = CustomPluginInfoQuery.builder().pluginType(pluginType).build();
+        List<CustomPluginInfo> customPluginInfoList = customPluginInfoDao.getCustomPluginInfoList(query);
+        if (!CollectionUtils.isEmpty(customPluginInfoList)){
+            //查询自定义插件
+            return Trans.fromCustomPluginMeta(customPluginInfoList.get(0));
+        }
+        //查询系统插件
+        return Trans.fromMeta(getEnvoyPluginInfo(virtualGateway, pluginType));
+    }
+
+
+
+    private List<? extends VirtualGatewayDto> getVirtualGatewayDtos(long virtualGwId){
+        if (virtualGwId == 0){
+            return virtualGatewayInfoService.findAll();
+        }
+        VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(virtualGwId);
+        return virtualGateway == null ? new ArrayList<>() : Collections.singletonList(virtualGateway);
+    }
+
+
     private PluginInfo getEnvoyPluginInfo(VirtualGatewayDto virtualGateway, String pluginType) {
         Map<String, Object> params = Maps.newHashMap();
         params.put(ACTION, "GetPluginDetail");
-        params.put(VERSION, VERSION_VALUE);
+        params.put(VERSION, PLANE_VERSION);
         params.put("Name", pluginType);
-
         HttpClientResponse response = HttpClientUtil.getRequest(virtualGateway.getConfAddr() + PLANE_PLUGIN_PATH, params, MODULE_API_PLANE);
 
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
@@ -224,36 +222,14 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
         }
 
         JSONObject result = JSONObject.parseObject(response.getResponseBody());
-        return getEnvoyPluginInfoFromJsonObject(result.getJSONObject("Plugin"), result.getString("Schema"));
+        PluginInfo plugin = Trans.parsePlugin(result.getString("Plugin"));
+        if (plugin == null){
+            plugin = new PluginInfo();
+        }
+        plugin.setPluginSchema(result.getString("Schema"));
+        return plugin;
     }
 
-    private PluginInfo getEnvoyPluginInfoFromJsonObject(JSONObject pluginInfo, String schema) {
-        PluginInfo envoyPluginInfo = new PluginInfo();
-        envoyPluginInfo.setPluginName(pluginInfo.getString("displayName"));
-        if (StringUtils.isBlank(pluginInfo.getString("displayName"))) {
-            envoyPluginInfo.setPluginName(pluginInfo.getString("name"));
-        }
-        envoyPluginInfo.setAuthor(pluginInfo.getString("author"));
-        //对应插件唯一标志，英文标识
-        envoyPluginInfo.setPluginType(pluginInfo.getString("name"));
-        envoyPluginInfo.setPluginScope(pluginInfo.getString("pluginScope"));
-        envoyPluginInfo.setCreateTime(getLongValueFromJsonWithDefault(pluginInfo, "createTime", 0));
-        envoyPluginInfo.setUpdateTime(getLongValueFromJsonWithDefault(pluginInfo, "updateTime", 0));
-        envoyPluginInfo.setPluginPriority(getLongValueFromJsonWithDefault(pluginInfo, "pluginPriority", 0));
-        envoyPluginInfo.setInstructionForUse(pluginInfo.getString("instructionForUse"));
-        envoyPluginInfo.setCategoryKey(pluginInfo.getString("categoryKey"));
-        envoyPluginInfo.setCategoryName(pluginInfo.getString("categoryName"));
-        envoyPluginInfo.setPluginHandler(pluginInfo.getString("processor"));
-        envoyPluginInfo.setPluginGuidance(pluginInfo.getString("pluginGuidance"));
-        if (schema != null) {
-            envoyPluginInfo.setPluginSchema(schema);
-        }
-        return envoyPluginInfo;
-    }
-
-    private long getLongValueFromJsonWithDefault(JSONObject jsonObject, String key, long defaultValue) {
-        return jsonObject.getLong(key) == null ? defaultValue : jsonObject.getLong(key);
-    }
 
     /**
      * 发布网关插件
@@ -297,29 +273,6 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
         return opsForGatewayPlugin(bindingPluginDto, Operation.DELETE, pluginIdList);
     }
 
-    @Override
-    public PluginInfo getPluginInfoByPluginType(String pluginType) {
-        List<? extends VirtualGatewayDto> virtualGatewayDtos = virtualGatewayInfoService.findAll();
-
-        if (CollectionUtils.isEmpty(virtualGatewayDtos)) {
-            return null;
-        }
-        //插件plugin-config信息，随意调用任意api-plane即可，无需区分虚拟网关
-        VirtualGatewayDto virtualGatewayDto = virtualGatewayDtos.get(0);
-        Map<String, Object> params = Maps.newHashMap();
-        params.put(BaseConst.ACTION, "GetPluginDetail");
-        params.put(BaseConst.VERSION, BaseConst.PLANE_VERSION);
-        params.put("Name", pluginType);
-
-        HttpClientResponse response = HttpClientUtil.getRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, params, MODULE_API_PLANE);
-
-        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
-            logger.error("调用api-plane查询插件详情接口失败，返回http status code非2xx，httpStatusCoed:{}, errMsg:{}", response.getStatusCode(), response.getResponseBody());
-            return null;
-        }
-        JSONObject result = JSONObject.parseObject(response.getResponseBody());
-        return getEnvoyPluginInfoFromJsonObject(result.getJSONObject("Plugin"), result.getString("Schema"));
-    }
 
     /**
      * 插件流程的公共请求操作方法，Gportal请求Api-plane的端点函数
@@ -523,7 +476,7 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     }
 
     private boolean requestForGatewayPlugin(GatewayPluginDto plugin, Map<String, Object> params) {
-        params.put(VERSION, VERSION_VALUE);
+        params.put(VERSION, PLANE_VERSION);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String action = (String) params.get(ACTION);

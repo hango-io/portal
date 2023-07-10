@@ -29,6 +29,13 @@ public class RegexConst {
     public static final String REGEX_GATEWAY_NAME = "^[\\u4e00-\\u9fa5a-zA-Z0-9_\\-\\.]{1,32}$";
 
     /**
+     * 虚拟网关名称：支持字母、数字、下划线和中划线，63个字符以内
+     */
+    public static final String REGEX_VIRTUAL_GATEWAY_NAME = "^[a-zA-Z0-9_-]{0,63}$";
+
+
+
+    /**
      * 名称：必填，支持字母、数字和中划线，并且以小写字母或数字开头和结尾，63个字符以内
      */
     public static final String REGEX_NAME = "^([a-z0-9][a-z0-9-]{0,61}[a-z0-9])$|^[a-z0-9]$";

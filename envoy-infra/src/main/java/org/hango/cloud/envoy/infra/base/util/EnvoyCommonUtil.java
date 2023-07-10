@@ -3,6 +3,7 @@ package org.hango.cloud.envoy.infra.base.util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author zhangbj
@@ -38,5 +39,14 @@ public class EnvoyCommonUtil {
             result[i] = split.length > i ? split[i] : StringUtils.EMPTY;
         }
         return result;
+    }
+
+    public static String file2Str(MultipartFile file) {
+        try {
+            return new String(file.getBytes());
+        } catch (Exception e) {
+            return StringUtils.EMPTY;
+        }
+
     }
 }

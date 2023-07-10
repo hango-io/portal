@@ -46,13 +46,6 @@ public interface IPluginInfoService extends CommonService<PluginBindingInfo, Plu
     ErrorCode checkCopyGlobalPluginToGateway(CopyGlobalPluginDto copyGlobalPluginDto);
 
 
-    /**
-     * 调用api-plane的接口根据插件类型获取插件详情（含schema）
-     *
-     * @param pluginType pluginType -> 插件英文名称
-     * @return
-     */
-    PluginInfo getPluginInfoFromDataPlane(String pluginType);
 
     /**
      * 查询当前对象上生效的插件绑定关系列表（仅含状态为enable的插件列表）

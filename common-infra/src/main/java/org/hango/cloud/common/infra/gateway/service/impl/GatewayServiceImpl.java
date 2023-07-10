@@ -121,6 +121,7 @@ public class GatewayServiceImpl implements IGatewayService {
         return toView(recordsByField.get(0));
     }
 
+
     @Override
     public int countByName(String name) {
         return gatewayDao.countByName(name);
