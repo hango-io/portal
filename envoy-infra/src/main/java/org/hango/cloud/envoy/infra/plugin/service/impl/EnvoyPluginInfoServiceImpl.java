@@ -88,6 +88,8 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     @Autowired
     private CustomPluginInfoService customPluginInfoService;
 
+    public static final List<String> GATEWAY_PROPERTIES_PLUGINS = Arrays.asList("basic-rbac", "dynamic-downgrade");
+
     @Override
     public ErrorCode checkDescribePlugin(long virtualGwId) {
         if (0 < virtualGwId) {
@@ -124,13 +126,17 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
         plugins.addAll(customPluginInfos);
         //根据pluginScope进行过滤/普西绪
         return plugins.stream()
-                .filter(item -> filter(pluginScope, item))
+                .filter(item -> filter(virtualGwId, pluginScope, item))
                 .distinct()
                 .sorted(Comparator.comparing(PluginDto::getCategoryKey))
                 .collect(Collectors.toList());
     }
 
-    private boolean filter(String pluginScope, PluginDto item) {
+    private boolean filter(long virtualGwId,String pluginScope, PluginDto item) {
+        //未传虚拟网关，不允许展示网关属性插件
+        if (virtualGwId <= 0 && GATEWAY_PROPERTIES_PLUGINS.contains(item.getPluginType())){
+            return false;
+        }
         if (StringUtils.isBlank(item.getPluginScope())) {
             return false;
         }
