@@ -87,6 +87,6 @@ public interface CustomPluginInfoService {
      * @param customPluginInstanceListQueryDto 查询插件实例列表
      * @return 插件ID
      */
-    List<PluginBindingInfo> getCustomPluginInstanceList(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto);
+    List<CustomPluginInstanceDto> getCustomPluginInstanceList(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto);
     Long CountCustomPluginInstance(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto);
 }

@@ -867,32 +867,34 @@
     ) ENGINE=InnoDB AUTO_INCREMENT=473 DEFAULT CHARSET=utf8mb4 COMMENT='路由规则表';
 
 
-    CREATE TABLE `hango_route_rule_proxy` (
-    `id` bigint(11) NOT NULL AUTO_INCREMENT,
-    `route_rule_id` bigint(11) NOT NULL COMMENT '路由规则id',
-    `virtual_gw_id` bigint(11) DEFAULT NULL,
-    `destination_services` varchar(1024) NOT NULL COMMENT '目的地址信息',
-    `project_id` bigint(11) NOT NULL COMMENT '路由规则发布所属项目id',
-    `priority` bigint(11) DEFAULT NULL COMMENT '路由规则优先级',
-    `orders` bigint(11) DEFAULT NULL COMMENT '路由规则orders，与pilot交互',
-    `enable_state` varchar(10) DEFAULT 'enable' COMMENT '路由规则使能状态，默认为enable',
-    `create_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '路由规则发布时间，时间戳格式，精确到毫秒',
-    `update_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '路由规则更新时间，时间戳格式，精确到毫秒',
-    `service_id` bigint(11) DEFAULT NULL COMMENT '路由规则发布关联的服务id',
-    `hosts` text COMMENT 'vs中对应的hosts信息',
-    `timeout` bigint(11) DEFAULT '60000' COMMENT '路由超时时间',
-    `http_retry` text COMMENT '路由重试配置',
-    `mirror_traffic` text COMMENT '流量镜像配置',
-    `mirror_service_id` bigint(11) DEFAULT NULL COMMENT '流量镜像指向服务id',
-    `uri` varchar(1024) DEFAULT NULL COMMENT '路由uri，与匹配模式共同作用',
-    `method` varchar(1024) DEFAULT NULL COMMENT '匹配方法列表GETPOSTPUTDELETEHEAD等',
-    `header` text COMMENT '匹配header列表',
-    `query_param` text COMMENT '匹配路由queryParam列表',
-    `host` varchar(1024) DEFAULT NULL COMMENT '路由host列表',
-    `gw_type` varchar(255) DEFAULT NULL COMMENT '网关类型',
-    `version` bigint(20) DEFAULT '0' COMMENT '版本号',
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=248 DEFAULT CHARSET=utf8mb4 COMMENT='路由规则发布信息表';
+CREATE TABLE `hango_route_rule_proxy` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL COMMENT '路由名称',
+  `alias` varchar(255) DEFAULT NULL COMMENT '路由别名',
+  `description` varchar(255) DEFAULT NULL COMMENT '描述信息',
+  `virtual_gw_id` bigint(11) DEFAULT NULL COMMENT '虚拟网关id',
+  `destination_services` varchar(1024) NOT NULL COMMENT '目的地址信息',
+  `project_id` bigint(11) NOT NULL COMMENT '路由规则发布所属项目id',
+  `priority` bigint(11) DEFAULT NULL COMMENT '路由规则优先级',
+  `orders` bigint(11) DEFAULT NULL COMMENT '路由规则orders，与pilot交互',
+  `enable_state` varchar(10) DEFAULT 'enable' COMMENT '路由规则使能状态，默认为enable',
+  `create_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '路由规则发布时间，时间戳格式，精确到毫秒',
+  `update_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '路由规则更新时间，时间戳格式，精确到毫秒',
+  `service_ids` text COMMENT '路由规则发布关联的服务id',
+  `timeout` bigint(11) DEFAULT '60000' COMMENT '路由超时时间',
+  `http_retry` text COMMENT '路由重试配置',
+  `mirror_traffic` text COMMENT '流量镜像配置',
+  `mirror_service_id` bigint(11) DEFAULT NULL COMMENT '流量镜像指向服务id',
+  `uri` varchar(1024) DEFAULT NULL COMMENT '路由uri，与匹配模式共同作用',
+  `method` varchar(1024) DEFAULT NULL COMMENT '匹配方法列表GETPOSTPUTDELETEHEAD等',
+  `header` varchar(1024) DEFAULT NULL COMMENT '匹配header列表',
+  `query_param` varchar(1024) DEFAULT NULL COMMENT '匹配路由queryParam列表',
+  `gw_type` varchar(255) DEFAULT NULL COMMENT '网关类型',
+  `version` bigint(20) DEFAULT '0' COMMENT '版本号',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `u_idx` (`name`,`virtual_gw_id`,`project_id`),
+  KEY `idx_r_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=399 DEFAULT CHARSET=utf8 COMMENT='路由规则发布信息表';
 
 
     CREATE TABLE `hango_route_ws_param_info` (

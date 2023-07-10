@@ -87,6 +87,9 @@ public class DomainInfoServiceImpl implements IDomainInfoService {
     @Override
     public long update(DomainInfoDTO domainInfoDTO){
         DomainInfo domainInfoPO = toMeta(domainInfoDTO);
+        if (domainInfoPO == null){
+            return -1L;
+        }
         //更新域名信息
         domainInfoDao.update(domainInfoPO);
         return domainInfoPO.getId();

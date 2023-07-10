@@ -69,7 +69,7 @@ public interface IPluginBindingInfoDao extends IBaseDao<PluginBindingInfo> {
     /**
      * 查询自定义插件列表下的实例
      */
-    List<PluginBindingInfo> getBindingPluginList(String pluginType,String bindingObjectType, long offset, long limit);
+    List<PluginBindingInfo> getBindingPluginList(String pluginType,long offset, long limit);
 
     /**
      * 根据插件类型、插件作用域查询插件绑定关系数量

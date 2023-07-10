@@ -15,6 +15,11 @@ public enum PluginScopeEnum {
     PluginScopeEnum(String pluginScope) {
         this.pluginScope = pluginScope;
     }
+
+    public String getPluginScope() {
+        return pluginScope;
+    }
+
     public static PluginScopeEnum fromScope(String type) {
         for (PluginScopeEnum pluginScopeEnum : PluginScopeEnum.values()) {
             if (pluginScopeEnum.pluginScope.equals(type)) {

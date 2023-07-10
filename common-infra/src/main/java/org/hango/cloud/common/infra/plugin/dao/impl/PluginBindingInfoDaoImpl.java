@@ -205,14 +205,10 @@ public class PluginBindingInfoDaoImpl extends BaseDao implements IPluginBindingI
     }
 
     @Override
-    public List<PluginBindingInfo> getBindingPluginList(String pluginType, String bindingObjectType, long offset, long limit) {
+    public List<PluginBindingInfo> getBindingPluginList(String pluginType, long offset, long limit) {
         Map<String, Object> params = Maps.newHashMap();
         params.put("pluginType", pluginType);
         String sql = "select * from hango_plugin_binding where plugin_type=:pluginType";
-        if (StringUtils.isNotBlank(bindingObjectType)) {
-            params.put("bindingObjectType", bindingObjectType);
-            sql = sql + " and binding_object_type=:bindingObjectType";
-        }
         sql = sql + " order by update_time limit :limit offset :offset";
         params.put("limit", limit);
         params.put("offset", offset);

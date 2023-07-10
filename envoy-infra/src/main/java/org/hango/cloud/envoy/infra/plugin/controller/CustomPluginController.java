@@ -118,19 +118,11 @@ public class CustomPluginController  extends AbstractController {
     @Audit(eventName = "DescribeCustomPluginInstanceList", description = "查询插件实例列表")
     @PostMapping(params = {"Action=DescribeCustomPluginInstanceList"})
     public String describeCustomPluginInstanceList(@RequestBody CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto) {
-        List<PluginBindingInfo> customPluginInstanceList = customPluginInfoService.getCustomPluginInstanceList(customPluginInstanceListQueryDto);
+        List<CustomPluginInstanceDto> customPluginInstanceList = customPluginInfoService.getCustomPluginInstanceList(customPluginInstanceListQueryDto);
         Long countCustomPluginList = customPluginInfoService.CountCustomPluginInstance(customPluginInstanceListQueryDto);
-        List<PluginBindingDto> pluginBindingDtoList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(customPluginInstanceList)) {
-            pluginBindingDtoList = customPluginInstanceList.stream().map(pluginBindingInfo -> {
-                PluginBindingDto pluginBindingDto = new PluginBindingDto();
-                BeanUtils.copyProperties(pluginBindingInfo, pluginBindingDto);
-                return pluginBindingDto;
-            }).collect(Collectors.toList());
-        }
         Map<String, Object> result = new HashMap<>();
         result.put(TOTAL_COUNT, countCustomPluginList);
-        result.put(RESULT, pluginBindingDtoList);
+        result.put(RESULT, customPluginInstanceList);
         return apiReturnSuccess(result);
     }
 

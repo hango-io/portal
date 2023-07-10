@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 public enum PluginType {
     SECURITY("security", "安全"),
     AUTH("auth", "认证鉴权"),
-    TRAFFIC_POLICY("traffic_policy", "流量管理"),
-    DATA_FORMAT("data_format", "数据转换");
+    TRAFFIC_POLICY("trafficPolicy", "流量管理"),
+    DATA_FORMAT("dataFormat", "数据转换");
 
 
     private final String name;

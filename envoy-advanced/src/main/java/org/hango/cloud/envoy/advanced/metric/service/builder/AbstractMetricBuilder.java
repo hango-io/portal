@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
  * @Desc
  * @date 2023/5/30
  */
+@SuppressWarnings("java:S2142")
 public abstract class AbstractMetricBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractMetricBuilder.class);
