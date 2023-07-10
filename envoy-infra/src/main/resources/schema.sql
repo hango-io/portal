@@ -1051,17 +1051,19 @@ CREATE TABLE IF NOT EXISTS hango_cache_info
 
 CREATE ALIAS FIND_IN_SET FOR "org.mvnsearch.h2.mysql.StringFunctions.findInSet";
     CREATE TABLE `hango_custom_plugin_info` (
-      `id` int NOT NULL AUTO_INCREMENT COMMENT '主键，自增长',
+      `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键，自增长',
       `plugin_type` varchar(50) NOT NULL COMMENT '插件名称',
-      `plugin_name` varchar(50) COMMENT '插件中文名称',
+      `plugin_name` varchar(255) DEFAULT NULL,
       `description` text COMMENT '插件描述',
       `language` varchar(20) NOT NULL COMMENT '实现语言,有：lua、wasm',
       `source_type` varchar(20) NOT NULL COMMENT '脚本类型,有：file、oci',
       `plugin_category` varchar(20) NOT NULL COMMENT 'trafficPolicy（流量管理）、auth(认证鉴权)  security(安全)、dataFormat（数据转换）',
-      `plugin_status` varchar(10) NOT NULL COMMENT '插件状态，例如online、offline',
-      `plugin_scope` varchar(10) NOT NULL COMMENT '插件作用域，例如route、global',
-      `author` varchar(20) DEFAULT NULL COMMENT '创建联系人',
+      `plugin_status` varchar(255) NOT NULL COMMENT '插件状态，例如online、offline',
+      `plugin_scope` varchar(255) NOT NULL COMMENT '插件作用域，例如route、global',
+      `author` varchar(255) DEFAULT NULL COMMENT '创建联系人',
       `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',
       `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
+      `plugin_schema` text COMMENT '插件schema',
+      `plugin_content` text COMMENT '代码内容',
       PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自定义插件表';
+    ) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COMMENT='自定义插件表';

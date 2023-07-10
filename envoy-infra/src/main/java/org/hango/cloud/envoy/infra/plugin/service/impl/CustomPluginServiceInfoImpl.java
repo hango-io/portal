@@ -115,7 +115,7 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         if (StringUtils.isEmpty(content)){
             return CommonErrorCode.invalidParameter("代码文件格式错误");
         }
-        return null;
+        return CommonErrorCode.SUCCESS;
     }
 
     @Override
@@ -174,7 +174,7 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         }
         String content = EnvoyCommonUtil.file2Str(pluginUpdateDto.getSourceContent());
         if (StringUtils.hasText(content)){
-            customPluginInfo.setPluginStatus(content);
+            customPluginInfo.setPluginContent(content);
 
         }
         return customPluginInfoDao.update(customPluginInfo);
