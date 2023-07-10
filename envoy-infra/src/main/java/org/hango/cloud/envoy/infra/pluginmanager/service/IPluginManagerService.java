@@ -2,7 +2,7 @@ package org.hango.cloud.envoy.infra.pluginmanager.service;
 
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
+import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
@@ -63,5 +63,5 @@ public interface IPluginManagerService {
     PluginOrderDto getPluginOrder(Long vgId);
 
 
-    Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, String pluginType,String operate);
+    Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, CustomPluginInfo customPluginInfo, String operate);
 }

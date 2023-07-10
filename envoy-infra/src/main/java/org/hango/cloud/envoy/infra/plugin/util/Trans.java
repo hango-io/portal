@@ -1,6 +1,5 @@
 package org.hango.cloud.envoy.infra.plugin.util;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.plugin.dto.PluginDto;
@@ -155,6 +154,19 @@ public class Trans {
         pluginOrderItemDto.setPort(virtualGatewayDto.getPort());
         pluginOrderItemDto.setOperate(engineRuleDTO.getOperate());
         pluginOrderItemDto.setSubName(engineRuleDTO.getName());
+        return pluginOrderItemDto;
+    }
+
+    public static PluginOrderItemDto builderRiderItem(String pluginType, String operate, String language, Integer port){
+        PluginOrderItemDto pluginOrderItemDto = new PluginOrderItemDto();
+        pluginOrderItemDto.setEnable(true);
+        pluginOrderItemDto.setName(pluginType);
+        pluginOrderItemDto.setPort(port);
+        pluginOrderItemDto.setOperate(operate);
+        JSONObject rider = new JSONObject();
+        rider.put("pluginName", pluginType);
+        rider.put("url", "file://usr/local/lib/rider/plugins/" + pluginType + "." + language);
+        pluginOrderItemDto.setRider(rider);
         return pluginOrderItemDto;
     }
 

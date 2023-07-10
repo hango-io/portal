@@ -1,7 +1,5 @@
 package org.hango.cloud.envoy.infra.plugin.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
@@ -47,6 +45,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -199,6 +200,16 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     @Override
     public Long pluginImport(CustomPluginInfoDto customPluginInfoDto) {
         CustomPluginInfo customPluginInfo = Trans.customPluginDto2MetaInfo(customPluginInfoDto);
+        List<? extends GatewayDto> gatewayDtos = iGatewayService.findAll();
+        //下发文件
+        for (GatewayDto gateway : gatewayDtos) {
+            Boolean planeResult = customPluginRpcService.publishCustomPlugin(Trans.customPluginInfo2ApiPlaneDto(customPluginInfo), gateway.getConfAddr());
+            if (Boolean.FALSE.equals(planeResult)){
+                logger.error("publish custom plugin to api plane failed, gateway:{}", gateway.getGwClusterName());
+                return -1L;
+            }
+        }
+        //存储db
         customPluginInfo.setPluginStatus(PluginStatusEnum.OFFLINE.getStatus());
         customPluginInfoDao.add(customPluginInfo);
         return customPluginInfo.getId();
@@ -240,27 +251,9 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
 
 
     private ErrorCode handlePluginStatus(CustomPluginInfo customPluginInfo, List<VirtualGatewayDto> virtualGatewayDtos, PluginStatusEnum pluginStatusEnum) {
-        //文件处理
-        List<GatewayDto> gatewayDtos = virtualGatewayDtos.stream()
-                .map(VirtualGatewayDto::getGwClusterName).distinct()
-                .map(iGatewayService::getByClusterName)
-                .collect(Collectors.toList());
-        for (GatewayDto gateway : gatewayDtos) {
-            Boolean planeResult;
-            if (PluginStatusEnum.OFFLINE.equals(pluginStatusEnum)){
-                planeResult = customPluginRpcService.deleteCustomPlugin(customPluginInfo.getPluginType(), customPluginInfo.getLanguage(), gateway.getConfAddr());
-            }else {
-                CustomPluginDTO customPluginDTO = Trans.customPluginInfo2ApiPlaneDto(customPluginInfo);
-                planeResult = customPluginRpcService.publishCustomPlugin(customPluginDTO, gateway.getConfAddr());
-            }
-            if (Boolean.FALSE.equals(planeResult)){
-                logger.error("publish custom plugin to api plane failed, gateway:{}", gateway.getGwClusterName());
-                return CommonErrorCode.INTERNAL_SERVER_ERROR;
-            }
-        }
         //plm item配置更新
         for (VirtualGatewayDto virtualGatewayDto : virtualGatewayDtos) {
-            Boolean result = iPluginManagerService.updateCustomPluginStatus(virtualGatewayDto, customPluginInfo.getPluginType(), pluginStatusEnum.getPlaneStatus());
+            Boolean result = iPluginManagerService.updateCustomPluginStatus(virtualGatewayDto, customPluginInfo, pluginStatusEnum.getPlaneStatus());
             if (Boolean.FALSE.equals(result)){
                 logger.error("update plugin manager failed, gateway:{}", virtualGatewayDto.getGwClusterName());
                 return CommonErrorCode.INTERNAL_SERVER_ERROR;
@@ -272,7 +265,16 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
 
     @Override
     public Long deletePlugin(DeletePluginDto deletePluginDto) {
-        CustomPluginInfo customPluginInfo = CustomPluginInfo.builder().id(deletePluginDto.getId()).build();
+        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(deletePluginDto.getId());
+        List<? extends GatewayDto> gatewayDtos = iGatewayService.findAll();
+        //下发文件
+        for (GatewayDto gateway : gatewayDtos) {
+            Boolean planeResult = customPluginRpcService.deleteCustomPlugin(customPluginInfo.getPluginType(), customPluginInfo.getLanguage(), gateway.getConfAddr());
+            if (Boolean.FALSE.equals(planeResult)){
+                logger.error("delete custom plugin to api plane failed, gateway:{}", gateway.getGwClusterName());
+                return -1L;
+            }
+        }
         customPluginInfoDao.delete(customPluginInfo);
         return deletePluginDto.getId();
     }

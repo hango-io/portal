@@ -13,8 +13,8 @@ import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
+import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.util.Trans;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
@@ -32,11 +32,10 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PLUGIN_PATH;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_VERSION;
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.MODULE_API_PLANE;
-import static org.hango.cloud.gdashboard.api.util.Const.ACTION;
-import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_INGRESS;
-import static org.hango.cloud.gdashboard.api.util.Const.VERSION;
+import static org.hango.cloud.gdashboard.api.util.Const.*;
 
 /**
  * @author zhangbj
@@ -106,12 +105,8 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
 
 
     @Override
-    public Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, String pluginType, String operate) {
-        EngineRuleDTO engineRuleDTO = new EngineRuleDTO();
-        engineRuleDTO.setOperate(operate);
-        engineRuleDTO.setFilename("/usr/local/lib/rider/plugins/" + pluginType + ".lua");
-        engineRuleDTO.setName(pluginType);
-        PluginOrderItemDto pluginOrderItemDto = Trans.buildEngineRulePlugin(engineRuleDTO, virtualGatewayDto);
+    public Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, CustomPluginInfo customPluginInfo, String operate) {
+        PluginOrderItemDto pluginOrderItemDto = Trans.builderRiderItem(customPluginInfo.getPluginType(), operate, customPluginInfo.getLanguage(), virtualGatewayDto.getPort());
         return updatePluginManager(virtualGatewayDto.getId(), pluginOrderItemDto);
     }
 
