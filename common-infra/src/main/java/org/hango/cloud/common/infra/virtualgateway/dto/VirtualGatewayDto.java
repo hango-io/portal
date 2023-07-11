@@ -60,7 +60,7 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
      * 虚拟网关标识
      */
     @NotBlank
-    @Pattern(regexp = REGEX_GATEWAY_CODE)
+    @Pattern(regexp = REGEX_NAME)
     @JSONField(name = "Code")
     private String code;
 
