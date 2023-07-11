@@ -121,6 +121,7 @@ public class ServiceProxyController extends AbstractController {
     public Object serviceProxyList(@Min(1) @RequestParam(value = "Id") long id) {
         logger.info("查询service proxy 详情,查询条件为 {}", id);
         ServiceProxyDto serviceProxyDto = serviceProxyService.get(id);
+        serviceProxyService.fillServiceHealthStatus(serviceProxyDto);
         serviceProxyService.fillServicePort(serviceProxyDto);
         return apiReturnSuccess(serviceProxyDto);
     }

@@ -371,6 +371,11 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
     }
 
     @Override
+    public void fillServiceHealthStatus(ServiceProxyDto serviceProxyDto) {
+        return;
+    }
+
+    @Override
     public List<ServiceProxyDto> getServiceProxy(ServiceProxyQuery query) {
         return serviceProxyDao.getByConditionOptional(query).stream().map(this::toView).collect(Collectors.toList());
     }
@@ -403,12 +408,6 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         return toPageView(serviceProxyDao.getServiceProxyByLimit(query));
     }
 
-    @Override
-    public Page<ServiceProxyDto> getServiceProxyWithPort(ServiceProxyQuery query) {
-        Page<ServiceProxyDto> serviceProxy = getServiceProxyLimited(query);
-        serviceProxy.getRecords().forEach(this::fillServicePort);
-        return serviceProxy;
-    }
 
     @Override
     public void fillServicePort(ServiceProxyDto serviceProxyDto) {

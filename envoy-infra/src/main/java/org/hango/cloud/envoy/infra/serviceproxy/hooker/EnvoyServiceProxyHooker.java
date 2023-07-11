@@ -8,6 +8,9 @@ import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.hooker.AbstractServiceProxyHooker;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyInfo;
+import org.hango.cloud.envoy.infra.healthcheck.dto.EnvoyServiceInstanceDto;
+import org.hango.cloud.envoy.infra.healthcheck.dto.HealthStatusEnum;
+import org.hango.cloud.envoy.infra.healthcheck.service.IEnvoyHealthCheckService;
 import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +29,9 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
 
     @Autowired
     private IEnvoyServiceProxyService envoyServiceProxyService;
+
+    @Autowired
+    private IEnvoyHealthCheckService envoyHealthCheckService;
 
 
     @Override
@@ -78,4 +84,15 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
         return envoyServiceProxyService.getServiceListFromApiPlane(virtualGwId, name, registryCenterType);
     }
 
+    @Override
+    protected void preGetHealthStatusHook(ServiceProxyDto serviceProxyDto) {
+        List<EnvoyServiceInstanceDto> serviceInstanceDtos = envoyHealthCheckService.getServiceInstanceList(serviceProxyDto);
+        for (EnvoyServiceInstanceDto serviceInstanceDto : serviceInstanceDtos) {
+            if (HealthStatusEnum.UNHEALTHY.getValue().equals(serviceInstanceDto.getStatus())){
+                serviceProxyDto.setHealthyStatus(HealthStatusEnum.UNHEALTHY.getValue());
+                return;
+            }
+        }
+        serviceProxyDto.setHealthyStatus(HealthStatusEnum.HEALTHY.getValue());
+    }
 }
