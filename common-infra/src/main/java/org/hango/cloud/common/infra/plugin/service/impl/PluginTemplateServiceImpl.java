@@ -216,6 +216,7 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         List<PluginBindingDto> bindingInfos = pluginInfoService.batchGetById(pluginBindingInfoIds);
         return bindingInfos.stream().filter(item -> {
             if (item.getTemplateVersion() != pluginTemplateDto.getTemplateVersion()) {
+                item.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
                 return BaseConst.ERROR_RESULT != pluginInfoService.update(item);
             }
             return false;

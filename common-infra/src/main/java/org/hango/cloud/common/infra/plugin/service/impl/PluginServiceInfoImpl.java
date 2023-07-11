@@ -329,18 +329,11 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     @Transactional(rollbackFor = Exception.class)
     public long update(PluginBindingDto pluginBindingDto) {
         pluginBindingDto.setUpdateTime(System.currentTimeMillis());
-        pluginBindingDto.setUpdateTime(System.currentTimeMillis());
         if (0 < pluginBindingDto.getTemplateId()) {
             PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(pluginBindingDto.getTemplateId());
             pluginBindingDto.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
-            pluginBindingDto.setTemplateId(pluginTemplateDto.getId());
-            if (pluginBindingDto.getTemplateVersion() > 0) {
-                pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
-            } else {
-                pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
-            }
+            pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
         } else {
-            pluginBindingDto.setTemplateId(0);
             pluginBindingDto.setTemplateVersion(0);
         }
         return pluginBindingInfoDao.update(toMeta(pluginBindingDto));
