@@ -35,6 +35,7 @@ import org.hango.cloud.envoy.infra.plugin.dto.GatewayPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfoQuery;
 import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusStatus;
+import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.util.Trans;
@@ -124,13 +125,14 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
                 .filter(pluginDto-> PluginStatusStatus.ONLINE.equals(pluginDto.getPluginStatus()))
                 .map(Trans::fromCustomPluginMeta).collect(Collectors.toList());
         plugins.addAll(customPluginInfos);
-        //根据pluginScope进行过滤/普西绪
+        //根据pluginScope进行过滤/排序
         return plugins.stream()
                 .filter(item -> filter(virtualGwId, pluginScope, item))
                 .distinct()
-                .sorted(Comparator.comparing(PluginDto::getCategoryKey))
+                .sorted(Comparator.comparing(p -> PluginType.getOrder(p.getCategoryKey())))
                 .collect(Collectors.toList());
     }
+
 
     private boolean filter(long virtualGwId,String pluginScope, PluginDto item) {
         //未传虚拟网关，不允许展示网关属性插件
