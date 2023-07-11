@@ -64,11 +64,11 @@ public enum ActionPermissionEnum {
     UpdatePluginBindingStatus("UpdatePluginBindingStatus", "plugin", "updatePluginStatus", PluginGetMethodSpecResourceHandler.getInstance()),
 
     // 模板管理
-    CreatePluginTemplate("CreatePluginTemplate", "Template", "createPrivate", null),
-    UpdatePluginTemplate("UpdatePluginTemplate", "Template", "update", null),
-    SyncPluginTemplates("SyncPluginTemplates", "Template", "update", null),
-    DeletePluginTemplate("DeletePluginTemplate", "Template", "delete", null),
-    CreateGlobalPluginTemplate("CreateGlobalPluginTemplate", "Template", "createPublic", null),
+    CreatePluginTemplate("CreatePluginTemplate", "template", "create", null),
+    UpdatePluginTemplate("UpdatePluginTemplate", "template", "update", null),
+    SyncPluginTemplates("SyncPluginTemplates", "template", "update", null),
+    DeletePluginTemplate("DeletePluginTemplate", "template", "delete", null),
+    CreateGlobalPluginTemplate("CreateGlobalPluginTemplate", "template", "create", null),
 
 
     //域名管理
@@ -97,6 +97,11 @@ public enum ActionPermissionEnum {
     CreateCertificate("CreateCertificate", "ssl", "load", null),
     DeleteCertificate("DeleteCertificate", "ssl", "delete", null),
 
+    //插件市场
+    PluginImport("PluginImport", "pluginMarket", "load", null),
+    PluginUpdate("PluginUpdate", "pluginMarket", "update", null),
+    UpdatePluginStatus("UpdatePluginStatus", "pluginMarket", "update", null),
+    DeletePlugin("DeletePlugin", "pluginMarket", "delete", null),
     ;
 
 
