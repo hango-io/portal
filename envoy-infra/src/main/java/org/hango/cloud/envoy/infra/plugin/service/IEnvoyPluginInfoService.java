@@ -4,6 +4,8 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.plugin.dto.PluginDto;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
 import org.hango.cloud.common.infra.plugin.meta.Operation;
+import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
+import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 
 import java.util.List;
 
@@ -73,5 +75,12 @@ public interface IEnvoyPluginInfoService {
      * @return 是否操作成功
      */
     boolean deleteGatewayPlugin(BindingPluginDto bindingPluginDto, List<Long> pluginIdList);
+    /**
+     * 查看所有系统插件
+     *
+     * @param virtualGateway 虚拟网关
+     * @return 是否操作成功
+     */
+    public List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway);
 
 }

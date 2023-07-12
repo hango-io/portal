@@ -23,6 +23,8 @@ public class CustomPluginInstanceDto {
     private String bindingObjectName;
     @JSONField(name = "GwName")
     private String gwName;
+    @JSONField(name = "VirtualGwId")
+    private Long virtualGwId;
     @JSONField(name = "Project")
     private String project;
     @JSONField(name = "PluginStatus")

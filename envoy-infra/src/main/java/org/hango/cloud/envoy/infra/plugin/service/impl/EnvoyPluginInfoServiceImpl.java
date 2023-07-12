@@ -154,7 +154,7 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
     }
 
 
-    private List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway) {
+    public List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway) {
         Map<String, Object> params = Maps.newHashMap();
         params.put(ACTION, "GetPluginList");
         params.put(VERSION, PLANE_VERSION);

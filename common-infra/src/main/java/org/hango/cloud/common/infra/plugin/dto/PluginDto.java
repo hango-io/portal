@@ -3,6 +3,8 @@ package org.hango.cloud.common.infra.plugin.dto;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hango.cloud.common.infra.base.dto.CommonExtensionDto;
 
 import javax.validation.constraints.Pattern;

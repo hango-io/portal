@@ -1,6 +1,9 @@
 package org.hango.cloud.envoy.infra.plugin.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +17,8 @@ import java.util.List;
  * @Author xianyanglin
  * @Date 2023/6/30 15:50
  */
-
+@Getter
+@Setter
 public class CustomPluginInfoDto {
     /**
      * 插件名称
@@ -27,11 +31,13 @@ public class CustomPluginInfoDto {
      * 插件中文名称
      */
     @JSONField(name = "PluginName")
+    @Length(max = 20, message = "插件中文名称不能超过20个字符")
     private String pluginName;
     /**
      * 插件描述
      */
     @JSONField(name = "Description")
+    @Length(max = 32, message = "插件描述不能超过32个字符")
     private String description;
     /**
      * 插件语言
@@ -76,84 +82,5 @@ public class CustomPluginInfoDto {
     @JSONField(name = "Author")
     private String author;
 
-    public String getPluginType() {
-        return pluginType;
-    }
-
-    public void setPluginType(String pluginType) {
-        this.pluginType = pluginType;
-    }
-
-    public String getPluginName() {
-        return pluginName;
-    }
-
-    public void setPluginName(String pluginName) {
-        this.pluginName = pluginName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getSourceType() {
-        return sourceType;
-    }
-
-    public void setSourceType(String sourceType) {
-        this.sourceType = sourceType;
-    }
-
-    public MultipartFile getSourceContent() {
-        return sourceContent;
-    }
-
-    public void setSourceContent(MultipartFile sourceContent) {
-        this.sourceContent = sourceContent;
-    }
-
-    public String getPluginCategory() {
-        return pluginCategory;
-    }
-
-    public void setPluginCategory(String pluginCategory) {
-        this.pluginCategory = pluginCategory;
-    }
-
-    public String getPluginScope() {
-        return pluginScope;
-    }
-
-    public void setPluginScope(String pluginScope) {
-        this.pluginScope = pluginScope;
-    }
-
-    public String getSchemaContent() {
-        return schemaContent;
-    }
-
-    public void setSchemaContent(String schemaContent) {
-        this.schemaContent = schemaContent;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
 
 }

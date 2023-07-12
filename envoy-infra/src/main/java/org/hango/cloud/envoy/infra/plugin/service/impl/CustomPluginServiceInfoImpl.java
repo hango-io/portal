@@ -10,9 +10,11 @@ import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.dao.IPluginBindingInfoDao;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.dto.PluginDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginUpdateDto;
 import org.hango.cloud.common.infra.plugin.dto.UpdatePluginStatusDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.virtualgateway.dto.PermissionScopeDto;
@@ -21,6 +23,7 @@ import org.hango.cloud.common.infra.virtualgateway.dto.SingleVgBindDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayProjectService;
+import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
 import org.hango.cloud.envoy.infra.base.util.EnvoyCommonUtil;
 import org.hango.cloud.envoy.infra.plugin.dao.ICustomPluginInfoDao;
 import org.hango.cloud.envoy.infra.plugin.dto.*;
@@ -30,6 +33,7 @@ import org.hango.cloud.envoy.infra.plugin.meta.PluginScopeEnum;
 import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusEnum;
 import org.hango.cloud.envoy.infra.plugin.rpc.CustomPluginRpcService;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
+import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.util.Trans;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.slf4j.Logger;
@@ -77,6 +81,9 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     @Autowired
     private IRouteService routeService;
 
+    @Autowired
+    private IEnvoyPluginInfoService iEnvoyPluginInfoService;
+
     @Override
     public ErrorCode checkPluginImportParameter(CustomPluginInfoDto customPluginInfoDto) {
         CustomPluginInfoQuery query = CustomPluginInfoQuery.builder()
@@ -87,6 +94,22 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         for (String scopes : pluginScopes) {
             if (PluginScopeEnum.fromScope(scopes) == null) {
                 return CommonErrorCode.invalidParameter("插件作用域错误");
+            }
+        }
+        //自定义插件名称不能与系统插件重复
+        List<VirtualGatewayDto> virtualGateways = virtualGatewayService.findAll().stream().filter(virtualGatewayDto -> !"TcpProxy".equals(virtualGatewayDto.getType())).collect(Collectors.toList());
+        //查询系统插件
+        Set<String> pluginTypes = virtualGateways.stream()
+                .filter(virtualGateway -> EnvoyConst.ENVOY_GATEWAY_TYPE.equals(virtualGateway.getGwType()))
+                .map(virtualGateway -> iEnvoyPluginInfoService.getSystemPluginInfos(virtualGateway))
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .distinct()
+                .map(PluginInfo::getPluginType)
+                .collect(Collectors.toSet());
+        if (!CollectionUtils.isEmpty(pluginTypes)){
+            if (pluginTypes.contains(customPluginInfoDto.getPluginType())){
+                return CommonErrorCode.invalidParameter("自定义插件名称不能与系统插件重复");
             }
         }
         if (!customPluginInfoList.isEmpty()){
