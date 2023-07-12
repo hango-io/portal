@@ -68,10 +68,10 @@ public interface CustomPluginInfoService {
     /**
      * 根据插件ID查询插件详情
      *
-     * @param describeCustomPluginInfoDto 查询插件详情
+     * @param pluginId 插件ID
      * @return 插件ID
      */
-    DescribeCustomPluginDto describeCustomPluginInfo(DescribeCustomPluginInfoDto describeCustomPluginInfoDto);
+    DescribeCustomPluginDto describeCustomPluginInfo(Long pluginId);
 
     /**
      * 查询插件列表

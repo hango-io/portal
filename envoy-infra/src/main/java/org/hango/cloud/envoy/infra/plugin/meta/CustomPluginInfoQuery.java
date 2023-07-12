@@ -16,9 +16,9 @@ public class CustomPluginInfoQuery extends PageQuery {
     /**
      * 插件类型
      */
-    private String pluginType;
+    private String pluginCategory;
     /**
      * 插件名称
      */
-    private String pluginName;
+    private String pluginType;
 }

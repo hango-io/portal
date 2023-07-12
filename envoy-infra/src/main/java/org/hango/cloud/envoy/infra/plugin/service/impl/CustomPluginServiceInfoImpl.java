@@ -110,12 +110,6 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         if (customPluginInfo == null){
             return CommonErrorCode.invalidParameter("自定义插件不存在");
         }
-        // 当前时间戳少于更新时间戳一分钟则不允许修改
-        Instant now = Instant.now(); // 获取当前时间戳
-        Instant givenTime = Instant.ofEpochMilli(customPluginInfo.getUpdateTime()); // 将给定时间戳转换为Instant对象
-        if (now.getEpochSecond() - givenTime.getEpochSecond() < 60) {
-            return CommonErrorCode.invalidParameter("自定义插件更新时间间隔不足一分钟不允许修改");
-        }
         if (PluginStatusEnum.ONLINE.getStatus().equals(customPluginInfo.getPluginStatus())){
             return CommonErrorCode.invalidParameter("自定义插件已上架，不允许修改");
         }
@@ -143,13 +137,14 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         if (customPluginInfo == null){
             return CommonErrorCode.invalidParameter("自定义插件不存在");
         }
-
-        // 当前时间戳少于更新时间戳一分钟则不允许修改
-        Instant now = Instant.now(); // 获取当前时间戳
-        Instant givenTime = Instant.ofEpochMilli(customPluginInfo.getUpdateTime()); // 将给定时间戳转换为Instant对象
-        if (now.getEpochSecond() - givenTime.getEpochSecond() < 60) {
-            return CommonErrorCode.invalidParameter("自定义插件更新时间间隔不足一分钟不允许修改插件状态");
-        }
+//        if (PluginStatusEnum.ONLINE.getStatus().equals(updatePluginStatusDto.getPluginStatus())){
+//            // 当前时间戳少于更新时间戳一分钟则不允许修改
+//            Instant now = Instant.now(); // 获取当前时间戳
+//            Instant givenTime = Instant.ofEpochMilli(customPluginInfo.getUpdateTime()); // 将给定时间戳转换为Instant对象
+//            if (now.getEpochSecond() - givenTime.getEpochSecond() < 60) {
+//                return CommonErrorCode.invalidParameter("自定义插件更新时间间隔不足一分钟不允许修改插件状态");
+//            }
+//        }
         String pluginStatus = updatePluginStatusDto.getPluginStatus();
         if (customPluginInfo.getPluginStatus().equals(pluginStatus)){
             return CommonErrorCode.invalidParameter("插件状态已{}，请刷新页面", updatePluginStatusDto.getPluginStatus());
@@ -260,15 +255,15 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     }
 
     @Override
-    public DescribeCustomPluginDto describeCustomPluginInfo(DescribeCustomPluginInfoDto describeCustomPluginInfoDto) {
-        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(describeCustomPluginInfoDto.getId());
+    public DescribeCustomPluginDto describeCustomPluginInfo(Long pluginId) {
+        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(pluginId);
         return Trans.customPluginInfo2Dto(customPluginInfo);
     }
     @Override
     public Page<DescribeCustomPluginDto> getCustomPluginList(CustomPluginQueryDto queryDto) {
         CustomPluginInfoQuery query = CustomPluginInfoQuery.builder()
                 .pluginType(queryDto.getPluginType())
-                .pluginName(queryDto.getName())
+                .pluginCategory(queryDto.getPluginCategory())
                 .build();
         query.setLimit(queryDto.getLimit());
         query.setOffset(query.getOffset());

@@ -98,8 +98,13 @@ public class CustomPluginController  extends AbstractController {
 
     @Audit(eventName = "DescribeCustomPluginInfo", description = "根据插件ID查询插件详情")
     @PostMapping(params = {"Action=DescribeCustomPluginInfo"})
-    public String describeCustomPluginInfo(@RequestBody DescribeCustomPluginInfoDto describeCustomPluginInfoDto) {
-        DescribeCustomPluginDto describeCustomPluginDto = customPluginInfoService.describeCustomPluginInfo(describeCustomPluginInfoDto);
+    public String describeCustomPluginInfo(@RequestBody Map<String, Object> requestBody) {
+        Object id = requestBody.get("Id");
+        if (Objects.isNull(id)) {
+            return apiReturn(Result.err(CommonErrorCode.invalidParameter("Id is null")));
+        }
+        Long pluginId = Long.parseLong(id.toString());
+        DescribeCustomPluginDto describeCustomPluginDto = customPluginInfoService.describeCustomPluginInfo(pluginId);
         Map<String,Object> result = new HashMap<>();
         result.put(RESULT,describeCustomPluginDto);
         return apiReturnSuccess(result);

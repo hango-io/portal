@@ -43,8 +43,8 @@ public class CustomPluginInfoDaoImpl implements ICustomPluginInfoDao{
 
     private LambdaQueryWrapper<CustomPluginInfo> buildQueryWrapper(CustomPluginInfoQuery query){
         LambdaQueryWrapper<CustomPluginInfo> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(StringUtils.isNotBlank(query.getPluginType()), CustomPluginInfo::getPluginType, query.getPluginType());
-        wrapper.like(StringUtils.isNotBlank(query.getPluginName()), CustomPluginInfo::getPluginName, query.getPluginName());
+        wrapper.like(StringUtils.isNotBlank(query.getPluginType()), CustomPluginInfo::getPluginType, query.getPluginType());
+        wrapper.eq(StringUtils.isNotBlank(query.getPluginCategory()), CustomPluginInfo::getPluginCategory, query.getPluginCategory());
         return wrapper;
     }
 }

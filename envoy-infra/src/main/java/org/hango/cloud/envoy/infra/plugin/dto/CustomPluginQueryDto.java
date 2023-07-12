@@ -1,6 +1,8 @@
 package org.hango.cloud.envoy.infra.plugin.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @ClassName GetCustomPluginListDto
@@ -8,17 +10,19 @@ import com.alibaba.fastjson.annotation.JSONField;
  * @Author xianyanglin
  * @Date 2023/6/30 17:36
  */
+@Getter
+@Setter
 public class CustomPluginQueryDto {
     /**
      * 插件类型
      */
-    @JSONField(name = "PluginType")
-    private String pluginType;
+    @JSONField(name = "PluginCategory")
+    private String pluginCategory;
     /**
      * 插件名称
      */
-    @JSONField(name = "Name")
-    private String name;
+    @JSONField(name = "PluginType")
+    private String pluginType;
     /**
      * 偏移量
      */
@@ -31,45 +35,5 @@ public class CustomPluginQueryDto {
     @JSONField(name = "Limit")
     private int limit;
 
-    public String getPluginType() {
-        return pluginType;
-    }
 
-    public void setPluginType(String pluginType) {
-        this.pluginType = pluginType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public int getLimit() {
-        return limit;
-    }
-
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    @Override
-    public String toString() {
-        return "GetCustomPluginListDto{" +
-                "pluginType='" + pluginType + '\'' +
-                ", name='" + name + '\'' +
-                ", offset=" + offset +
-                ", limit=" + limit +
-                '}';
-    }
 }
