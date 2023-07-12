@@ -11,6 +11,7 @@ import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginDTO;
 import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginInfoDto;
 import org.hango.cloud.envoy.infra.plugin.dto.DescribeCustomPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
+import org.hango.cloud.envoy.infra.plugin.metas.PluginSource;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
@@ -50,6 +51,7 @@ public class Trans {
         }
         PluginDto pluginDto = new PluginDto();
         pluginDto.setAuthor(DEFAULT_AUTHOR);
+        pluginDto.setPluginSource(PluginSource.SYSTEM.getName());
         pluginDto.setPluginName(pluginInfo.getPluginName());
         pluginDto.setPluginType(pluginInfo.getPluginType());
         pluginDto.setPluginScope(pluginInfo.getPluginScope());
@@ -78,6 +80,7 @@ public class Trans {
         pluginDto.setCategoryName(PluginType.getByName(customPluginInfo.getPluginCategory()));
         pluginDto.setInstructionForUse(customPluginInfo.getDescription());
         pluginDto.setPluginSchema(customPluginInfo.getPluginSchema());
+        pluginDto.setPluginSource(PluginSource.CUSTOM.getName());
         return pluginDto;
     }
 

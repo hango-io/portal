@@ -1,8 +1,8 @@
 package org.hango.cloud.common.infra.plugin.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import lombok.Getter;
+import lombok.Setter;
 import org.hango.cloud.common.infra.base.dto.CommonExtensionDto;
 
 import javax.validation.constraints.Pattern;
@@ -12,6 +12,8 @@ import javax.validation.constraints.Pattern;
  *
  * @author hzchenzhongyang 2019-10-23
  */
+@Getter
+@Setter
 public class PluginDto extends CommonExtensionDto {
     /**
      * 数据库自增id
@@ -62,89 +64,6 @@ public class PluginDto extends CommonExtensionDto {
     @JSONField(name = "PluginGuidance")
     private String pluginGuidance;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getPluginName() {
-        return pluginName;
-    }
-
-    public void setPluginName(String pluginName) {
-        this.pluginName = pluginName;
-    }
-
-    public String getPluginType() {
-        return pluginType;
-    }
-
-    public void setPluginType(String pluginType) {
-        this.pluginType = pluginType;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-
-    public String getPluginScope() {
-        return pluginScope;
-    }
-
-    public void setPluginScope(String pluginScope) {
-        this.pluginScope = pluginScope;
-    }
-
-    public String getInstructionForUse() {
-        return instructionForUse;
-    }
-
-    public void setInstructionForUse(String instructionForUse) {
-        this.instructionForUse = instructionForUse;
-    }
-
-    public String getPluginSchema() {
-        return pluginSchema;
-    }
-
-    public void setPluginSchema(String pluginSchema) {
-        this.pluginSchema = pluginSchema;
-    }
-
-    public String getCategoryKey() {
-        return categoryKey;
-    }
-
-    public void setCategoryKey(String categoryKey) {
-        this.categoryKey = categoryKey;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public String getPluginGuidance() {
-        return pluginGuidance;
-    }
-
-    public void setPluginGuidance(String pluginGuidance) {
-        this.pluginGuidance = pluginGuidance;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
+    @JSONField(name = "PluginSource")
+    private String pluginSource;
 }
