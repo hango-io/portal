@@ -327,14 +327,15 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
             }
             VirtualGatewayDto virtualGatewayDto = virtualGatewayService.get(pluginBindingInfo.getVirtualGwId());
             if (PluginScopeEnum.GLOBAL.getPluginScope().equals(pluginBindingInfo.getBindingObjectType())){
-                customPluginInstanceDto.setBindingObjectName(virtualGatewayDto == null ? "-" : virtualGatewayDto.getGwName());
+                customPluginInstanceDto.setBindingObjectName(virtualGatewayDto == null ? "-" : virtualGatewayDto.getName());
             }
-            customPluginInstanceDto.setGwName(virtualGatewayDto == null ? "-" : virtualGatewayDto.getGwName());
+            customPluginInstanceDto.setGwName(virtualGatewayDto == null ? "-" : virtualGatewayDto.getName());
             PermissionScopeDto projectScope = virtualGatewayProjectService.getProjectScope(pluginBindingInfo.getProjectId());
             customPluginInstanceDto.setProject(projectScope ==null? "-" : projectScope.getPermissionScopeName());
             customPluginInstanceDto.setPluginStatus(customPluginInfo.getPluginStatus());
             customPluginInstanceDto.setUpdateTime(pluginBindingInfo.getUpdateTime());
             customPluginInstanceDto.setBindingStatus(pluginBindingInfo.getBindingStatus());
+            customPluginInstanceDto.setVirtualGwId(pluginBindingInfo.getVirtualGwId());
             return customPluginInstanceDto;
         }).collect(Collectors.toList());
     }
