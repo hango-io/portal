@@ -105,6 +105,10 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
     }
 
     public PageResult<List<MetaServiceDto>> listMetaService(String serviceName, long projectId, long offset, long limit) {
+        String metaServiceAddr = commonAdvanceConfig.getMetaServiceAddr();
+        if (StringUtils.isBlank(metaServiceAddr)) {
+            return PageResult.ofEmpty();
+        }
         Map<String, Object> param = HttpClientUtil.defaultQuery(GET_SERVICE);
         param.put("Offset", offset);
         param.put("Limit", limit);
@@ -112,7 +116,7 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
         if (StringUtils.isNotBlank(serviceName)) {
             param.put("ServiceName", serviceName);
         }
-        HttpClientResponse response = HttpClientUtil.getRequest(commonAdvanceConfig.getMetaServiceAddr() + BASE_PATH,
+        HttpClientResponse response = HttpClientUtil.getRequest(metaServiceAddr + BASE_PATH,
                 param, defaultHeader(), AdvancedConst.MODULE_META_SERVICE);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
             logger.error("listMetaService error, response:{}", response.getResponseBody());
@@ -133,8 +137,12 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
 
     @Override
     public ErrorCode addMetaService(ServiceProxyDto serviceProxyDto) {
+        String metaServiceAddr = commonAdvanceConfig.getMetaServiceAddr();
+        if (StringUtils.isBlank(metaServiceAddr)) {
+            return CommonErrorCode.SUCCESS;
+        }
         Map<String, Object> param = HttpClientUtil.defaultQuery(CREATE_SERVICE);
-        HttpClientResponse response = HttpClientUtil.postRequest(commonAdvanceConfig.getMetaServiceAddr() + BASE_PATH,
+        HttpClientResponse response = HttpClientUtil.postRequest(metaServiceAddr + BASE_PATH,
                 JSON.toJSONString(trans(serviceProxyDto)), param, defaultHeader(), AdvancedConst.MODULE_META_SERVICE);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
             logger.error("addMetaService error, response:{}", response.getResponseBody());
@@ -145,6 +153,10 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
 
     @Override
     public ErrorCode deleteMetaService(ServiceProxyDto serviceProxyDto) {
+        String metaServiceAddr = commonAdvanceConfig.getMetaServiceAddr();
+        if (StringUtils.isBlank(metaServiceAddr)) {
+            return CommonErrorCode.SUCCESS;
+        }
         List<ServiceProxyDto> serviceProxy = serviceProxyService.getServiceProxy(ServiceProxyQuery.builder()
                 .pattern(serviceProxyDto.getName()).projectId(NumberUtils.LONG_ZERO).build());
         if (serviceProxy.size() > NumberUtils.INTEGER_ONE) {
@@ -154,7 +166,7 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
         param.put("ServiceName", serviceProxyDto.getName());
         param.put("ProjectId", serviceProxyDto.getProjectId());
         param.put("OperateType", "UNBIND");
-        HttpClientResponse response = HttpClientUtil.postRequest(commonAdvanceConfig.getMetaServiceAddr() + BASE_PATH,
+        HttpClientResponse response = HttpClientUtil.postRequest(metaServiceAddr + BASE_PATH,
                 param, defaultHeader(), AdvancedConst.MODULE_META_SERVICE);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
             logger.error("deleteMetaService error, response:{}", response.getResponseBody());

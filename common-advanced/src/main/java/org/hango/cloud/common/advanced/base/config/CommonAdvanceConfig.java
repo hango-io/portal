@@ -64,6 +64,9 @@ public class CommonAdvanceConfig {
     @Value("${closeCertification:false}")
     private Boolean closeCertification = false;
 
-    @Value("${metaServiceAddr}")
+    /**
+     * 服务目录地址，如果为空，则代表不依赖服务目录
+     */
+    @Value("${metaServiceAddr:#{null}}")
     private String metaServiceAddr;
 }
