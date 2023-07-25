@@ -965,26 +965,27 @@ CREATE TABLE `hango_route_rule_proxy` (
     ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='gRPC服务对应的pb文件发布表';
 
 
-    CREATE TABLE `hango_service_proxy` (
-    `id` bigint(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',
-    `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
-    `service_id` bigint(11) NOT NULL COMMENT '服务元数据id',
-    `virtual_gw_id` bigint(11) NOT NULL COMMENT '服务发布所属虚拟网关id',
-    `project_id` bigint(11) DEFAULT '0' COMMENT '发布所属项目id',
-    `name` varchar(255) NOT NULL COMMENT '服务名称',
-    `code` varchar(255) NOT NULL COMMENT '服务元数据标识',
-    `publish_protocol` varchar(10) DEFAULT 'http' COMMENT '发布服务，服务协议，http/https,默认为http',
-    `backend_service` text COMMENT '发布关联真实网关服务',
-    `publish_type` varchar(255) DEFAULT NULL COMMENT '发布策略，STATIC/DYNAMIC',
-    `load_balancer` varchar(127) NOT NULL DEFAULT 'ROUND_ROBIN' COMMENT '负载均衡',
-    `subsets` text COMMENT '版本集合',
-    `registry_center_type` varchar(255) DEFAULT NULL COMMENT '注册中心类型Consul/Kubernetes/Eureka/Zookeeper，DYNAMIC时必填，默认Kubernetes',
-    `traffic_policy` text COMMENT '负载均衡和连接池配置',
-    `gw_type` varchar(255) DEFAULT NULL COMMENT '网关类型',
-    `version` bigint(20) DEFAULT '0' COMMENT '版本号',
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8 COMMENT='服务发布表';
+CREATE TABLE `hango_service_proxy` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `create_time` bigint(20) DEFAULT NULL COMMENT '创建时间',
+  `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
+  `name` varchar(255) NOT NULL COMMENT '服务名称',
+  `virtual_gw_id` bigint(11) NOT NULL COMMENT '服务发布所属虚拟网关id',
+  `project_id` bigint(11) DEFAULT '0' COMMENT '发布所属项目id',
+  `alias` varchar(255) DEFAULT NULL COMMENT '服务别名',
+  `hosts` varchar(255) NOT NULL COMMENT '域名',
+  `protocol` varchar(255) DEFAULT 'http' COMMENT '服务协议',
+  `backend_service` text COMMENT '发布关联真实网关服务',
+  `publish_type` varchar(255) DEFAULT NULL COMMENT '发布策略，STATIC/DYNAMIC',
+  `load_balancer` varchar(127) NOT NULL DEFAULT 'ROUND_ROBIN' COMMENT '负载均衡',
+  `subsets` text COMMENT '版本集合',
+  `registry_center_type` varchar(255) DEFAULT NULL COMMENT '注册中心类型Consul/Kubernetes/Eureka/Zookeeper，DYNAMIC时必填，默认Kubernetes',
+  `traffic_policy` text COMMENT '负载均衡和连接池配置',
+  `gw_type` varchar(255) DEFAULT NULL COMMENT '网关类型',
+  `version` bigint(20) DEFAULT '0' COMMENT '版本号',
+  `description` varchar(255) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='服务发布表';
 
 
 
