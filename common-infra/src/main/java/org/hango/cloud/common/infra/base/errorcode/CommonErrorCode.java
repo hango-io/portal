@@ -58,6 +58,10 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode EXIST_PUBLISHED_SERVICE = new ErrorCode(ErrorCodeEnum.EXIST_PUBLISHED_SERVICE);
 
+    public static final ErrorCode SERVICE_ALREADY_PUBLISHED = new ErrorCode(ErrorCodeEnum.SERVICE_ALREADY_PUBLISHED);
+
+    public static final ErrorCode TYPE_NOT_MATCH = new ErrorCode(ErrorCodeEnum.TYPE_NOT_MATCH);
+
     public static final ErrorCode EXIST_PUBLISHED_PLUGIN = new ErrorCode(ErrorCodeEnum.EXIST_PUBLISHED_PLUGIN);
 
     public static final ErrorCode EXIST_PUBLISHED_DOMAIN = new ErrorCode(ErrorCodeEnum.EXIST_PUBLISHED_DOMAIN);

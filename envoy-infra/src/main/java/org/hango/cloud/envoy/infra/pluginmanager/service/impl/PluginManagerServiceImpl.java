@@ -181,6 +181,10 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
 
     @Override
     public boolean publishPluginManager(VirtualGatewayDto virtualGateway) {
+        //4层网关不下发插件配置
+        if (StringUtils.equalsAnyIgnoreCase(virtualGateway.getProtocol(),BaseConst.SCHEME_TCP,BaseConst.SCHEME_UDP)) {
+            return true;
+        }
         PluginOrderDto pluginOrderDto = buildPluginOrder(virtualGateway);
         Map<String, Object> params = Maps.newHashMap();
         params.put(ACTION, "PublishPluginOrder");

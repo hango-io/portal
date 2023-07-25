@@ -75,6 +75,8 @@ public class EnvoyRouteBuilderService {
         buildMirrorTraffic(body, routeDto.getMirrorTraffic(), routeDto.getMirrorSwitch());
         //构建dubbo meta信息
         body.put("MetaMap", processRouteMetadata(virtualGatewayDto, serviceProxyDtoList, routeDto));
+
+        buildExtensionInfo(body, routeDto);
         return body;
     }
 
@@ -114,6 +116,25 @@ public class EnvoyRouteBuilderService {
         body.put("Headers", toApiPlaneStringMatchDto(headers));
     }
 
+    /**
+     * 如果
+     * @see RouteDto#getExtension() 是一个Map结构，那么将其传入到api-plane中
+     * 此种设计基于开闭原则， 尽量减少历史代码的改动，避免造成Bug
+     *
+     * case 1: 在L4服务发布生成默认VS时，由于服务、路由同时发布，此时服务信息还未真正在数据库生成，而导致的
+     * @see EnvoyRouteBuilderService#buildDestinationServices 无法使用而产生的空Destination问题
+     * 此时需要通过Extension将数据传入。
+     *
+     * case 2: ...
+     * @param body
+     * @param routeDto
+     */
+    private void buildExtensionInfo(JSONObject body, RouteDto routeDto) {
+        Object extension = routeDto.getExtension();
+        if (extension != null && extension instanceof Map) {
+            body.putAll((Map) extension);
+        }
+    }
 
     private void buildDestinationServices(JSONObject body, List<DestinationDto> destinationDtos) {
         List<JSONObject> proxyServices = destinationDtos.stream().map(destinationInfo -> {

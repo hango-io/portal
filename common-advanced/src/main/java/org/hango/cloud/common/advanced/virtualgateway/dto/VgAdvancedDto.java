@@ -45,6 +45,7 @@ public class VgAdvancedDto extends VirtualGatewayDto {
         vgAdvancedDto.setCreateTime(virtualGatewayDto.getCreateTime());
         vgAdvancedDto.setModifyTime(virtualGatewayDto.getModifyTime());
         vgAdvancedDto.setExtension(virtualGatewayDto.getExtension());
+        vgAdvancedDto.setPublishServiceCount(virtualGatewayDto.getPublishServiceCount());
         return vgAdvancedDto;
     }
 

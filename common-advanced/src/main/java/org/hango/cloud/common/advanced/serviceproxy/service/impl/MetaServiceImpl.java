@@ -65,7 +65,7 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
     public void run(String... args) {
         try {
             compensate();
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -73,7 +73,7 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
 
     public void compensate() {
         List<? extends ServiceProxyDto> allService = serviceProxyService.findAll();
-        Map<Long, Map<String,List<ServiceProxyDto>>> serviceMap = allService.stream().collect(
+        Map<Long, Map<String, List<ServiceProxyDto>>> serviceMap = allService.stream().collect(
                 Collectors.groupingBy(ServiceProxyDto::getProjectId,
                         Collectors.groupingBy(ServiceProxyDto::getName)));
         Set<ServiceProxyDto> diffSet = Sets.newHashSet();
@@ -81,10 +81,10 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
             Set<String> metaNames = listAllMetaService(entry.getKey(), NumberUtils.LONG_ZERO).stream()
                     .map(MetaServiceDto::getName).collect(Collectors.toSet());
             Map<String, List<ServiceProxyDto>> value = entry.getValue();
-            Sets.SetView<String> diff = Sets.difference(value.keySet(),metaNames);
+            Sets.SetView<String> diff = Sets.difference(value.keySet(), metaNames);
             logger.info("需要将如下服务同步到服务目录 {}", JSON.toJSONString(diff));
             //服务目录目前只支持单协议，因此选择该项目下第一个服务对应的协议
-           diff.forEach(d->diffSet.add(value.get(d).get(0)));
+            diff.forEach(d -> diffSet.add(value.get(d).get(0)));
         }
         diffSet.forEach(this::addMetaService);
     }
@@ -137,12 +137,11 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
 
     @Override
     public ErrorCode addMetaService(ServiceProxyDto serviceProxyDto) {
-        String metaServiceAddr = commonAdvanceConfig.getMetaServiceAddr();
-        if (StringUtils.isBlank(metaServiceAddr)) {
+        if (!shouldSync(serviceProxyDto)) {
             return CommonErrorCode.SUCCESS;
         }
         Map<String, Object> param = HttpClientUtil.defaultQuery(CREATE_SERVICE);
-        HttpClientResponse response = HttpClientUtil.postRequest(metaServiceAddr + BASE_PATH,
+        HttpClientResponse response = HttpClientUtil.postRequest(commonAdvanceConfig.getMetaServiceAddr() + BASE_PATH,
                 JSON.toJSONString(trans(serviceProxyDto)), param, defaultHeader(), AdvancedConst.MODULE_META_SERVICE);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
             logger.error("addMetaService error, response:{}", response.getResponseBody());
@@ -153,12 +152,11 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
 
     @Override
     public ErrorCode deleteMetaService(ServiceProxyDto serviceProxyDto) {
-        String metaServiceAddr = commonAdvanceConfig.getMetaServiceAddr();
-        if (StringUtils.isBlank(metaServiceAddr)) {
+        if (!shouldSync(serviceProxyDto)) {
             return CommonErrorCode.SUCCESS;
         }
         List<ServiceProxyDto> serviceProxy = serviceProxyService.getServiceProxy(ServiceProxyQuery.builder()
-                .pattern(serviceProxyDto.getName()).projectId(NumberUtils.LONG_ZERO).build());
+                .pattern(serviceProxyDto.getName()).projectId(serviceProxyDto.getProjectId()).build());
         if (serviceProxy.size() > NumberUtils.INTEGER_ONE) {
             return CommonErrorCode.SUCCESS;
         }
@@ -166,13 +164,29 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
         param.put("ServiceName", serviceProxyDto.getName());
         param.put("ProjectId", serviceProxyDto.getProjectId());
         param.put("OperateType", "UNBIND");
-        HttpClientResponse response = HttpClientUtil.postRequest(metaServiceAddr + BASE_PATH,
-                param, defaultHeader(), AdvancedConst.MODULE_META_SERVICE);
+        HttpClientResponse response = HttpClientUtil.postRequest(commonAdvanceConfig.getMetaServiceAddr() + BASE_PATH,
+               null, param, defaultHeader(), AdvancedConst.MODULE_META_SERVICE);
         if (response.getStatusCode() != HttpStatus.SC_OK) {
             logger.error("deleteMetaService error, response:{}", response.getResponseBody());
             return CommonErrorCode.INTERNAL_SERVER_ERROR;
         }
         return CommonErrorCode.SUCCESS;
+    }
+
+    /**
+     * 是否应该同步到知识库
+     *
+     * @param serviceProxyDto
+     * @return
+     */
+    private boolean shouldSync(ServiceProxyDto serviceProxyDto) {
+        if (StringUtils.isBlank(commonAdvanceConfig.getMetaServiceAddr())) {
+            return false;
+        }
+        if (serviceProxyService.isL4Service(serviceProxyDto)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -183,11 +197,11 @@ public class MetaServiceImpl implements IMetaService, CommandLineRunner {
     @AllArgsConstructor
     @SuppressWarnings("AlibabaEnumConstantsMustHaveComment")
     enum MetaServiceType {
-        HTTP("1","http"),
-        DUBBO("2","dubbo"),
-        GRPC("4","grpc"),
-        WEBSERVICE("8","webservice"),
-        UNSUPPORTED("","UnSupported");
+        HTTP("1", "http"),
+        DUBBO("2", "dubbo"),
+        GRPC("4", "grpc"),
+        WEBSERVICE("8", "webservice"),
+        UNSUPPORTED("", "UnSupported");
         /**
          * 服务协议类型code
          */

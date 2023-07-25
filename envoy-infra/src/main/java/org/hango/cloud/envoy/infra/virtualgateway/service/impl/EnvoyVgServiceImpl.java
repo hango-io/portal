@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
 import static org.hango.cloud.common.infra.base.meta.BaseConst.SCHEME_HTTP;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.SCHEME_HTTPS;
 
 /**
  * @author zhangbj
@@ -205,8 +206,8 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
         IstioGatewayDto istioGatewayDto = new IstioGatewayDto();
         istioGatewayDto.setGwCluster(gwClusterName);
         istioGatewayDto.setName(StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, gwClusterName, virtualGatewayDto.getCode()));
-        List<IstioGatewayServerDto> servers = StringUtils.equalsIgnoreCase(SCHEME_HTTP, virtualGatewayDto.getProtocol())
-                ? transHttp(virtualGatewayDto) : transHttps(virtualGatewayDto);
+        List<IstioGatewayServerDto> servers = StringUtils.equalsIgnoreCase(SCHEME_HTTPS, virtualGatewayDto.getProtocol())
+                ? transHttps(virtualGatewayDto) : transHttp(virtualGatewayDto);
         istioGatewayDto.setServers(servers);
         return istioGatewayDto;
     }

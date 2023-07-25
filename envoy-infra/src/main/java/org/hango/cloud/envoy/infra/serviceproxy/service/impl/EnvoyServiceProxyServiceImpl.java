@@ -1,5 +1,6 @@
 package org.hango.cloud.envoy.infra.serviceproxy.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
@@ -9,6 +10,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.hango.cloud.common.infra.base.dto.ResourceDTO;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
+import org.hango.cloud.common.infra.base.exception.ErrorCodeException;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
@@ -16,7 +18,8 @@ import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.common.infra.healthcheck.dto.ActiveHealthCheckRuleDto;
 import org.hango.cloud.common.infra.healthcheck.dto.HealthCheckRuleDto;
 import org.hango.cloud.common.infra.healthcheck.dto.PassiveHealthCheckRuleDto;
-import org.hango.cloud.common.infra.route.service.IRouteService;
+import org.hango.cloud.common.infra.route.dto.RouteDto;
+import org.hango.cloud.common.infra.route.dto.RouteStringMatchDto;
 import org.hango.cloud.common.infra.serviceproxy.convert.ServiceProxyConvert;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
@@ -34,9 +37,12 @@ import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
 import org.hango.cloud.envoy.infra.grpc.meta.EnvoyServiceProtobufProxy;
 import org.hango.cloud.envoy.infra.grpc.service.IEnvoyGrpcProtobufService;
 import org.hango.cloud.envoy.infra.healthcheck.service.IEnvoyHealthCheckService;
+import org.hango.cloud.envoy.infra.route.service.IEnvoyRouteService;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.DpServiceProxyDto;
+import org.hango.cloud.envoy.infra.serviceproxy.dto.KubernetesServiceDTO;
 import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceProxyService;
 import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceRefreshService;
+import org.hango.cloud.envoy.infra.virtualgateway.service.IEnvoyVgService;
 import org.hango.cloud.envoy.infra.webservice.service.IEnvoyWebServiceService;
 import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
@@ -48,7 +54,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
@@ -92,21 +104,115 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
     private IEnvoyServiceRefreshService envoyServiceRefreshService;
 
     @Autowired
-    private IRouteService routeService;
+    private IEnvoyVgService vgService;
+
+    @Autowired
+    private IEnvoyRouteService routeService;
 
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean publishToGateway(ServiceProxyDto serviceProxyDto) {
+        return processL4Config(serviceProxyDto ,true) && publishToDataPlane(serviceProxyDto);
+    }
+
+    /**
+     * L4服务发布时，才会将Gateway资源下发到网关
+     *
+     * @param serviceProxyDto
+     * @param create 创建 or 删除
+     * @return
+     */
+    public boolean processL4Config(ServiceProxyDto serviceProxyDto, boolean create) {
+        if (!serviceProxyService.isL4Service(serviceProxyDto)) {
+            return true;
+        }
+
+        long virtualGwId = serviceProxyDto.getVirtualGwId();
+        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(virtualGwId);
+        if (virtualGatewayDto == null) {
+            return false;
+        }
+        //先处理网关信息，再处理默认路由信息
+        //如果网关信息处理异常，则服务、路由信息不会在处理
+        //CASE 0: 创建，此时如果网关处理失败，不会再产生服务、路由的脏数据
+        //CASE 1: 删除，此时如果网关处理失败，不会再删除服务、路由的脏数据，仍能保证正常路由
+        boolean gatewayStatus = create ? vgService.publishToGateway(virtualGatewayDto) : vgService.offlineToGateway(virtualGwId);
+        if (!gatewayStatus) {
+            logger.warn("publish to gateway failed, virtual gateway id is {}", virtualGwId);
+            return false;
+        }
+        RouteDto routeDto = buildDefaultL4VirtualService(virtualGatewayDto, serviceProxyDto, create);
+        return create ? routeService.publishRoute(routeDto, Collections.emptyList()) : routeService.deleteRouteRuleByApiPlane(routeDto);
+    }
+
+
+    /**
+     * 构建L4默认路由
+     * 注:
+     * 默认路由不会在网关管控面生成对应的Route及RouteProxy
+     * 因此需要在本方法中Mock一个默认的Route
+     *
+     * @param virtualGateway
+     * @param serviceProxy
+     * @param create
+     * @return
+     */
+    public RouteDto buildDefaultL4VirtualService(VirtualGatewayDto virtualGateway, ServiceProxyDto serviceProxy, boolean create) {
+        if (CollectionUtils.isEmpty(serviceProxy.getPort())) {
+            logger.warn("默认路由缺失端口， service proxy is {}", JSON.toJSONString(serviceProxy));
+            throw new ErrorCodeException(CommonErrorCode.INVALID_SERVICE_PORT);
+        }
+        RouteDto route = new RouteDto();
+        route.setVirtualGwId(virtualGateway.getId());
+        //默认路由的ID生成策略由服务ID生成
+        //为避免冲突，route Code 以 {{PROTOCOL}} + ID 组成
+        String mockRouteName = serviceProxy.getName();
+        route.setName(virtualGateway.getProtocol().toLowerCase(Locale.getDefault()) + BaseConst.SYMBOL_HYPHEN + mockRouteName);
+        route.setHosts(Lists.newArrayList("*"));
+        route.setUriMatchDto(RouteStringMatchDto.builder()
+                .type(BaseConst.URI_TYPE_PREFIX)
+                .value(Lists.newArrayList("/"))
+                .build());
+        route.setProjectId(serviceProxy.getProjectId());
+        route.setEnableState(create ? BaseConst.ENABLE_STATE : BaseConst.DISABLE_STATE);
+        Map<String, Object> destinations = Maps.newHashMap();
+        destinations.put("Protocol",serviceProxy.getProtocol());
+        destinations.put("ProxyServices",Lists.newArrayList(buildDestinationServices(serviceProxy)));
+        Object extension = route.getExtension();
+        if (extension != null){
+            if (extension instanceof Map) {
+                destinations.putAll((Map<String, Object>) extension);
+            }else {
+                throw new RuntimeException("extension is not map");
+            }
+        }
+        route.setExtension(destinations);
+        return route;
+    }
+
+    private Map<String, Object> buildDestinationServices(ServiceProxyDto serviceProxy) {
+        Map<String, Object> proxyService = Maps.newHashMap();
+        proxyService.put("Code", ServiceProxyConvert.getCode(serviceProxy));
+        proxyService.put("Weight", "100");
+        proxyService.put("Port", serviceProxy.getPort().get(0));
+        proxyService.put("Type", serviceProxy.getPublishType());
+        proxyService.put("BackendService", serviceProxy.getBackendService());
+        return proxyService;
+    }
+
+
+
+    private boolean publishToDataPlane(ServiceProxyDto serviceProxyDto) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyDto.getVirtualGwId());
         if (virtualGatewayDto == null) {
             logger.warn("网关信息为空");
             return false;
         }
         Map<String, Object> params = Maps.newHashMap();
-        params.put("Action", "PublishService");
-        params.put("Version", "2019-07-25");
+        params.put(BaseConst.ACTION, "PublishService");
+        params.put(BaseConst.VERSION, BaseConst.PLANE_VERSION);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         // TODO service 多集群适配
@@ -180,7 +286,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
 
     public HttpClientResponse proxyToApiPlane(String apiPlaneUrl, Map<String, Object> params, String body, HttpHeaders headers) {
         HttpClientResponse response = HttpClientUtil.postRequest(apiPlaneUrl, body, params, headers, EnvoyConst.MODULE_API_PLANE);
-        //存在bak api server且和apiPlaneUrl不相同
+        //存在bak route server且和apiPlaneUrl不相同
         //todo  可以使用hooker将双发与正常业务隔离
         if (StringUtils.isNotBlank(envoyConfig.getBakApiPlaneAddr()) && !apiPlaneUrl.equals(envoyConfig.getBakApiPlaneAddr()) && null != response && HttpClientUtil.isNormalCode(response.getStatusCode())) {
             // 升级双发场景下，用户配置了新插件但老版本api-plane没有，删除旧版本的下发
@@ -188,7 +294,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
 //            if (StringUtils.isNotEmpty(newBody)) {
 //                body = newBody;
 //            }
-//            response = HttpCommonUtil.getFromApiPlane(apiServerConfig.getBakApiPlaneAddr() + "/api/portal", params, body, headers, methodType);
+//            response = HttpCommonUtil.getFromApiPlane(apiServerConfig.getBakApiPlaneAddr() + "/route/portal", params, body, headers, methodType);
         }
         return response;
     }
@@ -251,6 +357,10 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
 
     @Override
     public boolean offlineToGateway(ServiceProxyDto serviceProxyDto) {
+        return processL4Config(serviceProxyDto ,false) && offlineToDataPlane(serviceProxyDto);
+    }
+
+    public boolean offlineToDataPlane(ServiceProxyDto serviceProxyDto) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyDto.getVirtualGwId());
         if (virtualGatewayDto == null) {
             logger.warn("网关信息为空");
@@ -258,8 +368,8 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
 
         Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
-        params.put("Action", "DeleteService");
-        params.put("Version", "2019-07-25");
+        params.put(BaseConst.ACTION, "DeleteService");
+        params.put(BaseConst.VERSION, BaseConst.PLANE_VERSION);
         DpServiceProxyDto service = toView(serviceProxyDto, virtualGatewayDto);
         service.setSubsets(Collections.emptyList());
         HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PORTAL_PATH, JSONObject.toJSONString(service), params, null, EnvoyConst.MODULE_API_PLANE);
@@ -290,8 +400,8 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
             return new ArrayList<>();
         }
         Map<String, Object> params = Maps.newHashMap();
-        params.put("Action", "GetServiceAndPortList");
-        params.put("Version", "2019-07-25");
+        params.put(BaseConst.ACTION, "GetServiceAndPortList");
+        params.put(BaseConst.VERSION, BaseConst.PLANE_VERSION);
         // 通过envoy-advanced hooker获取服务参数
         params.putAll(envoyServiceProxyService.getExtraServiceParams(registryCenterType));
 
@@ -300,7 +410,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
         //serviceFilters 暂时没有场景使用，先不传该值
         params.put("Type", registryCenterType);
-        HttpClientResponse response = HttpClientUtil.getRequest(virtualGatewayDto.getConfAddr() + "/api", params, EnvoyConst.MODULE_API_PLANE);
+        HttpClientResponse response = HttpClientUtil.getRequest(virtualGatewayDto.getConfAddr() + "/route", params, EnvoyConst.MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error("调用api-plane查询已发布服务列表，返回http status code非2xx, httpStatusCode:{}, errMsg:{}", response.getStatusCode(), response.getResponseBody());
             return Collections.emptyList();
@@ -362,6 +472,25 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         return subsetNames;
     }
 
+    @Override
+    public List<KubernetesServiceDTO> getKubernetesServices(String virtualGatewayCode ,String domain) {
+        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.getByCode(virtualGatewayCode);
+        if (virtualGatewayDto == null) {
+            return Lists.newArrayList();
+        }
+        Map<String, Object> params = Maps.newHashMap();
+        params.put(BaseConst.ACTION, "GetServices");
+        params.put(BaseConst.VERSION, BaseConst.PLANE_VERSION);
+        params.put("Domain", domain);
 
+        HttpClientResponse response = HttpClientUtil.getRequest(virtualGatewayDto.getConfAddr() + "/api", params, EnvoyConst.MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error("调用api-plane查询已发布服务列表，返回http status code非2xx, httpStatusCode:{}, errMsg:{}", response.getStatusCode(), response.getResponseBody());
+            return Collections.emptyList();
+        }
+        JSONObject jsonResult = JSONObject.parseObject(response.getResponseBody());
+        JSONArray jsonArray = jsonResult.getJSONArray(BaseConst.RESULT);
+        return JSONObject.parseArray(jsonArray.toJSONString(), KubernetesServiceDTO.class);
+    }
 }
 

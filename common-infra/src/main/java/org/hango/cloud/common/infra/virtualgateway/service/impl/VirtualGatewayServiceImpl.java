@@ -6,12 +6,14 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
+import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
+import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dao.IVirtualGatewayDao;
 import org.hango.cloud.common.infra.virtualgateway.dto.GatewaySettingDTO;
@@ -165,6 +167,10 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         if(gatewayDto == null){
             return virtualGatewayDto;
         }
+        virtualGatewayDto.setPublishServiceCount(serviceProxyService.countServiceProxy(ServiceProxyQuery.builder()
+                .virtualGwId(virtualGateway.getId())
+                .projectId(ProjectTraceHolder.getProId())
+                .build()));
         virtualGatewayDto.setConfAddr(gatewayDto.getConfAddr());
         virtualGatewayDto.setGwType(gatewayDto.getType());
         virtualGatewayDto.setGwClusterName(gatewayDto.getGwClusterName());

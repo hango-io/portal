@@ -118,4 +118,12 @@ public interface IServiceProxyService extends CommonService<ServiceProxyInfo, Se
 
     ServiceProxyDto fillServiceProxy(ServiceProxyUpdateDto serviceProxyUpdateDto);
 
+    /**
+     * 判断服务是否是L4服务
+     *
+     * @param serviceProxyDto
+     * @return
+     */
+    Boolean isL4Service(ServiceProxyDto serviceProxyDto);
+
 }

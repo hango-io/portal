@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
@@ -20,7 +21,13 @@ import org.hango.cloud.common.infra.route.dto.ServiceMetaForRouteDto;
 import org.hango.cloud.common.infra.route.pojo.RouteQuery;
 import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.dao.IServiceProxyDao;
-import org.hango.cloud.common.infra.serviceproxy.dto.*;
+import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceConsistentHashDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceLoadBalancerDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyUpdateDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceTrafficPolicyDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.SubsetDto;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyInfo;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceType;
@@ -38,7 +45,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -130,7 +144,15 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         serviceProxyDto.setSubsets(setSubsetForDto(serviceProxyInfo));
         serviceProxyDto.setProjectId(serviceProxyInfo.getProjectId());
         serviceProxyDto.setTrafficPolicy(setTrafficPolicyForDto(serviceProxyInfo));
-
+        if (isL4Service(serviceProxyDto)){
+            //如果是L4服务，数据库中服务后端地址存储格式为[addr:port]，需要转换到不同的属性中
+            String backendService = serviceProxyDto.getBackendService();
+            String[] split = backendService.split(BaseConst.SYMBOL_COLON);
+            if (split.length == 2){
+                serviceProxyDto.setBackendService(split[0]);
+                serviceProxyDto.setPort(Lists.newArrayList(NumberUtils.toInt(split[1])));
+            }
+        }
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyInfo.getVirtualGwId());
         if (virtualGatewayDto != null) {
             serviceProxyDto.setGwClusterName(virtualGatewayDto.getGwClusterName());
@@ -195,6 +217,12 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         serviceProxyInfo.setHosts(serviceProxyDto.getHosts());
         serviceProxyInfo.setRegistryCenterType(serviceProxyDto.getRegistryCenterType());
         serviceProxyInfo.setVirtualGwId(serviceProxyDto.getVirtualGwId());
+        if (isL4Service(serviceProxyDto) && !CollectionUtils.isEmpty(serviceProxyDto.getPort())) {
+            //如果是L4服务，数据库中服务后端地址存储格式为[addr:port]，需要从dto中对应属性进行拼接
+            serviceProxyInfo.setBackendService(serviceProxyDto.getBackendService()
+                    + BaseConst.SYMBOL_COLON
+                    + serviceProxyDto.getPort().get(0));
+        }
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyDto.getVirtualGwId());
         if (virtualGatewayDto != null) {
             serviceProxyInfo.setGwType(virtualGatewayDto.getGwType());
@@ -227,10 +255,8 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
      * @param serviceProxyDto
      * @return
      */
+    @SuppressWarnings({"java:S3776"})
     private ErrorCode checkCommonParam(ServiceProxyDto serviceProxyDto) {
-        if (StringUtils.isBlank(serviceProxyDto.getHosts())){
-            return CommonErrorCode.NO_SUCH_DOMAIN;
-        }
         if (ServiceType.getServiceTypeByName(serviceProxyDto.getProtocol()) ==null) {
             return CommonErrorCode.SERVICE_TYPE_INVALID;
         }
@@ -244,25 +270,12 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
                     return CommonErrorCode.INVALID_ADDR;
                 }
             }
-
         }
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyDto.getVirtualGwId());
         if (virtualGatewayDto == null) {
             logger.info("发布服务，指定网关不存在，网关id:{}", serviceProxyDto.getVirtualGwId());
             return CommonErrorCode.NO_SUCH_GATEWAY;
         }
-        List<DomainInfoDTO> domainInfos = virtualGatewayDto.getDomainInfos();
-        if (CollectionUtils.isEmpty(domainInfos)){
-            return CommonErrorCode.NO_SUCH_DOMAIN;
-        }
-        Set<String> domainHosts = domainInfos.stream().map(DomainInfoDTO::getHost).collect(Collectors.toSet());
-        String[] hosts = serviceProxyDto.getHosts().split(",");
-        for (String  host : hosts) {
-            if (!domainHosts.contains(host)){
-                return CommonErrorCode.NO_SUCH_DOMAIN;
-            }
-        }
-
         //校验注册中心参数
         ErrorCode errorCode = checkRegistryCenterInfo(serviceProxyDto);
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
@@ -273,7 +286,47 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return errorCode;
         }
+        //TCP/UDP 服务没有域名和subset，因此不进行后续校验
+        if (isL4Service(serviceProxyDto)) {
+            return checkL4CommonParam(serviceProxyDto ,virtualGatewayDto);
+        }
+        if (StringUtils.isBlank(serviceProxyDto.getHosts())){
+            return CommonErrorCode.NO_SUCH_DOMAIN;
+        }
+        List<DomainInfoDTO> domainInfos = virtualGatewayDto.getDomainInfos();
+        if (CollectionUtils.isEmpty(domainInfos)){
+            return CommonErrorCode.NO_SUCH_DOMAIN;
+        }
+        Set<String> domainHosts = domainInfos.stream().map(DomainInfoDTO::getHost).collect(Collectors.toSet());
+        String[] hosts = serviceProxyDto.getHosts().split(",");
+        for (String  host : hosts) {
+            if (!domainHosts.contains(host)){
+                return CommonErrorCode. NO_SUCH_DOMAIN;
+            }
+        }
         return checkSubsetWhenPublishService(serviceProxyDto);
+    }
+
+    private ErrorCode checkL4CommonParam(ServiceProxyDto serviceProxyDto, VirtualGatewayDto virtualGatewayDto){
+        if (CollectionUtils.isEmpty(serviceProxyDto.getPort())){
+            return CommonErrorCode.INVALID_SERVICE_PORT;
+        }
+        if (!serviceProxyDto.getProtocol().equalsIgnoreCase(virtualGatewayDto.getProtocol())){
+            return CommonErrorCode.TYPE_NOT_MATCH;
+        }
+        serviceProxyDto.setHosts(BaseConst.SYMBOL_ASTERISK);
+        List<ServiceProxyDto> serviceProxy = getServiceProxy(ServiceProxyQuery.builder().virtualGwId(serviceProxyDto.getVirtualGwId()).build());
+        //如果为空，则说明该虚拟网关未被占用
+        if (CollectionUtils.isEmpty(serviceProxy)) {
+            return CommonErrorCode.SUCCESS;
+        }
+        //如果不为空，判断是否为更新场景，即服务名称是否一致，且都在该项目下
+        ServiceProxyDto origin = serviceProxy.get(0);
+        if (!origin.getName().equals(serviceProxyDto.getName()) ||
+                origin.getProjectId() != serviceProxyDto.getProjectId()){
+            return CommonErrorCode.SERVICE_ALREADY_PUBLISHED;
+        }
+        return CommonErrorCode.SUCCESS;
     }
 
     @Override
@@ -433,6 +486,9 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
 
     @Override
     public List<ServiceProxyDto> getServiceByIds(List<Long> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return serviceProxyDao.getByIds(ids).stream().map(this::toView).collect(Collectors.toList());
     }
 
@@ -522,6 +578,10 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         return getUniqueHostListFromServiceList(serviceByIds);
     }
 
+    @Override
+    public Boolean isL4Service(ServiceProxyDto serviceProxyDto) {
+        return StringUtils.containsAnyIgnoreCase(serviceProxyDto.getProtocol(), BaseConst.SCHEME_TCP, BaseConst.SCHEME_UDP);
+    }
 
     /**
      * 校验服务发布时，填写的版本信息
@@ -771,6 +831,17 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
             serviceProxyDto.setRegistryCenterType(RegistryCenterEnum.Kubernetes.getType());
             return CommonErrorCode.SUCCESS;
         }
+        //TCP/UDP服务，动态发布只支持Kubernetes
+        if (ServiceType.udp.name().equals(serviceProxyDto.getProtocol()) &&
+                !serviceProxyDto.getRegistryCenterType().equals(RegistryCenterEnum.Kubernetes.getType())){
+            CommonErrorCode.NotSupportedRegistryType(serviceProxyDto.getProtocol(), serviceProxyDto.getRegistryCenterType());
+        }
+
+        if (ServiceType.tcp.name().equals(serviceProxyDto.getProtocol()) &&
+                !serviceProxyDto.getRegistryCenterType().equals(RegistryCenterEnum.Kubernetes.getType())){
+            CommonErrorCode.NotSupportedRegistryType(serviceProxyDto.getProtocol(), serviceProxyDto.getRegistryCenterType());
+        }
+
         return CommonErrorCode.SUCCESS;
     }
 

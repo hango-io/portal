@@ -19,6 +19,7 @@ import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -122,7 +123,9 @@ public class ServiceProxyController extends AbstractController {
         logger.info("查询service proxy 详情,查询条件为 {}", id);
         ServiceProxyDto serviceProxyDto = serviceProxyService.get(id);
         serviceProxyService.fillServiceHealthStatus(serviceProxyDto);
-        serviceProxyService.fillServicePort(serviceProxyDto);
+        if (CollectionUtils.isEmpty(serviceProxyDto.getPort())){
+            serviceProxyService.fillServicePort(serviceProxyDto);
+        }
         return apiReturnSuccess(serviceProxyDto);
     }
 

@@ -103,6 +103,7 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
     }
 
 
+    @Override
     public boolean deleteRouteRuleByApiPlane(RouteDto routeRuleProxyInfo) {
         VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(routeRuleProxyInfo.getVirtualGwId());
 

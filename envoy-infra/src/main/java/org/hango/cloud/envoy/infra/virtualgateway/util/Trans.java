@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.envoy.infra.base.util.YamlUtil;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.*;
+import org.springframework.boot.autoconfigure.batch.BatchDataSource;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -20,6 +21,7 @@ import static org.hango.cloud.gdashboard.api.util.Const.*;
  * @Author zhufengwei
  * @Date 2023/5/31
  */
+@BatchDataSource
 public class Trans {
     public static List<KubernetesGatewayHttpRouteDTO> httpRouteListToView(List<HTTPRoute> kubernetesGatewayHttpRouteList) {
         return kubernetesGatewayHttpRouteList.stream().map(httpRoute -> {

@@ -8,14 +8,17 @@ import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.meta.Result;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.ResultDTO;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.ServiceRefreshDTO;
+import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceProxyService;
 import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceRefreshService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -35,6 +38,9 @@ public class EnvoyServiceProxyController extends AbstractController {
     @Autowired
     private IEnvoyServiceRefreshService envoyServiceProxyService;
 
+    @Autowired
+    private IEnvoyServiceProxyService serviceProxyService;
+
     /**
      * 刷新服务域名（会刷新vs资源）
      * @return
@@ -48,5 +54,16 @@ public class EnvoyServiceProxyController extends AbstractController {
         }
         ResultDTO resultDTO = envoyServiceProxyService.refreshServiceHost(serviceRefreshDTO);
         return apiReturn(new Result(resultDTO));
+    }
+
+
+    /**
+     * 获取Kubernetes Service列表
+     * @return
+     */
+    @GetMapping(params = {"Action=GetServices"})
+    public Object refreshServiceHost(@RequestParam(name = "VirtualGatewayCode") String virtualGatewayCode
+            , @RequestParam(name = "Domain", required = false) String domain) {
+        return apiReturn(new Result(serviceProxyService.getKubernetesServices(virtualGatewayCode ,domain)));
     }
 }

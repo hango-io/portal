@@ -105,6 +105,8 @@ public class BaseConst {
      * Http Scheme
      */
     public static final String SCHEME_HTTP = "http";
+    public static final String SCHEME_TCP = "tcp";
+    public static final String SCHEME_UDP = "udp";
 
     /**
      * Https Scheme
@@ -225,6 +227,7 @@ public class BaseConst {
             "/api/auth/oidc", "/api/restfulSdk", "/api/swagger", "/healthcheck");
 
     public static final String PROTOCOL_SCHEME_PATTERN = SCHEME_HTTPS + SYMBOL_ALTERNATION + SCHEME_HTTP;
+    public static final String VIRTUAL_GATEWAY_PROTOCOL_SCHEME_PATTERN = PROTOCOL_SCHEME_PATTERN + SYMBOL_ALTERNATION + SCHEME_TCP + SYMBOL_ALTERNATION + SCHEME_UDP;
 
     /**
      * 使能状态

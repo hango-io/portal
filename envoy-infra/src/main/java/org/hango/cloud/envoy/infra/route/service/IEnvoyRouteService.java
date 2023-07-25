@@ -27,6 +27,13 @@ public interface IEnvoyRouteService {
      */
     boolean deleteRoute(RouteDto routeDto);
 
+    /**
+     * 通过 api-plane 发布路由
+     * @param routeRuleProxyInfo 路由信息
+     * @return 删除结果
+     */
+    boolean deleteRouteRuleByApiPlane(RouteDto routeRuleProxyInfo);
+
 
     /**
      * 删除所有路由绑定插件

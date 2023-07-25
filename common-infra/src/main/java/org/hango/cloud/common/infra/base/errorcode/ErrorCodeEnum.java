@@ -80,6 +80,7 @@ public enum ErrorCodeEnum {
     /************************************** Service Start **************************************/
 
     NO_SUCH_SERVICE("NoSuchService", "No such service", "指定的服务不存在", 400),
+    TYPE_NOT_MATCH("TypeNotMatch", "service type not match virtual gateway type", "服务类型和网关类型不匹配", 400),
     INVALID_SERVICE_PORT("InvalidServicePort", "Invalid service port", "服务端口非法", 400),
     INVALID_SERVICE_SUBSET_PORT("InvalidServiceSubsetPort", "Invalid service subset port", "服务子版本端口非法", 400),
     CANNOT_UPDATE_SERVICE_NAME("CanNotUpdateServiceName", "service namecan not update  ", "服务名称不支持修改", 400),
@@ -93,7 +94,7 @@ public enum ErrorCodeEnum {
     SAME_NAME_ROUTE_EXIST("SameNameRouteRuleExist", "The route with the same name already exists in this project gateway and cannot be "
             + "created.", "当前项目网关已存在同名路由，无法重复创建", 400),
 
-    SERVICE_ALREADY_PUBLISHED("ServiceAlreadyPublished", "The service has already published", "服务已经发布到当前网关", 400),
+    SERVICE_ALREADY_PUBLISHED("ServiceAlreadyPublished", "The service has already published", "当前网关已有发布的服务", 400),
 
     EXIST_PUBLISHED_SERVICE("ExistPublishedService", "exist published service, do not allow to delete ", "当前项目存在已发布服务，不允许删除", 400),
     EXIST_PUBLISHED_PLUGIN("ExistPublishedPlugin", "exist published plugin, do not allow to delete ", "当前项目存在已发布插件，不允许删除", 400),

@@ -2,6 +2,8 @@ package org.hango.cloud.common.infra.virtualgateway.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hango.cloud.common.infra.base.dto.CommonExtensionDto;
@@ -22,6 +24,8 @@ import static org.hango.cloud.common.infra.base.meta.RegexConst.*;
  * 与前端交互的网关dto
  */
 @JsonIgnoreProperties({"ConfAddr"})
+@Getter
+@Setter
 public class VirtualGatewayDto extends CommonExtensionDto implements Serializable {
 
     private static final Long serialVersionUID = -289652590295163660L;
@@ -114,7 +118,7 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
      * 监听协议类型
      */
     @NotBlank
-    @Pattern(regexp = BaseConst.PROTOCOL_SCHEME_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE)
+    @Pattern(regexp = BaseConst.VIRTUAL_GATEWAY_PROTOCOL_SCHEME_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE)
     @JSONField(name = "Protocol")
     private String protocol;
 
@@ -168,149 +172,12 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
     @JSONField(name = "DomainInfos")
     private List<DomainInfoDTO> domainInfos;
 
+    /**
+     * 该虚拟网关下已发布服务的数量
+     */
+    @JSONField(name = "PublishServiceCount")
+    private Long publishServiceCount;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-    public long getGwId() {
-        return gwId;
-    }
-
-    public void setGwId(long gwId) {
-        this.gwId = gwId;
-    }
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getAddr() {
-        return addr;
-    }
-
-    public void setAddr(String addr) {
-        this.addr = addr;
-    }
-
-    public List<Long> getProjectIdList() {
-        return projectIdList;
-    }
-
-    public void setProjectIdList(List<Long> projectIdList) {
-        this.projectIdList = projectIdList;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-    public long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
-    public long getModifyTime() {
-        return modifyTime;
-    }
-
-    public void setModifyTime(long modifyTime) {
-        this.modifyTime = modifyTime;
-    }
-
-    public String getConfAddr() {
-        return confAddr;
-    }
-
-    public void setConfAddr(String confAddr) {
-        this.confAddr = confAddr;
-    }
-
-    public String getGwClusterName() {
-        return gwClusterName;
-    }
-
-    public void setGwClusterName(String gwClusterName) {
-        this.gwClusterName = gwClusterName;
-    }
-
-    public String getGwType() {
-        return gwType;
-    }
-
-    public void setGwType(String gwType) {
-        this.gwType = gwType;
-    }
-
-    public String getGwName() {
-        return gwName;
-    }
-
-    public void setGwName(String gwName) {
-        this.gwName = gwName;
-    }
-
-    public String getEnvId() {
-        return envId;
-    }
-
-    public void setEnvId(String envId) {
-        this.envId = envId;
-    }
-
-    public List<DomainInfoDTO> getDomainInfos() {
-        return domainInfos;
-    }
-
-    public void setDomainInfos(List<DomainInfoDTO> domainInfos) {
-        this.domainInfos = domainInfos;
-    }
-
-    public List<String> getListenerAddr() {
-        return ListenerAddr;
-    }
-
-    public void setListenerAddr(List<String> listenerAddr) {
-        ListenerAddr = listenerAddr;
-    }
 
     @Override
     public String toString() {

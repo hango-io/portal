@@ -4,6 +4,7 @@ import org.hango.cloud.common.infra.base.service.CommonService;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyInfo;
+import org.hango.cloud.envoy.infra.serviceproxy.dto.KubernetesServiceDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,15 @@ public interface IEnvoyServiceProxyService extends CommonService<ServiceProxyInf
      * @return
      */
     List<String> getSubsetsName(ServiceProxyDto serviceProxyInfo);
+
+
+    /**
+     * 获取Kubernetes service 及端口信息
+     * @param virtualGatewayCode
+     * @param domain
+     * @return
+     */
+    List<KubernetesServiceDTO> getKubernetesServices(String virtualGatewayCode ,String domain);
 
 
 }
