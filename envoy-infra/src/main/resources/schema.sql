@@ -972,6 +972,7 @@ CREATE TABLE `hango_route_rule_proxy` (
     `service_id` bigint(11) NOT NULL COMMENT '服务元数据id',
     `virtual_gw_id` bigint(11) NOT NULL COMMENT '服务发布所属虚拟网关id',
     `project_id` bigint(11) DEFAULT '0' COMMENT '发布所属项目id',
+    `name` varchar(255) NOT NULL COMMENT '服务名称',
     `code` varchar(255) NOT NULL COMMENT '服务元数据标识',
     `publish_protocol` varchar(10) DEFAULT 'http' COMMENT '发布服务，服务协议，http/https,默认为http',
     `backend_service` text COMMENT '发布关联真实网关服务',
