@@ -3,8 +3,10 @@ package org.hango.cloud.envoy.infra.virtualgateway.service.impl;
 import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
@@ -146,7 +148,12 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
 
     @Override
     public void fillGatewayInfo(List<KubernetesGatewayInfo> gatewayInfoList) {
-        return;
+        for (KubernetesGatewayInfo kubernetesGatewayInfo : gatewayInfoList) {
+            String projectCode = kubernetesGatewayInfo.getProjectCode();
+            if (BaseConst.HANGO.equals(projectCode)){
+                kubernetesGatewayInfo.setProjectId(NumberUtils.LONG_ONE);
+            }
+        }
     }
 
     private void fillPluginInfo(IngressViewDTO ingressRuleViewDTO, Long virtualGatewayId){

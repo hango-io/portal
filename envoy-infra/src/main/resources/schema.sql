@@ -815,22 +815,23 @@
 
 
     CREATE TABLE `hango_plugin_binding` (
-    `id` bigint(11) NOT NULL AUTO_INCREMENT,
-    `plugin_type` varchar(255) NOT NULL COMMENT '绑定的插件类型，全局唯一，如：RateLimiter、WhiteList等',
-    `binding_object_type` varchar(255) NOT NULL COMMENT '插件所绑定的对象类型，包含路由规则、服务等',
-    `binding_object_id` varchar(255) NOT NULL COMMENT '插件所绑定的对象的唯一标识，与binding_object_type共同决定某一具体对象',
-    `plugin_configuration` text NOT NULL COMMENT '插件配置',
-    `create_time` bigint(20) NOT NULL COMMENT '最新绑定时间，时间戳格式，精确到毫秒',
-    `update_time` bigint(20) NOT NULL COMMENT '绑定（配置）修改时间，时间戳格式，精确到毫秒',
-    `virtual_gw_id` bigint(11) NOT NULL COMMENT '对象-插件绑定关系作用的虚拟网关id',
-    `project_id` bigint(11) NOT NULL COMMENT '插件绑定关系所属项目id',
-    `binding_status` varchar(127) NOT NULL DEFAULT 'enable' COMMENT '插件绑定关系状态，enable/disable',
-    `template_id` bigint(20) DEFAULT '0' COMMENT '关联插件模板id',
-    `template_version` bigint(20) DEFAULT '0' COMMENT '关联插件模板版本号',
-    `gw_type` varchar(10) NOT NULL COMMENT '网关类型',
-    `version` bigint(20) DEFAULT '0' COMMENT '版本号',
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=utf8mb4 COMMENT='插件配置表';
+      `id` bigint(11) NOT NULL AUTO_INCREMENT,
+      `plugin_type` varchar(255) NOT NULL COMMENT '绑定的插件类型，全局唯一，如：RateLimiter、WhiteList等',
+      `plugin_name` varchar(255) DEFAULT NULL COMMENT '绑定的插件名称',
+      `binding_object_type` varchar(255) NOT NULL COMMENT '插件所绑定的对象类型，包含路由规则、服务等',
+      `binding_object_id` varchar(255) NOT NULL COMMENT '插件所绑定的对象的唯一标识，与binding_object_type共同决定某一具体对象',
+      `plugin_configuration` text NOT NULL COMMENT '插件配置',
+      `create_time` bigint(20) NOT NULL COMMENT '最新绑定时间，时间戳格式，精确到毫秒',
+      `update_time` bigint(20) NOT NULL COMMENT '绑定（配置）修改时间，时间戳格式，精确到毫秒',
+      `virtual_gw_id` bigint(11) NOT NULL COMMENT '对象-插件绑定关系作用的虚拟网关id',
+      `project_id` bigint(11) NOT NULL COMMENT '插件绑定关系所属项目id',
+      `binding_status` varchar(127) NOT NULL DEFAULT 'enable' COMMENT '插件绑定关系状态，enable/disable',
+      `template_id` bigint(20) DEFAULT '0' COMMENT '关联插件模板id',
+      `template_version` bigint(20) DEFAULT '0' COMMENT '关联插件模板版本号',
+      `gw_type` varchar(10) NOT NULL COMMENT '网关类型',
+      `version` bigint(20) DEFAULT '0' COMMENT '版本号',
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='插件配置表';
 
 
     CREATE TABLE `hango_plugin_template` (
