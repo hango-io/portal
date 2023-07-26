@@ -232,7 +232,7 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
      */
     public PluginManagerDto toPluginManagerDto(PluginOrderItemDto item) {
         PluginManagerDto pluginManagerDto = new PluginManagerDto();
-        pluginManagerDto.setEnable(item.getEnable());
+        pluginManagerDto.setEnable(item.getEnable() != null && item.getEnable());
         pluginManagerDto.setName(item.getName());
         pluginManagerDto.setDisplayName(item.getName());
         return pluginManagerDto;

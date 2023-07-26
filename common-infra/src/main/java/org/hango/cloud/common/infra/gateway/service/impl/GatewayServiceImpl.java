@@ -114,6 +114,7 @@ public class GatewayServiceImpl implements IGatewayService {
     @Override
     public GatewayDto getByClusterName(String clusterName) {
         HashMap<String,Object> param = Maps.newHashMap();
+        param.put("gwClusterName",clusterName);
         List<Gateway> recordsByField = gatewayDao.getRecordsByField(param);
         if (CollectionUtils.isEmpty(recordsByField)) {
             return null;
