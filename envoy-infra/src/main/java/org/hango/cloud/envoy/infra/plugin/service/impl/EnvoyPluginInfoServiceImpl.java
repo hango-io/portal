@@ -34,7 +34,6 @@ import org.hango.cloud.envoy.infra.plugin.dao.ICustomPluginInfoDao;
 import org.hango.cloud.envoy.infra.plugin.dto.GatewayPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfoQuery;
-import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusStatus;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
@@ -122,7 +121,7 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
                 .collect(Collectors.toList());
         //查询自定义插件
         List<PluginDto> customPluginInfos = customPluginInfoDao.findAll().stream()
-                .filter(pluginDto-> PluginStatusStatus.ONLINE.equals(pluginDto.getPluginStatus()))
+                .filter(pluginDto-> ONLINE_STATE.equals(pluginDto.getPluginStatus()))
                 .map(Trans::fromCustomPluginMeta).collect(Collectors.toList());
         plugins.addAll(customPluginInfos);
         //根据pluginScope进行过滤/排序

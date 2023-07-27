@@ -1,6 +1,6 @@
 package org.hango.cloud.envoy.infra.virtualgateway.service.impl;
 
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.*;
+import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRoute;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -12,7 +12,7 @@ import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.virtualgateway.dto.QueryVirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
@@ -83,7 +83,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             KubernetesGatewayDTO kubernetesGatewayDTO = new KubernetesGatewayDTO();
             kubernetesGatewayDTO.setDomainId(domainInfoDTO.getId());
             kubernetesGatewayDTO.setHostname(domainInfoDTO.getHost());
-            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, String.valueOf(domainInfoDTO.getId()), PluginBindingInfo.BINDING_OBJECT_TYPE_HOST);
+            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, String.valueOf(domainInfoDTO.getId()), BindingObjectTypeEnum.HOST.getValue());
             kubernetesGatewayDTO.setPluginBindingDtos(pluginBindingList);
             kubernetesGatewayDTOS.add(kubernetesGatewayDTO);
         }
@@ -168,7 +168,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             if (rule == null || rule.getDomainId() == null){
                 continue;
             }
-            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, String.valueOf(rule.getDomainId()), PluginBindingInfo.BINDING_OBJECT_TYPE_HOST);
+            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, String.valueOf(rule.getDomainId()), BindingObjectTypeEnum.HOST.getValue());
             rule.setPluginBindingDtos(pluginBindingList);
         }
 
@@ -288,7 +288,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             if (!CollectionUtils.isEmpty(virtualGatewayDto.getDomainInfos())){
                 for (DomainInfoDTO domainInfoDTO : virtualGatewayDto.getDomainInfos()) {
                     //删除插件
-                    List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayDto.getId(), String.valueOf(domainInfoDTO.getId()), PluginBindingInfo.BINDING_OBJECT_TYPE_HOST);
+                    List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayDto.getId(), String.valueOf(domainInfoDTO.getId()), BindingObjectTypeEnum.HOST.getValue());
                     pluginBindingList.forEach(pluginInfoService::delete);
                     //删除域名
                     domainInfoService.delete(domainInfoDTO);
@@ -373,7 +373,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
         for (DomainInfoDTO dbDomain : dbDomains) {
             if (!targetHosts.contains(dbDomain.getHost())){
                 //删除插件
-                List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(kubernetesGatewayInfo.getVirtualGatewayId(), String.valueOf(dbDomain.getId()), PluginBindingInfo.BINDING_OBJECT_TYPE_HOST);
+                List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(kubernetesGatewayInfo.getVirtualGatewayId(), String.valueOf(dbDomain.getId()), BindingObjectTypeEnum.HOST.getValue());
                 pluginBindingList.forEach(pluginInfoService::delete);
                 //删除域名
                 domainInfoService.delete(dbDomain);

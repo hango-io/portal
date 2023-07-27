@@ -1,35 +1,12 @@
 package org.hango.cloud;
 
-import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.dao.IPluginBindingInfoDao;
 import org.hango.cloud.common.infra.plugin.dao.IPluginTemplateDao;
-import org.hango.cloud.common.infra.plugin.dto.CopyGlobalPluginDto;
-import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
-import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.service.impl.PluginTemplateServiceImpl;
-import org.hango.cloud.common.infra.route.dto.RouteMapMatchDto;
-import org.hango.cloud.common.infra.route.dto.DestinationDto;
-import org.hango.cloud.common.infra.route.dto.RouteStringMatchDto;
-import org.hango.cloud.common.infra.route.dto.HttpRetryDto;
-import org.hango.cloud.common.infra.route.dto.RouteDto;
-import org.hango.cloud.common.infra.route.dto.ServiceMetaForRouteDto;
-import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
-import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.envoy.infra.pluginmanager.service.impl.PluginManagerServiceImpl;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static org.hango.cloud.common.infra.base.meta.BaseConst.DYNAMIC_PUBLISH_TYPE;
 
 /**
  * 公共mock数据初始化，测试类继承该类可使用共享mock数据，主要包括以下2部分

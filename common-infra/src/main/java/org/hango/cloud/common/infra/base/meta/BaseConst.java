@@ -311,9 +311,6 @@ public class BaseConst {
 
     public static final String SERVICE_ID = "serviceId";
 
-    public static final String VIRTUAL_GW_ID = "virtualGwId";
-
-    public static final String BINDING_OBJECT_ID = "bindingObjectId";
 
     public static final String BINDING_OBJECT_TYPE = "bindingObjectType";
 
@@ -323,4 +320,6 @@ public class BaseConst {
     public static final String HANGO = "hango";
 
     public static final String RIDER_PLUGIN = "proxy.filters.http.rider";
+
+    public static final String ONLINE_STATE = "online";
 }

@@ -3,16 +3,13 @@ package org.hango.cloud.envoy.infra.plugin.hooker;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.exception.ErrorCodeException;
-import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
-import org.hango.cloud.common.infra.base.invoker.MethodAroundHolder;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.CopyGlobalPluginDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.hooker.AbstractPluginBindingHooker;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
-import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
@@ -22,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
+
+import static org.hango.cloud.common.infra.base.meta.BaseConst.ENABLE_STATE;
 
 /**
  * @author xin li
@@ -49,23 +49,7 @@ public class EnvoyPluginBindingHooker extends AbstractPluginBindingHooker<Plugin
 
     @Override
     protected void preCreateHook(PluginBindingDto pluginBindingDto) {
-        BindingPluginDto bindingPluginDto = BindingPluginDto.createBindingPluginFromDto(pluginBindingDto);
-        long projectId = ProjectTraceHolder.getProId();
-        long templateId = pluginBindingDto.getTemplateId();
-        if (PluginBindingInfo.BINDING_OBJECT_TYPE_GLOBAL.equals(bindingPluginDto.getBindingObjectType())) {
-            bindingPluginDto.setBindingObjectId(projectId);
-        }
-        PluginTemplateDto templateInfo;
-        // 若有模板信息则插件配置来源于模板数据
-        if (0 < templateId) {
-            templateInfo = pluginTemplateService.get(templateId);
-            if (null == templateInfo) {
-                throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-            }
-            bindingPluginDto.setPluginConfiguration(templateInfo.getPluginConfiguration());
-        }
-
-        boolean success = envoyPluginInfoService.publishGatewayPlugin(bindingPluginDto);
+        boolean success = envoyPluginInfoService.publishGatewayPlugin(BindingPluginDto.createBindingPluginFromDto(pluginBindingDto));
         if (!success) {
             throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
@@ -83,7 +67,7 @@ public class EnvoyPluginBindingHooker extends AbstractPluginBindingHooker<Plugin
             //更新插件配置UpdatePluginConfiguration
             bindingPluginDto.setPluginConfiguration(pluginBindingDto.getPluginConfiguration());
         }
-        if (PluginBindingInfo.BINDING_STATUS_ENABLE.equals(pluginBindingDto.getBindingStatus())) {
+        if (ENABLE_STATE.equals(pluginBindingDto.getBindingStatus())) {
             boolean result;
             if (!pluginBindingDtoInDB.getBindingStatus().equals(pluginBindingDto.getBindingStatus())) {
                 // 配置下发和数据库中的状态不一致，则是插件启、禁用场景；启用插件场景，api-plane行为是发布插件
@@ -123,9 +107,16 @@ public class EnvoyPluginBindingHooker extends AbstractPluginBindingHooker<Plugin
 
         bindingPlugin.setBindingObjectType(BaseConst.PLUGIN_TYPE_GLOBAL);
         bindingPlugin.setVirtualGwId(copyGlobalPlugin.getVirtualGwId());
-        List<PluginBindingInfo> sameTypePlugins = pluginInfoService.getPluginBindingListByVirtualGwIdAndTypeAndProjectId(bindingPlugin, copyGlobalPlugin.getProjectId());
+        PluginBindingInfoQuery query = PluginBindingInfoQuery
+                .builder()
+                .virtualGwId(bindingPlugin.getVirtualGwId())
+                .pluginType(Collections.singletonList(bindingPlugin.getPluginType()))
+                .bindingObjectType(bindingPlugin.getBindingObjectType())
+                .projectId(copyGlobalPlugin.getProjectId())
+                .build();
+        List<PluginBindingDto> sameTypePlugins = pluginInfoService.getBindingPluginInfoList(query);
         if (CollectionUtils.isEmpty(sameTypePlugins)) {
-            if (PluginBindingInfo.BINDING_STATUS_ENABLE.equals(oldPlugin.getBindingStatus())) {
+            if (ENABLE_STATE.equals(oldPlugin.getBindingStatus())) {
                 // 调用api-plane创建GP
                 boolean success = envoyPluginInfoService.publishGatewayPlugin(bindingPlugin);
                 if (!success) {
@@ -135,14 +126,14 @@ public class EnvoyPluginBindingHooker extends AbstractPluginBindingHooker<Plugin
             }
         } else {
             boolean success = true;
-            PluginBindingInfo pluginBindingInfo = sameTypePlugins.get(0);
+            PluginBindingDto pluginBindingInfo = sameTypePlugins.get(0);
             if (oldPlugin.getBindingStatus().equals(pluginBindingInfo.getBindingStatus())) {
-                if (pluginBindingInfo.getBindingStatus().equals(PluginBindingInfo.BINDING_STATUS_ENABLE)) {
+                if (pluginBindingInfo.getBindingStatus().equals(ENABLE_STATE)) {
                     // 都是启用场景，需调用api-plane更新GP配置
                     success = envoyPluginInfoService.updateGatewayPlugin(bindingPlugin, pluginBindingInfo.getId());
                 }
             } else {
-                if (pluginBindingInfo.getBindingStatus().equals(PluginBindingInfo.BINDING_STATUS_ENABLE)) {
+                if (pluginBindingInfo.getBindingStatus().equals(ENABLE_STATE)) {
                     // 新插件启用，旧插件禁用场景，需调用api-plane创建GP
                     success = envoyPluginInfoService.publishGatewayPlugin(bindingPlugin);
                 } else {

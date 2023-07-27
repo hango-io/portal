@@ -22,6 +22,7 @@ import org.hango.cloud.common.infra.route.pojo.RouteQuery;
 import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.dao.IServiceProxyDao;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceConnectionPoolDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceConsistentHashDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceLoadBalancerDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;

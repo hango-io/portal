@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.domain.dto.DomainBindDTO;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
@@ -20,11 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_GLOBAL;
 
 @Service
 public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService {
@@ -97,7 +99,7 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
         if (publishedServiced > 0) {
             return CommonErrorCode.EXIST_PUBLISHED_SERVICE;
         }
-        List<PluginBindingDto> bindingPluginList = pluginInfoService.getPluginBindingList(virtualGwId, String.valueOf(projectId), BINDING_OBJECT_TYPE_GLOBAL);
+        List<PluginBindingDto> bindingPluginList = pluginInfoService.getPluginBindingList(virtualGwId, String.valueOf(projectId), BindingObjectTypeEnum.GLOBAL.getValue());
         if (!CollectionUtils.isEmpty(bindingPluginList)) {
             return CommonErrorCode.EXIST_PUBLISHED_PLUGIN;
         }

@@ -1,6 +1,5 @@
 package org.hango.cloud.envoy.infra.plugin.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
@@ -9,14 +8,9 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.Result;
 import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.plugin.dto.*;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.dto.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @ClassName CustomPluginController
@@ -96,7 +89,6 @@ public class CustomPluginController  extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "DescribeCustomPluginInfo", description = "根据插件ID查询插件详情")
     @PostMapping(params = {"Action=DescribeCustomPluginInfo"})
     public String describeCustomPluginInfo(@RequestBody Map<String, Object> requestBody) {
         Object id = requestBody.get("Id");
@@ -110,7 +102,6 @@ public class CustomPluginController  extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "DescribeCustomPluginList", description = "查询插件列表")
     @PostMapping(params = {"Action=DescribeCustomPluginList"})
     public String describeCustomPluginList(@RequestBody CustomPluginQueryDto customPluginQueryDto) {
         Page<DescribeCustomPluginDto> customPluginList = customPluginInfoService.getCustomPluginList(customPluginQueryDto);
@@ -120,14 +111,12 @@ public class CustomPluginController  extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "DescribeCustomPluginInstanceList", description = "查询插件实例列表")
     @PostMapping(params = {"Action=DescribeCustomPluginInstanceList"})
     public String describeCustomPluginInstanceList(@RequestBody CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto) {
-        List<CustomPluginInstanceDto> customPluginInstanceList = customPluginInfoService.getCustomPluginInstanceList(customPluginInstanceListQueryDto);
-        Long countCustomPluginList = customPluginInfoService.CountCustomPluginInstance(customPluginInstanceListQueryDto);
+        Page<CustomPluginInstanceDto> page = customPluginInfoService.getCustomPluginInstancePage(customPluginInstanceListQueryDto);
         Map<String, Object> result = new HashMap<>();
-        result.put(TOTAL_COUNT, countCustomPluginList);
-        result.put(RESULT, customPluginInstanceList);
+        result.put(TOTAL_COUNT, page.getTotal());
+        result.put(RESULT, page.getRecords());
         return apiReturnSuccess(result);
     }
 

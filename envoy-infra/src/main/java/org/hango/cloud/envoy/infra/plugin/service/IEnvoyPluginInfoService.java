@@ -81,6 +81,6 @@ public interface IEnvoyPluginInfoService {
      * @param virtualGateway 虚拟网关
      * @return 是否操作成功
      */
-    public List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway);
+    List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway);
 
 }

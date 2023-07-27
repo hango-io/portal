@@ -10,6 +10,7 @@ import org.hango.cloud.BaseServiceImplTest;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.plugin.dao.IPluginBindingInfoDao;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.service.impl.PluginServiceInfoImpl;
 import org.hango.cloud.dashboard.webservice.*;
@@ -38,7 +39,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.DISABLE_STATE;
 import static org.hango.cloud.envoy.infra.webservice.service.impl.EnvoyWebServiceServiceImpl.WS_PLUGIN_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -123,10 +124,11 @@ public class EnvoyWebServiceServiceImplTest extends BaseServiceImplTest {
                 PluginBindingInfo pluginBindingInfo = new PluginBindingInfo();
                 pluginBindingInfo.setVirtualGwId(mockVirtualGwId);
                 pluginBindingInfo.setBindingObjectId(String.valueOf(mockRouteId));
-                pluginBindingInfo.setBindingObjectType(BINDING_OBJECT_TYPE_ROUTE_RULE);
+                pluginBindingInfo.setBindingObjectType(BindingObjectTypeEnum.ROUTE.getValue());
                 pluginBindingInfo.setPluginType(WS_PLUGIN_TYPE);
                 pluginBindingInfo.setPluginConfiguration(mockPluginConfiguration);
-                pluginBindingInfo.setBindingStatus(PluginBindingInfo.BINDING_STATUS_DISABLE);
+
+                pluginBindingInfo.setBindingStatus(DISABLE_STATE);
                 pluginBindingInfo.setGwType("envoy");
                 pluginBindingInfoDao.add(pluginBindingInfo);
                 flag = true;

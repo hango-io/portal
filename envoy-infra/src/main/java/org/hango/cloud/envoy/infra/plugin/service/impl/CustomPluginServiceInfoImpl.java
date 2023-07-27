@@ -1,23 +1,20 @@
 package org.hango.cloud.envoy.infra.plugin.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Maps;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.dao.IPluginBindingInfoDao;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.dto.PluginDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginUpdateDto;
 import org.hango.cloud.common.infra.plugin.dto.UpdatePluginStatusDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
-import org.hango.cloud.common.infra.route.dto.RouteDto;
+import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.virtualgateway.dto.PermissionScopeDto;
-import org.hango.cloud.common.infra.virtualgateway.dto.QueryVirtualGatewayDto;
-import org.hango.cloud.common.infra.virtualgateway.dto.SingleVgBindDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayProjectService;
@@ -36,18 +33,13 @@ import org.hango.cloud.envoy.infra.plugin.util.Trans;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +58,9 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
 
     @Autowired
     private IPluginBindingInfoDao pluginBindingInfoDao;
+
+    @Autowired
+    private IPluginInfoService pluginInfoService;
 
     @Autowired
     private IGatewayService iGatewayService;
@@ -175,9 +170,10 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         }
         //下架插件校验
         if (PluginStatusEnum.OFFLINE.getStatus().equals(pluginStatus)){
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("pluginType", customPluginInfo.getPluginType());
-            List<PluginBindingInfo> pluginBindingInfoList = pluginBindingInfoDao.getRecordsByField(params);
+            PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
+                    .pluginType(Collections.singletonList(customPluginInfo.getPluginType()))
+                    .build();
+            List<PluginBindingInfo> pluginBindingInfoList = pluginBindingInfoDao.getPluginBindingInfoList(query);
             if (!CollectionUtils.isEmpty(pluginBindingInfoList)){
                 return CommonErrorCode.invalidParameter("插件已绑定网关，不允许下架");
             }
@@ -301,55 +297,47 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
 
 
     @Override
-    public List<CustomPluginInstanceDto> getCustomPluginInstanceList(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto) {
+    public Page<CustomPluginInstanceDto> getCustomPluginInstancePage(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto) {
         Long pluginId = customPluginInstanceListQueryDto.getPluginId();
-        int limit = customPluginInstanceListQueryDto.getLimit();
-        int offset = customPluginInstanceListQueryDto.getOffset();
         CustomPluginInfo customPluginInfo = customPluginInfoDao.get(pluginId);
         if (customPluginInfo == null) {
             logger.error("pluginId:{} not exist", pluginId);
-            return new ArrayList<>();
+            return Page.of(0,0);
         }
-        List<PluginBindingInfo> bindingPluginList = pluginBindingInfoDao.getBindingPluginList(customPluginInfo.getPluginType(), offset, limit);
-        List<CustomPluginInstanceDto> pluginBindingDtoList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(bindingPluginList)) {
-            pluginBindingDtoList = buildCustomPluginInstanceDto(bindingPluginList,customPluginInfo);
+
+        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
+                .pluginType(Collections.singletonList(customPluginInfo.getPluginType()))
+                .build();
+        query.setLimit(customPluginInstanceListQueryDto.getLimit());
+        query.setOffset(customPluginInstanceListQueryDto.getOffset());
+        Page<PluginBindingInfo> page = pluginBindingInfoDao.getPluginBindingInfoPage(query);
+        if (page.getTotal() == 0){
+            return Page.of(0,0);
         }
-        return pluginBindingDtoList;
-    }
-    private List<CustomPluginInstanceDto> buildCustomPluginInstanceDto(List<PluginBindingInfo> bindingPluginList,CustomPluginInfo customPluginInfo){
-        return bindingPluginList.stream().map(pluginBindingInfo -> {
-            CustomPluginInstanceDto customPluginInstanceDto = CustomPluginInstanceDto.builder().build();
-            customPluginInstanceDto.setBindingObjectId(pluginBindingInfo.getId());
-            String bindingObjectId = pluginBindingInfo.getBindingObjectId();
-            customPluginInstanceDto.setBindingObjectType(pluginBindingInfo.getBindingObjectType());
-            if (PluginScopeEnum.ROUTE_RULE.getPluginScope().equals(pluginBindingInfo.getBindingObjectType())){
-                RouteDto routeDto = routeService.get(Long.parseLong(bindingObjectId));
-                customPluginInstanceDto.setBindingObjectName(routeDto == null ? "-" : routeDto.getName());
-            }
-            VirtualGatewayDto virtualGatewayDto = virtualGatewayService.get(pluginBindingInfo.getVirtualGwId());
-            if (PluginScopeEnum.GLOBAL.getPluginScope().equals(pluginBindingInfo.getBindingObjectType())){
-                customPluginInstanceDto.setBindingObjectName(virtualGatewayDto == null ? "-" : virtualGatewayDto.getName());
-            }
-            customPluginInstanceDto.setGwName(virtualGatewayDto == null ? "-" : virtualGatewayDto.getName());
-            PermissionScopeDto projectScope = virtualGatewayProjectService.getProjectScope(pluginBindingInfo.getProjectId());
-            customPluginInstanceDto.setProject(projectScope ==null? "-" : projectScope.getPermissionScopeName());
-            customPluginInstanceDto.setPluginStatus(customPluginInfo.getPluginStatus());
-            customPluginInstanceDto.setUpdateTime(pluginBindingInfo.getUpdateTime());
-            customPluginInstanceDto.setBindingStatus(pluginBindingInfo.getBindingStatus());
-            customPluginInstanceDto.setVirtualGwId(pluginBindingInfo.getVirtualGwId());
-            return customPluginInstanceDto;
-        }).collect(Collectors.toList());
+        List<PluginBindingInfo> pluginBindingInfos = page.getRecords();
+        List<CustomPluginInstanceDto> customPluginInstanceDtos = pluginBindingInfos.stream()
+                .map(pluginInfoService::toView)
+                .peek(pluginInfoService::fillPluginBindingInfo)
+                .map(this::buildCustomPluginInstanceDto)
+                .collect(Collectors.toList());
+        Page<CustomPluginInstanceDto> pageRes = Page.of(page.getCurrent(), page.getTotal());
+        pageRes.setRecords(customPluginInstanceDtos);
+        return pageRes;
+
     }
 
-    @Override
-    public Long CountCustomPluginInstance(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto) {
-        Long pluginId = customPluginInstanceListQueryDto.getPluginId();
-        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(pluginId);
-        if (customPluginInfo == null) {
-            logger.error("pluginId:{} not exist", pluginId);
-            return 0L;
-        }
-        return pluginBindingInfoDao.getBindingPluginCount(customPluginInfo.getPluginType(), customPluginInfo.getPluginScope());
+    public CustomPluginInstanceDto buildCustomPluginInstanceDto(PluginBindingDto pluginBindingInfo){
+        CustomPluginInstanceDto customPluginInstanceDto = CustomPluginInstanceDto.builder().build();
+        customPluginInstanceDto.setId(pluginBindingInfo.getId());
+        customPluginInstanceDto.setBindingObjectType(pluginBindingInfo.getBindingObjectType());
+        customPluginInstanceDto.setBindingObjectName(pluginBindingInfo.getBindingObjectName());
+        customPluginInstanceDto.setVirtualGwName(pluginBindingInfo.getVirtualGwName());
+        customPluginInstanceDto.setUpdateTime(pluginBindingInfo.getUpdateTime());
+        customPluginInstanceDto.setBindingStatus(pluginBindingInfo.getBindingStatus());
+        customPluginInstanceDto.setVirtualGwId(pluginBindingInfo.getVirtualGwId());
+        PermissionScopeDto projectScope = virtualGatewayProjectService.getProjectScope(pluginBindingInfo.getProjectId());
+        customPluginInstanceDto.setProject(projectScope ==null ? "-" : projectScope.getPermissionScopeName());
+        return customPluginInstanceDto;
     }
+
 }

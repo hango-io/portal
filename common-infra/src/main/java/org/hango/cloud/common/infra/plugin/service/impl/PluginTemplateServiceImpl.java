@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dao.IPluginTemplateDao;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
@@ -22,7 +23,6 @@ import org.springframework.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -100,7 +100,11 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
     }
 
     private PluginTemplateDto fillTemplateDto(PluginTemplateDto pluginTemplateDto) {
-        List<PluginBindingDto> bindingInfos = pluginInfoService.getBindingListByTemplateId(pluginTemplateDto.getId());
+        if (pluginTemplateDto == null) {
+            return null;
+        }
+        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().templateId(pluginTemplateDto.getId()).build();
+        List<PluginBindingDto> bindingInfos = pluginInfoService.getBindingPluginInfoList(query);
         if (!CollectionUtils.isEmpty(bindingInfos)) {
             pluginTemplateDto.setBindingDtoList(bindingInfos);
             fillTemplateStatus(pluginTemplateDto, bindingInfos);
@@ -156,10 +160,12 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(PluginTemplateDto pluginTemplateDto) {
-        List<PluginBindingDto> pluginBindingDtos = pluginInfoService.getBindingListByTemplateId(pluginTemplateDto.getId());
-        List<Long> idList = pluginBindingDtos.stream().map(PluginBindingDto::getId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(idList)) {
-            pluginInfoService.batchDissociateTemplate(idList);
+        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().templateId(pluginTemplateDto.getId()).build();
+        List<PluginBindingDto> bindingPluginInfoList = pluginInfoService.getBindingPluginInfoList(query);
+        for (PluginBindingDto pluginBindingDto : bindingPluginInfoList) {
+            pluginBindingDto.setTemplateId(0);
+            pluginBindingDto.setTemplateVersion(0);
+            pluginInfoService.update(pluginBindingDto);
         }
         pluginTemplateDao.delete(toMeta(pluginTemplateDto));
     }
@@ -192,17 +198,16 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
             logger.info("指定的模板id不存在! id:{}", id);
             return CommonErrorCode.NO_SUCH_PLUGIN_TEMPLATE;
         }
-        List<PluginBindingDto> pluginBindingInfoList = pluginInfoService.batchGetById(pluginBindingInfoIds);
-        Set<Long> pluginBindingInfoIdSet = pluginBindingInfoList.stream().map(PluginBindingDto::getId).collect(Collectors.toSet());
-        Set<Long> noExistIdSet = pluginBindingInfoIds.stream().filter(item -> !pluginBindingInfoIdSet.contains(item)).collect(Collectors.toSet());
-        if (!CollectionUtils.isEmpty(noExistIdSet)) {
-            logger.info("有不存在的插件绑定关系! noExistIdSet:{}", noExistIdSet);
-            return CommonErrorCode.NO_SUCH_PLUGIN_BINDING;
-        }
-        List<Long> notBindingList = pluginBindingInfoList.stream().filter(item -> item.getTemplateId() != id).map(PluginBindingDto::getId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(notBindingList)) {
-            logger.info("有不存在的插件绑定关系! noExistIdSet:{}", noExistIdSet);
-            return CommonErrorCode.NO_SUCH_PLUGIN_BINDING;
+        for (Long pluginBindingInfoId : pluginBindingInfoIds) {
+            PluginBindingDto pluginBindingDto = pluginInfoService.get(pluginBindingInfoId);
+            if (pluginBindingDto == null){
+                logger.info("指定的插件绑定关系不存在! pluginBindingInfoId:{}", pluginBindingInfoId);
+                return CommonErrorCode.invalidParameter("指定的插件绑定关系不存在");
+            }
+            if (pluginBindingDto.getTemplateId() != id) {
+                logger.info("指定的插件绑定关系不属于该模板! pluginBindingInfoId:{}, templateId:{}", pluginBindingInfoId, id);
+                return CommonErrorCode.invalidParameter("指定的插件绑定关系不属于该模板");
+            }
         }
         return CommonErrorCode.SUCCESS;
     }
@@ -213,14 +218,19 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         if (null == pluginTemplateDto) {
             return null;
         }
-        List<PluginBindingDto> bindingInfos = pluginInfoService.batchGetById(pluginBindingInfoIds);
-        return bindingInfos.stream().filter(item -> {
-            if (item.getTemplateVersion() != pluginTemplateDto.getTemplateVersion()) {
-                item.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
-                return BaseConst.ERROR_RESULT != pluginInfoService.update(item);
+        List<PluginBindingDto> failedBindingInfos = Lists.newArrayList();
+        for (Long pluginBindingInfoId : pluginBindingInfoIds) {
+            PluginBindingDto pluginBindingDto = pluginInfoService.get(pluginBindingInfoId);
+            if (pluginBindingDto == null || pluginBindingDto.getTemplateId() == id) {
+                continue;
             }
-            return false;
-        }).collect(Collectors.toList());
+            pluginBindingDto.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
+            long update = pluginInfoService.update(pluginBindingDto);
+            if  (BaseConst.ERROR_RESULT == update) {
+                failedBindingInfos.add(pluginBindingDto);
+            }
+        }
+        return failedBindingInfos;
     }
 
     @Override
@@ -239,6 +249,9 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
 
     @Override
     public PluginTemplateDto toView(PluginTemplateInfo pluginTemplateInfo) {
+        if (pluginTemplateInfo == null){
+            return null;
+        }
         PluginTemplateDto templateDto = new PluginTemplateDto();
         templateDto.setId(pluginTemplateInfo.getId());
         templateDto.setTemplateNotes(pluginTemplateInfo.getTemplateNotes());

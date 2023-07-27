@@ -8,6 +8,8 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
+import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
@@ -126,20 +128,25 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
 
     @Override
     public boolean deleteAllRoutePlugins(long virtualGwId, long routeRuleId) {
-        List<PluginBindingInfo> alreadyBindingPlugins = pluginInfoService.getEnablePluginBindingList(virtualGwId, String.valueOf(routeRuleId), PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+        List<PluginBindingDto> alreadyBindingPlugins = pluginInfoService.getPluginBindingList(virtualGwId, String.valueOf(routeRuleId), BindingObjectTypeEnum.ROUTE.getValue());
         // 没有插件无需删除
         if (CollectionUtils.isEmpty(alreadyBindingPlugins)) {
             return true;
         }
-        BindingPluginDto bindingPluginDto = new BindingPluginDto(virtualGwId, BaseConst.PLUGIN_TYPE_ROUTE, routeRuleId, "", "");
-        // 删除路由插件
-        List<Long> pluginIdList = alreadyBindingPlugins.stream().map(PluginBindingInfo::getId).collect(Collectors.toList());
-        if (!envoyPluginInfoService.deleteGatewayPlugin(bindingPluginDto, pluginIdList)) {
-            logger.error("{} delete route plugin from Api-plane failed", PluginConstant.PLUGIN_LOG_NOTE);
-            return false;
+        List<PluginBindingInfo> enablePluginList = pluginInfoService.getEnablePluginBindingList(virtualGwId, String.valueOf(routeRuleId), BindingObjectTypeEnum.ROUTE.getValue());
+        //下线生效的插件配置
+        if (!CollectionUtils.isEmpty(enablePluginList)){
+            BindingPluginDto bindingPluginDto = new BindingPluginDto(virtualGwId, BaseConst.PLUGIN_TYPE_ROUTE, routeRuleId, "", "");
+            List<Long> enablePluginIdList = enablePluginList.stream().map(PluginBindingInfo::getId).collect(Collectors.toList());
+            if (!envoyPluginInfoService.deleteGatewayPlugin(bindingPluginDto, enablePluginIdList)) {
+                logger.error("{} delete route plugin from Api-plane failed", PluginConstant.PLUGIN_LOG_NOTE);
+                return false;
+            }
         }
-        //删除路由规则绑定的插件
-        pluginInfoService.deletePluginList(virtualGwId, String.valueOf(routeRuleId), PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+        //删除db
+        for (PluginBindingDto alreadyBindingPlugin : alreadyBindingPlugins) {
+            pluginInfoService.delete(alreadyBindingPlugin);
+        }
         return true;
     }
 
@@ -147,7 +154,7 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
     public long updateRoute(RouteDto routeDto) {
         List<PluginBindingInfo> alreadyBindingPlugins = pluginInfoService.getEnablePluginBindingList(
                 routeDto.getVirtualGwId(),
-                String.valueOf(routeDto.getId()), PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+                String.valueOf(routeDto.getId()), BindingObjectTypeEnum.ROUTE.getValue());
 
         BindingPluginDto bindingPluginDto = new BindingPluginDto(routeDto.getVirtualGwId(),
                 BaseConst.PLUGIN_TYPE_ROUTE, routeDto.getId(), "", "");

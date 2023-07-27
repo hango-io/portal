@@ -11,7 +11,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.service.IRouteService;
@@ -36,7 +36,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.hango.cloud.gdashboard.api.util.Const.*;
 
@@ -389,8 +388,7 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
         for (String routeId : trafficColorRule.getRouteRuleIds().split(",")) {
             RouteDto route = routeService.get(Long.parseLong(routeId));
             List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(trafficColorRule.getVirtualGwId(),
-                    routeId,
-                    PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+                    routeId, BindingObjectTypeEnum.ROUTE.getValue());
             boolean isAddTrafficMarkPlugin = true;
             for (PluginBindingDto pluginBindingDto : pluginBindingList) {
                 // 已存在"traffic-mark"插件，进行插件配置修改
@@ -450,7 +448,7 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
             if (route != null) {
                 List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(trafficColorRule.getVirtualGwId(),
                         routeId,
-                        PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+                        BindingObjectTypeEnum.ROUTE.getValue());
                 //剔除流量染色插件
                 for (PluginBindingDto pluginBinding : pluginBindingList) {
                     if (pluginBinding.getPluginType().equals(EnvoyConst.PLUGIN_TYPE_TRAFFIC_MARK)) {

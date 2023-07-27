@@ -15,20 +15,20 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CustomPluginInstanceDto {
+    //todo sx
     @JSONField(name = "BindingObjectId")
-    private Long bindingObjectId;
+    private Long Id;
     @JSONField(name = "BindingObjectType")
     private String bindingObjectType;
     @JSONField(name = "BindingObjectName")
     private String bindingObjectName;
+    //todo sx
     @JSONField(name = "GwName")
-    private String gwName;
+    private String virtualGwName;
     @JSONField(name = "VirtualGwId")
     private Long virtualGwId;
     @JSONField(name = "Project")
     private String project;
-    @JSONField(name = "PluginStatus")
-    private String pluginStatus;
     @JSONField(name = "UpdateTime")
     private Long updateTime;
     @JSONField(name = "BindingStatus")

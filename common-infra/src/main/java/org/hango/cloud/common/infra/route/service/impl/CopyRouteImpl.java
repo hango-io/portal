@@ -5,7 +5,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.dto.CopyRouteDTO;
 import org.hango.cloud.common.infra.route.dto.DestinationDto;
@@ -217,7 +217,7 @@ public class CopyRouteImpl implements ICopyRoute {
             return;
         }
         List<PluginBindingDto> alreadyBindingPlugins = pluginInfoService.getPluginBindingList(originGwId, String.valueOf(originRoute.getId()),
-                PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+                BindingObjectTypeEnum.ROUTE.getValue());
 
         //先清除目标网关对应路由的全部路由插件
         deleteDestGwRoutePlugins(targetRoute.getId(), desGwId);
@@ -240,7 +240,7 @@ public class CopyRouteImpl implements ICopyRoute {
 
     private void deleteDestGwRoutePlugins(long routeRuleId, long desGwId) {
         List<PluginBindingDto> alreadyBindingPluginDes = pluginInfoService.getPluginBindingList(desGwId, String.valueOf(routeRuleId),
-                PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+                BindingObjectTypeEnum.ROUTE.getValue());
         alreadyBindingPluginDes.forEach(item -> pluginInfoService.delete(item));
     }
 }
