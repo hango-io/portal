@@ -986,7 +986,7 @@ CREATE TABLE `hango_service_proxy` (
   `version` bigint(20) DEFAULT '0' COMMENT '版本号',
   `description` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COMMENT='服务发布表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='服务发布表';
 
 
 
