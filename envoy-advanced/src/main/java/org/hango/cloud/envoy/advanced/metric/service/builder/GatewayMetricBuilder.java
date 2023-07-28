@@ -32,8 +32,8 @@ public class GatewayMetricBuilder extends AbstractMetricBuilder {
         METRIC_TEMPLATE.put(AdvancedConst.BAD_REQUEST, "ceil(sum(increase(envoy_http_downstream_rq_xx{envoy_response_code_class=~\"4\",<filter>}[<time_interval>s])))");
         METRIC_TEMPLATE.put(AdvancedConst.FAILED_RATE, "sum(rate(envoy_http_downstream_rq_xx{envoy_response_code_class=~\"5\",<filter>}[<time_interval>s]))/sum(rate(envoy_http_downstream_rq_xx{<filter>}[<time_interval>s]))");
         METRIC_TEMPLATE.put(AdvancedConst.ERROR_REQUEST, "ceil(sum(increase(envoy_http_downstream_rq_xx{envoy_response_code_class=~\"5\",<filter>}[<time_interval>s])))");
-        METRIC_TEMPLATE.put(AdvancedConst.DURATION_95, "(histogram_quantile(0.95, sum by(<sumBy>, le) (increase(envoy_http_downstream_rq_time_count{<filter>}[<time_interval>s]))))");
-        METRIC_TEMPLATE.put(AdvancedConst.DURATION_99, "(histogram_quantile(0.99, sum by(<sumBy>, le) (increase(envoy_http_downstream_rq_time_count{<filter>}[<time_interval>s]))))");
+        METRIC_TEMPLATE.put(AdvancedConst.DURATION_95, "(histogram_quantile(0.95, sum by(<sumBy>, le) (increase(envoy_http_downstream_rq_time_bucket{<filter>}[<time_interval>s]))))");
+        METRIC_TEMPLATE.put(AdvancedConst.DURATION_99, "(histogram_quantile(0.99, sum by(<sumBy>, le) (increase(envoy_http_downstream_rq_time_bucket{<filter>}[<time_interval>s]))))");
     }
 
     @Override
