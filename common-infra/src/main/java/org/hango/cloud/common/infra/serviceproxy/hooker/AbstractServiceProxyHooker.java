@@ -34,6 +34,8 @@ public abstract class AbstractServiceProxyHooker<T extends ServiceProxyInfo, S e
     protected List<Triple<String, String, String>> put() {
         List<Triple<String, String, String>> triples = Lists.newArrayList();
         triples.add(MutableTriple.of("getBackendServicesFromDataPlane", "doPreGetBackendServicesHook", "doPostGetBackendServicesHook"));
+        triples.add(MutableTriple.of("fillServiceHealthStatus", "doPreGetHealthStatusHook", null));
+
         return triples;
     }
 
@@ -87,5 +89,22 @@ public abstract class AbstractServiceProxyHooker<T extends ServiceProxyInfo, S e
            l = ((AbstractServiceProxyHooker<ServiceProxyInfo, ServiceProxyDto>) nextHooker).doPostGetBackendServicesHook(l);
         }
         return postGetBackendServicesHook(l);
+    }
+
+
+    /**
+     * 获取健康检查实例
+     */
+    protected void preGetHealthStatusHook(ServiceProxyDto serviceProxyDto) {
+    }
+
+    /**
+     * 获取健康检查实例
+     */
+    public final void doPreGetHealthStatusHook(ServiceProxyDto serviceProxyDto) {
+        if (nextHooker != null && nextHooker instanceof AbstractServiceProxyHooker) {
+            ((AbstractServiceProxyHooker<ServiceProxyInfo, ServiceProxyDto>) nextHooker).doPreGetHealthStatusHook(serviceProxyDto);
+        }
+        preGetHealthStatusHook(serviceProxyDto);
     }
 }

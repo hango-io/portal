@@ -45,16 +45,20 @@ public class ServiceProxyDaoImpl implements IServiceProxyDao {
         wrapper.eq(NumberUtils.INTEGER_ZERO != query.getVirtualGwId(), ServiceProxyInfo::getVirtualGwId, query.getVirtualGwId());
         wrapper.eq(StringUtils.isNotBlank(query.getProtocol()), ServiceProxyInfo::getProtocol,query.getProtocol());
         if (StringUtils.isNotBlank(query.getPattern())) {
-            wrapper.like(ServiceProxyInfo::getName, query.getPattern())
-                    .or()
-                    .like(ServiceProxyInfo::getAlias, query.getPattern());
+            wrapper.and(
+                    i -> i.like(ServiceProxyInfo::getName, query.getPattern())
+                            .or()
+                            .like(ServiceProxyInfo::getAlias, query.getPattern())
+            );
         }
         if (StringUtils.isNotBlank(query.getCondition())) {
-            wrapper.like(ServiceProxyInfo::getName, query.getCondition())
-                    .or()
-                    .like(ServiceProxyInfo::getAlias, query.getCondition())
-                    .or()
-                    .like(ServiceProxyInfo::getHosts, query.getCondition());
+            wrapper.and(
+                    i -> i.like(ServiceProxyInfo::getName, query.getCondition())
+                            .or()
+                            .like(ServiceProxyInfo::getAlias, query.getCondition())
+                            .or()
+                            .like(ServiceProxyInfo::getHosts, query.getCondition())
+            );
         }
         return pageRecordsByField(wrapper, query.of());
     }
@@ -62,7 +66,7 @@ public class ServiceProxyDaoImpl implements IServiceProxyDao {
     @Override
     public List<ServiceProxyInfo> getByConditionOptional(ServiceProxyQuery query) {
         LambdaQueryWrapper<ServiceProxyInfo> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(ServiceProxyInfo::getProjectId, query.getProjectId());
+        wrapper.eq(NumberUtils.LONG_ZERO < query.getProjectId(), ServiceProxyInfo::getProjectId, query.getProjectId());
         wrapper.eq(StringUtils.isNotBlank(query.getPattern()), ServiceProxyInfo::getName, query.getPattern());
         wrapper.eq(NumberUtils.LONG_ZERO < query.getVirtualGwId(), ServiceProxyInfo::getVirtualGwId, query.getVirtualGwId());
         wrapper.in(CollectionUtils.isNotEmpty(query.getNameList()), ServiceProxyInfo::getName, query.getNameList());

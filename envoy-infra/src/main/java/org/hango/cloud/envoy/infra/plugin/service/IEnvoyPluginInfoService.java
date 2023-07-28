@@ -5,8 +5,8 @@ import org.hango.cloud.common.infra.plugin.dto.PluginDto;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
 import org.hango.cloud.common.infra.plugin.meta.Operation;
 import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
+import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -29,15 +29,13 @@ public interface IEnvoyPluginInfoService {
      * @param pluginType
      * @return
      */
-    PluginDto getPluginInfoFromApiPlane(long virtualGwId, String pluginType);
+    PluginDto getPluginInfo(long virtualGwId, String pluginType);
+
 
     /**
-     * 调用api-plane的接口获取全量插件列表（不包含schema）
-     *
-     * @param virtualGwId 网关id
-     * @return {@link List<  PluginDto  >} 插件详情列表
+     * 获取插件列表，包含系统插件和自定义插件
      */
-    List<PluginDto> getPluginInfoListFromApiPlane(long virtualGwId, String pluginScope);
+    List<PluginDto> getPluginInfoList(long virtualGwId, String pluginScope);
 
     boolean createPluginAndMakeRequest(BindingPluginDto bindingPluginDto, Operation operation, List<String> toBePublishedPluginList);
 
@@ -77,11 +75,12 @@ public interface IEnvoyPluginInfoService {
      * @return 是否操作成功
      */
     boolean deleteGatewayPlugin(BindingPluginDto bindingPluginDto, List<Long> pluginIdList);
-
     /**
-     * 根据pluginType调用api-plane查询插件信息
-     * @param pluginType
-     * @return
+     * 查看所有系统插件
+     *
+     * @param virtualGateway 虚拟网关
+     * @return 是否操作成功
      */
-    PluginInfo getPluginInfoByPluginType(String pluginType);
+    public List<PluginInfo> getSystemPluginInfos(VirtualGatewayDto virtualGateway);
+
 }

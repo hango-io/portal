@@ -34,6 +34,21 @@ public abstract class AbstractVirtualGatewayHooker<T extends VirtualGateway, S e
         List<Triple<String, String, String>> triples = Lists.newArrayList();
         triples.add(MutableTriple.of("getVirtualGatewayList", StringUtils.EMPTY, "doFindMultiEnhancement"));
         triples.add(MutableTriple.of("getVirtualGatewayPage", StringUtils.EMPTY, "doFindMultiEnhancementPage"));
+        triples.add(MutableTriple.of("fillVirtualGatewayInfo", "doFillVirtualGatewayInfo", StringUtils.EMPTY));
         return triples;
+    }
+
+    /**
+     * 设置gateway info 前置hooker
+     */
+    @SuppressWarnings("unused")
+    public final void doFillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto) {
+        if (nextHooker != null && nextHooker instanceof AbstractVirtualGatewayHooker) {
+            ((AbstractVirtualGatewayHooker<VirtualGateway, VirtualGatewayDto>) nextHooker).doFillVirtualGatewayInfo(virtualGatewayDto);
+        }
+        fillVirtualGatewayInfo(virtualGatewayDto);
+    }
+
+    protected void fillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto){
     }
 }

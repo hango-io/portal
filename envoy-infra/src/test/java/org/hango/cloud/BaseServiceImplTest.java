@@ -40,6 +40,7 @@ import static org.hango.cloud.common.infra.base.meta.BaseConst.DYNAMIC_PUBLISH_T
  * 1.继承该类
  * 2.Before阶段调用该类的init方法（各方法执行前都会执行一次init）
  */
+@SuppressWarnings({ "java:S1226"})
 public class BaseServiceImplTest {
   @Autowired
   IPluginBindingInfoDao pluginBindingInfoDao;
@@ -143,7 +144,7 @@ public class BaseServiceImplTest {
   private void initGatewayDto() {
     // mock物理网关对象
     gatewayDto = new GatewayDto();
-    gatewayDto.setId(1);
+    gatewayDto.setId(1L);
     gatewayDto.setName("test-gw");
     gatewayDto.setEnvId("-");
     gatewayDto.setSvcName("-");

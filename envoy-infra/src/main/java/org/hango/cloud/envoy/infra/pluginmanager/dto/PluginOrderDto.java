@@ -12,11 +12,21 @@ public class PluginOrderDto {
     @JSONField(name = "Name")
     private String name;
 
+
+    @JSONField(name = "GwCluster")
+    private String gwCluster;
+
     /**
-     * plugin manager 名称
+     * 虚拟网关类型 API网关/通用网关..
      */
     @JSONField(name = "GatewayKind")
     private String gatewayKind;
+
+    /**
+     * plm对应端口
+     */
+    @JSONField(name = "Port")
+    private Integer port;
 
 
     @JSONField(name  = "Plugins")
@@ -46,5 +56,21 @@ public class PluginOrderDto {
 
     public void setGatewayKind(String gatewayKind) {
         this.gatewayKind = gatewayKind;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public String getGwCluster() {
+        return gwCluster;
+    }
+
+    public void setGwCluster(String gwCluster) {
+        this.gwCluster = gwCluster;
     }
 }

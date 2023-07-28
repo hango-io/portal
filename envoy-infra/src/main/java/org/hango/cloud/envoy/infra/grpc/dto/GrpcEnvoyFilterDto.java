@@ -21,7 +21,7 @@ public class GrpcEnvoyFilterDto {
     /**
      * filter名称
      */
-    @JsonProperty(value = "Name")
+    @JSONField(name = "Name")
     private String name;
     /**
      * 网关

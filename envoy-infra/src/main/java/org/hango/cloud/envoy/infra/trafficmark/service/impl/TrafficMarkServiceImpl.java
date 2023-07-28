@@ -65,9 +65,10 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
     private IPluginManagerService pluginManagerService;
 
     @Override
-    public List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, long offset, long limit) {
-        return envoyTrafficColorDao.getTrafficColorByTagLimit(colorTag, ProjectTraceHolder.getProId(), offset, limit);
+    public List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, String sortKey, String sortValue, long offset, long limit) {
+        return envoyTrafficColorDao.getTrafficColorByTagLimit(colorTag, ProjectTraceHolder.getProId(), sortKey, sortValue, offset, limit);
     }
+
 
     @Override
     public long getTrafficColorRuleCountByColorTag(String colorTag) {

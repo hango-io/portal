@@ -1,11 +1,9 @@
 package org.hango.cloud.envoy.infra;
 
 import org.hango.cloud.common.infra.base.filter.ProjectTraceFilter;
-import org.redisson.spring.starter.RedissonAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -18,8 +16,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
  * @Date: 创建时间: 2017/12/4 上午10:33.
  */
-@SpringBootApplication(exclude = {GsonAutoConfiguration.class, RedisAutoConfiguration.class, RedissonAutoConfiguration.class})
-//@SpringBootApplication(exclude = {GsonAutoConfiguration.class})
+@SpringBootApplication(exclude = {GsonAutoConfiguration.class})
 @EnableScheduling
 @ComponentScan(value = {"org.hango.cloud"})
 @AutoConfigurationPackage(basePackages = "org.hango.cloud")

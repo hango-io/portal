@@ -65,6 +65,7 @@ public class VirtualGatewayDaoImpl implements IVirtualGatewayDao {
         wrapper.in(!CollectionUtils.isEmpty(query.getGwIds()), VirtualGateway::getGwId, query.getGwIds());
         wrapper.like(StringUtils.isNotBlank(query.getPattern()), VirtualGateway::getName, query.getPattern());
         wrapper.notIn(Boolean.TRUE.equals(query.getManaged()), VirtualGateway::getType, Arrays.asList(KUBERNETES_GATEWAY, KUBERNETES_INGRESS));
+        wrapper.in(Boolean.FALSE.equals(query.getManaged()), VirtualGateway::getType, Arrays.asList(KUBERNETES_GATEWAY, KUBERNETES_INGRESS));
         wrapper.apply(query.getDomainId() != null, "find_in_set ('"+ query.getDomainId() +"', domain_id )");
         if (query.getProjectIds() != null){
             wrapper.apply(handleProjectQuery(query.getProjectIds()));

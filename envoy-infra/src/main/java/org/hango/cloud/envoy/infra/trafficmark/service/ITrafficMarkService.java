@@ -20,11 +20,14 @@ public interface ITrafficMarkService {
      * 获取染色标识下的所有流量染色规则
      *
      * @param colorTag 流量染色标识
+     * @param sortKey 排序key
+     * @param sortValue 排序方式
      * @param offset   偏移
      * @param limit    每页的条数
      * @return 流量染色规则列表
      */
-    List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, long offset, long limit);
+
+    List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, String sortKey, String sortValue, long offset, long limit);
 
     /**
      * 获取染色标识下的染色规则数量

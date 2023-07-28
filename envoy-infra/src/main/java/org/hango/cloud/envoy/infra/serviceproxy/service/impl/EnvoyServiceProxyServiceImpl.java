@@ -33,8 +33,6 @@ import org.hango.cloud.envoy.infra.base.meta.EnvoyErrorCode;
 import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
 import org.hango.cloud.envoy.infra.grpc.meta.EnvoyServiceProtobufProxy;
 import org.hango.cloud.envoy.infra.grpc.service.IEnvoyGrpcProtobufService;
-import org.hango.cloud.envoy.infra.healthcheck.dto.EnvoyServiceInstanceDto;
-import org.hango.cloud.envoy.infra.healthcheck.dto.HealthStatusEnum;
 import org.hango.cloud.envoy.infra.healthcheck.service.IEnvoyHealthCheckService;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.DpServiceProxyDto;
 import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceProxyService;
@@ -50,12 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
@@ -157,9 +150,33 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
 
         dpServiceProxyDto.setTrafficPolicy(trafficPolicy);
+
+        processServiceMetadata(virtualGatewayDto, serviceProxyDto, dpServiceProxyDto);
         return dpServiceProxyDto;
     }
 
+    /**
+     * 添加路由 metadata 数据
+     */
+    private void processServiceMetadata(VirtualGatewayDto virtualGatewayDto,
+                                                     ServiceProxyDto serviceDto,DpServiceProxyDto dpServiceProxyDto) {
+        Map<String, Map<String,String>> metaMap = dpServiceProxyDto.getMetaMap() == null ? Maps.newHashMap() : dpServiceProxyDto.getMetaMap();
+        //处理服务指标Meta数据
+        processServiceStatsMeta(virtualGatewayDto, serviceDto, metaMap);
+        dpServiceProxyDto.setMetaMap(metaMap);
+    }
+
+    /**
+     * 添加服务指标Meta数据
+     */
+    private void processServiceStatsMeta(VirtualGatewayDto virtualGatewayDto,ServiceProxyDto serviceProxy, Map<String, Map<String,String>>metaMap) {
+        Map<String, String> stats = Maps.newHashMap();
+        stats.put("service_name", serviceProxy.getName());
+        stats.put("virtual_gateway_code", virtualGatewayDto.getCode());
+        //此处用服务标识，一方面与服务告警模板保持一致，另一方面，服务标识不存在修改的情况。
+        stats.put("project_id", String.valueOf(serviceProxy.getProjectId()));
+        metaMap.put("StatsMeta",stats);
+    }
 
     public HttpClientResponse proxyToApiPlane(String apiPlaneUrl, Map<String, Object> params, String body, HttpHeaders headers) {
         HttpClientResponse response = HttpClientUtil.postRequest(apiPlaneUrl, body, params, headers, EnvoyConst.MODULE_API_PLANE);
@@ -225,7 +242,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         Set<String> targetHost = CommonUtil.splitStringToStringSet(hosts, ",");
 
         //域名相同不需要刷新
-        if (CommonUtil.equal(dbHost, targetHost)){
+        if (CommonUtil.equalSet(dbHost, targetHost)){
             return Boolean.TRUE;
         }
         return envoyServiceRefreshService.refreshRoute(vgId, serviceId, targetHost);
@@ -260,30 +277,6 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         envoyWebServiceService.deleteServiceWsdlInfo(serviceProxyDto.getVirtualGwId(),serviceProxyDto.getId());
     }
 
-    /**
-     * 用于仅删除服务版本，服务更新时
-     *
-     * @param serviceProxyDto
-     * @return
-     */
-    DpServiceProxyDto deleteSomeSubset(ServiceProxyDto serviceProxyDto) {
-        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(serviceProxyDto.getVirtualGwId());
-        if (virtualGatewayDto == null) {
-            return null;
-        }
-        DpServiceProxyDto envoyDpServiceProxyDto = new DpServiceProxyDto();
-        envoyDpServiceProxyDto.setCode(ServiceProxyConvert.getCode(serviceProxyDto));
-        //网关集群名称
-        envoyDpServiceProxyDto.setGateway(virtualGatewayDto.getGwClusterName());
-        envoyDpServiceProxyDto.setBackendService(serviceProxyDto.getBackendService());
-        envoyDpServiceProxyDto.setType(serviceProxyDto.getPublishType());
-        envoyDpServiceProxyDto.setServiceTag(serviceProxyDto.getName());
-        envoyDpServiceProxyDto.setProtocol(serviceProxyDto.getProtocol());
-        envoyDpServiceProxyDto.setSubsets(serviceProxyDto.getSubsets());
-        //网关集群名称
-        envoyDpServiceProxyDto.setGateway(virtualGatewayDto.getGwClusterName());
-        return envoyDpServiceProxyDto;
-    }
 
     @Override
     public Map<String, String> getExtraServiceParams(String registry) {
@@ -338,18 +331,6 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
 
         return backendService.replace('_', '-');
-    }
-
-    @Override
-    public Integer getServiceWithHealthStatus(ServiceProxyDto serviceProxyDto) {
-        Integer status = HealthStatusEnum.HEALTHY.getValue();
-        List<EnvoyServiceInstanceDto> serviceInstanceDtos = envoyHealthCheckService.getServiceInstanceList(serviceProxyDto);
-        for (EnvoyServiceInstanceDto serviceInstanceDto : serviceInstanceDtos) {
-            if (HealthStatusEnum.UNHEALTHY.getValue().equals(serviceInstanceDto.getStatus())){
-                return HealthStatusEnum.UNHEALTHY.getValue();
-            }
-        }
-        return status;
     }
 
     @Override

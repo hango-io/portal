@@ -28,10 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_GATEWAY;
+import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_INGRESS;
 
 /**
  * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
@@ -110,8 +114,8 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
 
 
     @Override
-    public List<VirtualGatewayDto> getVirtualGatewayList(long gwId, String type) {
-        VirtualGatewayQuery query = VirtualGatewayQuery.builder().gwIds(Collections.singletonList(gwId)).type(type).build();
+    public List<VirtualGatewayDto> getKubernetesGatewayList(long gwId) {
+        VirtualGatewayQuery query = VirtualGatewayQuery.builder().gwIds(Collections.singletonList(gwId)).managed(Boolean.FALSE).build();
         return virtualGatewayDao.getVirtualGatewayList(query).stream().map(this::toView).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
@@ -204,7 +208,9 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         if (virtualGatewayDao.exist(query)) {
             return CommonErrorCode.ALREADY_EXIST_VIRTUAL_GW_CODE;
         }
-        query = VirtualGatewayQuery.builder().port(virtualGatewayDto.getPort()).build();
+        query = VirtualGatewayQuery.builder()
+                .port(virtualGatewayDto.getPort())
+                .gwIds(Collections.singletonList(virtualGatewayDto.getGwId())).build();
         if (virtualGatewayDao.exist(query)) {
             return CommonErrorCode.ALREADY_EXIST_VIRTUAL_GW_PORT;
         }
@@ -237,6 +243,9 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
     public ErrorCode checkDeleteParam(VirtualGatewayDto virtualGatewayDto) {
         if (virtualGatewayDto == null){
             return CommonErrorCode.NO_SUCH_VIRTUAL_GATEWAY;
+        }
+        if (Arrays.asList(KUBERNETES_GATEWAY, KUBERNETES_INGRESS).contains(virtualGatewayDto.getType())){
+            return CommonErrorCode.SUCCESS;
         }
         if (!CollectionUtils.isEmpty(virtualGatewayDto.getProjectIdList())) {
             return CommonErrorCode.CANNOT_DELETE_VIRTUAL_GATEWAY;
@@ -292,16 +301,25 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
     }
 
     @Override
+    public void fillVirtualGatewayInfo(VirtualGatewayDto virtualGatewayDto) {
+        return;
+    }
+
+    @Override
     public Boolean exist(VirtualGatewayQuery query) {
         return virtualGatewayDao.exist(query);
     }
 
     private VirtualGatewayQuery toMeta(QueryVirtualGatewayDto queryDto){
         VirtualGatewayQuery query = VirtualGatewayQuery.builder()
+                .type(queryDto.getType())
                 .projectIds(queryDto.getProjectIdList())
                 .pattern(queryDto.getPattern())
                 .managed(queryDto.getManaged())
                 .build();
+        if(queryDto.getGwId() != null){
+            query.setGwIds(Collections.singletonList(queryDto.getGwId()));
+        }
         query.setLimit(queryDto.getLimit());
         query.setOffset(queryDto.getOffset());
         return query;
@@ -344,4 +362,12 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         return virtualGatewaySetting;
     }
 
+    @Override
+    public VirtualGatewayDto getByCode(String code) {
+        Page<VirtualGateway> virtualGatewayPage = virtualGatewayDao.getVirtualGatewayPage(VirtualGatewayQuery.builder().code(code).build());
+        if (CollectionUtils.isEmpty(virtualGatewayPage.getRecords())){
+            return null;
+        }
+        return toView(virtualGatewayPage.getRecords().get(0));
+    }
 }

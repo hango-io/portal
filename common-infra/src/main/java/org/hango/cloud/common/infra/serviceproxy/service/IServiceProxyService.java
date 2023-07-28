@@ -24,6 +24,12 @@ public interface IServiceProxyService extends CommonService<ServiceProxyInfo, Se
      */
     List<BackendServiceWithPortDto> getBackendServicesFromDataPlane(long virtualGwId, String name, String registryCenterType);
 
+    /**
+     * 获取健康检查状态
+     * @return
+     */
+    void fillServiceHealthStatus(ServiceProxyDto serviceProxyDto);
+
 
     /**
      * 根据条件分页查询已发布（关联）相关服务信息
@@ -57,13 +63,6 @@ public interface IServiceProxyService extends CommonService<ServiceProxyInfo, Se
      */
     Page<ServiceProxyDto> getServiceProxyLimited(ServiceProxyQuery query);
 
-    /**
-     * 根据条件分页查询已发布（关联）相关服务信息
-     *
-     * @param query 查询条件
-     * @return serviceProxyInfo，网关已发布服务
-     */
-    Page<ServiceProxyDto> getServiceProxyWithPort(ServiceProxyQuery query);
 
 
 
@@ -102,8 +101,6 @@ public interface IServiceProxyService extends CommonService<ServiceProxyInfo, Se
 
     /**
      * 填充端口信息
-     *
-     * @param serviceProxyDto
      */
     void fillServicePort(ServiceProxyDto serviceProxyDto);
 

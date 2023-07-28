@@ -14,8 +14,8 @@ public class GlobalDatabaseHandler implements MetaObjectHandler {
     // 插入时的填充策略
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.setFieldValByName("createTime",new Date().getTime(),metaObject);
-        this.setFieldValByName("updateTime",new Date().getTime(),metaObject);
+        this.setFieldValByName("createTime",new Date().getTime(), metaObject);
+        this.setFieldValByName("updateTime",new Date().getTime(), metaObject);
     }
     // 更新时的填充策略
     @Override

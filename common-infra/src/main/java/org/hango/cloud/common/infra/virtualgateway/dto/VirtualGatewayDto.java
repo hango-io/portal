@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.base.dto.CommonExtensionDto;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -44,7 +45,7 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
      * 虚拟网关名称
      */
     @NotBlank
-    @Pattern(regexp = REGEX_GATEWAY_NAME)
+    @Pattern(regexp = REGEX_VIRTUAL_GATEWAY_NAME)
     @JSONField(name = "Name")
     private String name;
 
@@ -59,7 +60,7 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
      * 虚拟网关标识
      */
     @NotBlank
-    @Pattern(regexp = REGEX_GATEWAY_CODE)
+    @Pattern(regexp = REGEX_NAME)
     @JSONField(name = "Code")
     private String code;
 
@@ -70,6 +71,12 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
     @Pattern(regexp = REGEX_DESCRIPTION)
     @JSONField(name = "Addr")
     private String addr;
+
+    /**
+     * 虚拟网关监听地址，实时获取envoy proxy address
+     */
+    @JSONField(name = "ListenerAddr")
+    private List<String> ListenerAddr;
 
 
     /**
@@ -117,6 +124,7 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
      */
     @NotNull
     @JSONField(name = "Port")
+    @Range(min = 80, max = 10000)
     private int port;
 
     /**
@@ -294,6 +302,14 @@ public class VirtualGatewayDto extends CommonExtensionDto implements Serializabl
 
     public void setDomainInfos(List<DomainInfoDTO> domainInfos) {
         this.domainInfos = domainInfos;
+    }
+
+    public List<String> getListenerAddr() {
+        return ListenerAddr;
+    }
+
+    public void setListenerAddr(List<String> listenerAddr) {
+        ListenerAddr = listenerAddr;
     }
 
     @Override

@@ -1,29 +1,16 @@
 package org.hango.cloud.common.infra.credential.util;
 
-import jodd.util.StringUtil;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.credential.pojo.CertificateInfoPO;
-import org.springframework.util.CollectionUtils;
-import sun.misc.BASE64Encoder;
 
-import javax.security.auth.x500.X500Principal;
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
-import java.security.Principal;
-import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Formatter;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
 
@@ -42,7 +29,7 @@ public class CertificateUtil {
         certificateInfoPO.setContent(content);
         String domain = certificate.getSubjectDN().getName();
         String agencyName = certificate.getIssuerX500Principal().getName();
-        certificateInfoPO.setDomain(parseCnName(domain));
+        certificateInfoPO.setHost(parseCnName(domain));
         certificateInfoPO.setSignature(getThumbprint(certificate.getSignature()));
         certificateInfoPO.setIssuingAgency(parseCnName(agencyName));
         certificateInfoPO.setIssuingTime(certificate.getNotBefore().getTime());
@@ -91,7 +78,7 @@ public class CertificateUtil {
      * @return example.com
      */
     public static String parseCnName(String nameList){
-        if (StringUtil.isBlank(nameList)){
+        if (StringUtils.isBlank(nameList)){
             return null;
         }
         for (String nameStr : nameList.split(SYMBOL_COMMA)) {

@@ -70,6 +70,9 @@ public enum ErrorCodeEnum {
     INVALID_PARAM_GW_TYPE("InvalidParamGwType", "Wrong Gateway Type.", "网关类型填写错误", 400),
     PROJECT_NOT_ASSOCIATED_GATEWAY("ProjectNotAssociatedGateway", "The current project is not associated with the specified gateway.", "当前项目未关联指定网关，不允许发布", 400),
 
+    GW_NOT_ASSOCIATED_DOMAIN("GwNotAssociatedDomain", "The current gw not associated domain", "当前网关未绑定域名，不允许发布", 400),
+
+
     MIRROR_BY_ROUTE_RULE("MirrorByRouteRule", "The service has been mirrored by route rule", "该服务已被路由流量镜像使用", 400),
 
     /************************************** Gateway end **************************************/
@@ -177,10 +180,11 @@ public enum ErrorCodeEnum {
 
     /************************************** Plugin Start **************************************/
     NO_SUCH_PLUGIN("NoSuchPlugin", "No such plugin.", "指定的插件不存在", 400),
+    EXISTS_PLUGIN_WITH_THE_SAME_NAME("ExistsPlugWithTheSameName", "A plug-in with the same name already exists", "已存在相同名称插件", 400),
     NO_SUCH_PLUGIN_BINDING("NoSuchPluginBinding", "No such plugin binding info", "指定的插件绑定关系不存在", 400),
     NO_SUCH_PLUGIN_TEMPLATE("NoSuchPluginTemplate", "No such plugin template", "指定的插件模板不存在", 400),
     SAME_NAME_PLUGIN_TEMPLATE_EXIST("SameNamePluginTemplateExist", "The plugin template with the same name already exists and cannot be created.", "同名插件模板已存在，不允许重复创建!", 400),
-
+    PLUGIN_IS_BOUND("PLUGIN_IS_BOUND","PLUGIN_IS_BOUND","该插件已经存在绑定关系",400),
     CANNOT_DUPLICATE_BINDING("CannotDuplicateBinding", "The plugin binding already exists and duplicate binding are not allowed", "插件绑定关系已存在，不允许重复绑定同一插件", 400),
     CANNOT_DUPLICATE_BINDING_AUTH_PLUGIN("CannotDuplicateBindingAuthPlugin", "The auth type plugin binding already exists",
             "认证类型插件绑定关系已存在，不允许重复绑定", 400),

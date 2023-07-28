@@ -39,6 +39,12 @@ public class OperationAuditKind {
 
         /*********************************************** Service Proxy End *****************************************************/
 
+        /*********************************************** plugin Start *****************************************************/
+        kindMap.put("PluginImport", OperationAuditRule.get().eventName("PluginImport").description("上传自定义插件").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSIReq("$.PluginType"));
+        kindMap.put("PluginUpdate", OperationAuditRule.get().eventName("PluginUpdate").description("修改自定义插件").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSIReq("$.Id"));
+        kindMap.put("UpdatePluginStatus", OperationAuditRule.get().eventName("UpdatePluginStatus").description("上下架插件").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSIReq("$.Id"));
+        kindMap.put("DeletePlugin", OperationAuditRule.get().eventName("DeletePlugin").description("删除插件").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSIReq("$.Id"));
+        /*********************************************** plugin end *****************************************************/
 
     }
 

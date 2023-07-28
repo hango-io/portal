@@ -65,7 +65,7 @@ public class CertificateInfoServiceImpl implements ICertificateInfoService {
             query
                     .like(CertificateInfoPO::getName, pattern)
                     .or()
-                    .like(CertificateInfoPO::getDomain, pattern);
+                    .like(CertificateInfoPO::getHost, pattern);
         }
         List<CertificateInfoPO> certificateInfoPOS = certificateInfoMapper.selectList(query);
         return certificateInfoPOS.stream().map(this::toViewDTO).collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class CertificateInfoServiceImpl implements ICertificateInfoService {
         }
         CertificateInfoViewDTO certificateInfoViewDTO = new CertificateInfoViewDTO();
         certificateInfoViewDTO.setId(certificateInfoPO.getId());
-        certificateInfoViewDTO.setDomain(certificateInfoPO.getDomain());
+        certificateInfoViewDTO.setDomain(certificateInfoPO.getHost());
         certificateInfoViewDTO.setSignature(certificateInfoPO.getSignature());
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         certificateInfoViewDTO.setExpiredTime(sdf.format(certificateInfoPO.getExpiredTime()));

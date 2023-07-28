@@ -104,26 +104,7 @@ public class DubboMetaServiceImplTest {
         assertNotNull(dubboMetaService.get(id));
     }
 
-    @Test
-    public void findByInterfaceNameAndApplicationName() {
-        dubboMetaService.findAll().forEach(d->dubboMetaService.delete(d));
-        dubboMetaService.create(dubboMetaDto);
-        List<DubboMetaDto> list = dubboMetaService.findByInterfaceNameAndApplicationName(DEFAULT_VG_ID, interfaceName, "spring-cloud-dubbo");
-        assertEquals((int) NumberUtils.INTEGER_ONE, list.size());
-        list =  dubboMetaService.findByInterfaceNameAndApplicationName(DEFAULT_VG_ID, interfaceName,"spring-cloud-dubbo",0,1);
-        assertEquals((int) NumberUtils.INTEGER_ONE, list.size());
 
-    }
-
-
-    @Test
-    public void countByInterfaceNameAndApplicationName() {
-        dubboMetaService.findAll().forEach(d->dubboMetaService.delete(d));
-        dubboMetaService.create(dubboMetaDto);
-        int count = dubboMetaService.countByInterfaceNameAndApplicationName(DEFAULT_VG_ID, interfaceName, "spring-cloud-dubbo");
-        assertTrue(NumberUtils.INTEGER_ZERO < count);
-
-    }
 
     @Test
     public void findByIgv() {

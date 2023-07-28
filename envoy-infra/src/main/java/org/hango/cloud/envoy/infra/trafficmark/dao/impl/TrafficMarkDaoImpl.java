@@ -127,15 +127,15 @@ public class TrafficMarkDaoImpl extends BaseDao implements ITrafficMarkDao {
     }
 
     @Override
-    public List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, long projectId, long offset, long limit) {
+    public List<TrafficMarkInfo> getTrafficColorByTagLimit(String colorTag, long projectId, String sortKey, String sortValue, long offset, long limit) {
         Map<String, Object> params = Maps.newHashMap();
         String sql;
         if (StringUtils.isNotBlank(colorTag)) {
-            sql = "select * from apigw_gportal_entry_traffic_policy where color_tag=:colorTag and project_id=:projectId order by id desc limit :limit offset :offset";
+            sql = "select * from apigw_gportal_entry_traffic_policy where color_tag=:colorTag and project_id=:projectId order by " + sortKey + " " + sortValue + " limit :limit offset :offset";
             params.put("colorTag", colorTag);
             params.put("projectId", projectId);
         } else {
-            sql = "select * from apigw_gportal_entry_traffic_policy where project_id=:projectId order by id desc limit :limit offset :offset";
+            sql = "select * from apigw_gportal_entry_traffic_policy where project_id=:projectId order by " + sortKey + " " + sortValue + " limit :limit offset :offset";
             params.put("projectId", projectId);
         }
         params.put("offset", offset);

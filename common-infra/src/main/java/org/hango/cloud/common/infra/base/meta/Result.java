@@ -1,6 +1,8 @@
 package org.hango.cloud.common.infra.base.meta;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.LogTraceUUIDHolder;
@@ -14,6 +16,8 @@ import java.io.Serializable;
  * @Desc
  * @date 2022/10/28
  */
+@Getter
+@Setter
 public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 8373441741538019848L;
@@ -65,34 +69,5 @@ public class Result<T> implements Serializable {
         this.message = this.errorCode.getMessage();
         this.requestId = LogTraceUUIDHolder.getUUIDId();
         this.result = result;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-
-    public T getResult() {
-        return result;
-    }
-
-    public void setResult(T result) {
-        this.result = result;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
     }
 }

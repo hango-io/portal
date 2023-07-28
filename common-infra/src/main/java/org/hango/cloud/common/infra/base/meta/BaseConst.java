@@ -190,13 +190,14 @@ public class BaseConst {
     public static final String HANGO_DASHBOARD_PREFIX = "/gdashboard";
     public static final String ROUTE_PATH_V1 = "/v1/route";
 
-
+    public static final String PLUGIN_PATH_V1 = "/v1/plugin";
 
 
     public static final String ACTION = "Action";
 
     public static final String VERSION = "Version";
     public static final String VERSION_18_08_09 = "2018-08-09";
+    public static final String VERSION_19_07_25 = "2019-07-25";
 
 
 
@@ -209,9 +210,13 @@ public class BaseConst {
 
     public static final String RESULT = "Result";
 
+    public static final String TOTAL = "Total";
+
     public static final String RESULT_LIST = "List";
 
     public static final String ACCOUNT_ID = "AccountId";
+
+    public static final String GATEWAY = "Gateway";
 
     /**
      * 可以直接放行的接口
@@ -278,6 +283,8 @@ public class BaseConst {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String ZONE_ID= "Asia/Shanghai";
+
     public static final String SUCCESS = "Success";
 
     /**
@@ -310,5 +317,7 @@ public class BaseConst {
     public static final String ROUTE_RULE_PROXY_LIST = "RouteList";
 
 
+    public static final String HANGO = "hango";
 
+    public static final String RIDER_PLUGIN = "proxy.filters.http.rider";
 }

@@ -13,6 +13,7 @@ import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoSe
 import org.hango.cloud.common.infra.virtualgateway.service.impl.VirtualGatewayServiceImpl;
 import org.hango.cloud.envoy.infra.virtualgateway.dto.KubernetesGatewayHttpRouteDTO;
 import org.hango.cloud.envoy.infra.virtualgateway.service.impl.KubernetesGatewayServiceImpl;
+import org.hango.cloud.envoy.infra.virtualgateway.util.Trans;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -63,7 +64,7 @@ public class KubernetesGatewayV1ControllerTests {
         List<HTTPRoute> kubernetesGatewayHttpRouteList = JSON
             .parseArray(jsonObject.getString(BaseConst.RESULT_LIST), HTTPRoute.class);
         Mockito.when(virtualGatewayService.get(Long.parseLong("1"))).thenReturn(virtualGatewayDto);
-        List<KubernetesGatewayHttpRouteDTO> httpRouteDTOS = kubernetesGatewayService
+        List<KubernetesGatewayHttpRouteDTO> httpRouteDTOS = Trans
             .httpRouteListToView(kubernetesGatewayHttpRouteList);
         assertEquals(2, httpRouteDTOS.size());
     }

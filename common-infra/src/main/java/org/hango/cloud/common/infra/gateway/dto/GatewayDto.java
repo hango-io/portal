@@ -24,7 +24,7 @@ public class GatewayDto extends CommonExtensionDto implements Serializable {
      * 网关ID
      */
     @JSONField(name = "GwId")
-    private long id;
+    private Long id;
 
 
     /**
@@ -107,11 +107,11 @@ public class GatewayDto extends CommonExtensionDto implements Serializable {
     @JSONField(name = "ModifyTime")
     private long modifyTime;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

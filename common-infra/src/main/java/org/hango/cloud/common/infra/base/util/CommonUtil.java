@@ -218,7 +218,7 @@ public class CommonUtil {
         return port != null && (port > 0 && port <= 65535);
     }
 
-    public static Boolean equal(Set<String> targetHost, Set<String> hosts){
+    public static Boolean equalSet(Set<String> targetHost, Set<String> hosts){
         if (hosts.size() != targetHost.size()){
             return Boolean.FALSE;
         }

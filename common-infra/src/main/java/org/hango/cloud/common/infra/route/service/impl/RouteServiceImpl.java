@@ -111,6 +111,7 @@ public class RouteServiceImpl implements IRouteService {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(routePO.getVirtualGwId());
         routeDto.setVirtualGwId(virtualGatewayDto.getId());
         routeDto.setVirtualGwName(virtualGatewayDto.getName());
+        routeDto.setVirtualGwCode(virtualGatewayDto.getCode());
         routeDto.setEnvId(virtualGatewayDto.getEnvId());
         routeDto.setGwType(routePO.getGwType());
         routeDto.setId(routePO.getId());
@@ -464,7 +465,6 @@ public class RouteServiceImpl implements IRouteService {
     @SuppressWarnings("java:S3776")
     private ErrorCode checkServiceAndSubsetExist(List<ServiceMetaForRouteDto> serviceMetaList, ServiceProxyDto serviceProxyDto) {
         if (serviceProxyDto == null) {
-            logger.error("路由规则关联的服务不存在! serviceId: {}", serviceProxyDto.getId());
             return CommonErrorCode.NO_SUCH_SERVICE;
         }
         for (ServiceMetaForRouteDto serviceMeta : serviceMetaList) {

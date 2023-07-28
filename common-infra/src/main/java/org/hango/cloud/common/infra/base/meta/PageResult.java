@@ -1,6 +1,8 @@
 package org.hango.cloud.common.infra.base.meta;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 
 import java.util.Collections;
@@ -12,6 +14,8 @@ import java.util.Collections;
  * @Desc
  * @date 2022/10/28
  */
+@Getter
+@Setter
 public class PageResult<T> extends Result<T> {
 
     /**
@@ -35,14 +39,6 @@ public class PageResult<T> extends Result<T> {
 
     public PageResult(T result, ErrorCode errorCode, long total) {
         super(result, errorCode);
-        this.total = total;
-    }
-
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
         this.total = total;
     }
 }

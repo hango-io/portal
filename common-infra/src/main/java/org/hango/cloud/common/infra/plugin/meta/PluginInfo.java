@@ -13,10 +13,7 @@ import java.util.Objects;
  * @author hzchenzhongyang 2019-10-23
  */
 public class PluginInfo extends CommonExtension implements Serializable {
-    /**
-     * 数据库自增id
-     */
-    private long id;
+    private static final long serialVersionUID = -8894242290672165439L;
     /**
      * 插件名称，展示使用，如：分布式限流、单机版限流
      */
@@ -25,18 +22,6 @@ public class PluginInfo extends CommonExtension implements Serializable {
      * 插件类型，全局唯一，如：WhiteListPlugin、RateLimiterPlugin
      */
     private String pluginType;
-    /**
-     * 插件开发者，若为system则代表系统预置插件，系统预置插件不允许修改
-     */
-    private String author;
-    /**
-     * 插件创建时间，时间戳格式，精确到毫秒
-     */
-    private long createTime;
-    /**
-     * 插件更新时间，时间戳格式，精确到毫秒
-     */
-    private long updateTime;
     /**
      * 插件作用范围，即可绑定对象，可选值为route rule、service
      */
@@ -49,28 +34,13 @@ public class PluginInfo extends CommonExtension implements Serializable {
      * 插件表单schema，用于前端渲染表单
      */
     private String pluginSchema;
-    /**
-     * 插件逻辑，用于网关使用
-     */
-    private String pluginHandler;
-    /**
-     * 插件优先级，数字越小优先级越高，不允许重复
-     */
-    private long pluginPriority;
+
 
     private String categoryKey;
 
-    private String categoryName;
 
     private String pluginGuidance;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getPluginName() {
         return pluginName;
@@ -88,29 +58,6 @@ public class PluginInfo extends CommonExtension implements Serializable {
         this.pluginType = pluginType;
     }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
-
-    public long getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
-    }
 
     public String getPluginScope() {
         return pluginScope;
@@ -136,21 +83,6 @@ public class PluginInfo extends CommonExtension implements Serializable {
         this.pluginSchema = pluginSchema;
     }
 
-    public String getPluginHandler() {
-        return pluginHandler;
-    }
-
-    public void setPluginHandler(String pluginHandler) {
-        this.pluginHandler = pluginHandler;
-    }
-
-    public long getPluginPriority() {
-        return pluginPriority;
-    }
-
-    public void setPluginPriority(long pluginPriority) {
-        this.pluginPriority = pluginPriority;
-    }
 
     public String getCategoryKey() {
         return categoryKey;
@@ -161,13 +93,6 @@ public class PluginInfo extends CommonExtension implements Serializable {
     }
 
 
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
 
     public String getPluginGuidance() {
         return pluginGuidance;

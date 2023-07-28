@@ -2,7 +2,9 @@ package org.hango.cloud.envoy.infra.pluginmanager.service;
 
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 
 import java.util.List;
@@ -36,13 +38,8 @@ public interface IPluginManagerService {
 
     /**
      * 更新某个插件配置
-     *
-     * @param virtualGwId
-     * @param name
-     * @param enable
-     * @return
      */
-    boolean updatePluginManager(long virtualGwId, String name, boolean enable);
+    boolean updatePluginManager(long virtualGwId, PluginOrderItemDto itemDto);
 
     /**
      * 更新数据面插件开关配置（插件开关数据以原有模板为准）
@@ -59,9 +56,12 @@ public interface IPluginManagerService {
      * @return
      */
     boolean offlinePluginManager(VirtualGatewayDto virtualGatewayDto);
-
+    List<PluginOrderItemDto> getPluginManagers(Long vgId);
     /**
      * 从数据面获取插件配置
      */
-    List<PluginOrderItemDto> getPluginManagers(Long vgId);
+    PluginOrderDto getPluginOrder(Long vgId);
+
+
+    Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, String pluginType,String operate);
 }

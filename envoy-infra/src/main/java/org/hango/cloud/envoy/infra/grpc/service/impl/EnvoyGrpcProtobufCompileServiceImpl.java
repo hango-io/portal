@@ -192,41 +192,28 @@ public class EnvoyGrpcProtobufCompileServiceImpl implements IEnvoyGrpcProtobufCo
         return resultMap;
     }
 
-
     public boolean pbFileContentToFile(long serviceId, byte[] fileContent, List<String> sourcePathList, List<File> pbFileList, Map<String, Object> resultMap) {
         String sourcePath = GrpcUtil.PROTO_PATH + "_" + serviceId + "_" + UUID.randomUUID() + ".proto";
-        FileOutputStream fop = null;
-        File file;
-        try {
-            file = new File(sourcePath);
+        File file = new File(sourcePath);
+        try (FileOutputStream fop = new FileOutputStream(file)) {
             if (!file.exists()) {
-                //noinspection ResultOfMethodCallIgnored
                 file.createNewFile();
             }
-            fop = new FileOutputStream(file);
             fop.write(fileContent);
             fop.flush();
-            fop.close();
+            resultMap.put(RESULT, true);
+            sourcePathList.add(sourcePath);
+            pbFileList.add(file);
+            return true;
         } catch (IOException e) {
             resultMap.put(RESULT, false);
             logger.info("从数据库生成pb文件生成失败 ", e);
             return false;
-        } finally {
-            try {
-                if (fop != null) {
-                    fop.close();
-                }
-            } catch (IOException e) {
-                resultMap.put(RESULT, false);
-                logger.info("文件流关闭失败 ", e);
-                //noinspection ReturnInsideFinallyBlock
-                return false;
-            }
+        } catch (Exception e) {
+            resultMap.put(RESULT, false);
+            logger.info("文件流关闭失败 ", e);
+            return false;
         }
-        resultMap.put(RESULT, true);
-        sourcePathList.add(sourcePath);
-        pbFileList.add(file);
-        return true;
     }
 
     @Override
@@ -279,7 +266,7 @@ public class EnvoyGrpcProtobufCompileServiceImpl implements IEnvoyGrpcProtobufCo
         final Map<String, Object> map = new HashMap<>();
         map.put(RESULT, true);
         for (String currentPbFileContent : pbFileContentList) {
-            if (pbFileContentToFile(serviceId, currentPbFileContent.getBytes(), sourcePathList, pbFileList, map)) {
+            if (!pbFileContentToFile(serviceId, currentPbFileContent.getBytes(), sourcePathList, pbFileList, map)) {
                 logger.warn("compileMultiPb 已上传/已发布pb内容写文件失败");
                 return new Pair<>(EnvoyErrorCode.PARSE_PROTOBUF_FAILED, null);
             }

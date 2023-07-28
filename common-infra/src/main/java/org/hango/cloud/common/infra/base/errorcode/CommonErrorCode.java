@@ -96,6 +96,7 @@ public class CommonErrorCode extends ErrorCode {
     public static final ErrorCode INVALID_LABEL = new ErrorCode(ErrorCodeEnum.INVALID_LABEL);
     public static final ErrorCode NO_SUBSET_OF_SERVICE = new ErrorCode(ErrorCodeEnum.NO_SUBSET_OF_SERVICE);
     public static final ErrorCode PROJECT_NOT_ASSOCIATED_GATEWAY = new ErrorCode(ErrorCodeEnum.PROJECT_NOT_ASSOCIATED_GATEWAY);
+    public static final ErrorCode GW_NOT_ASSOCIATED_DOMAIN = new ErrorCode(ErrorCodeEnum.GW_NOT_ASSOCIATED_DOMAIN);
     public static final ErrorCode CANNOT_DELETE_VIRTUAL_GATEWAY = new ErrorCode(ErrorCodeEnum.CANNOT_DELETE_VIRTUAL_GATEWAY);
     public static final ErrorCode ROUTE_HAS_TRAFFIC_MARK_RULES = new ErrorCode(ErrorCodeEnum.ROUTE_HAS_TRAFFIC_MARK_RULES);
 
@@ -131,7 +132,9 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode NO_SUCH_PLUGIN_BINDING = new ErrorCode((ErrorCodeEnum.NO_SUCH_PLUGIN_BINDING));
 
+    public static final ErrorCode EXISTS_PLUGIN_WITH_THE_SAME_NAME = new ErrorCode((ErrorCodeEnum.EXISTS_PLUGIN_WITH_THE_SAME_NAME));
     public static final ErrorCode NO_SUCH_PLUGIN_TEMPLATE = new ErrorCode(ErrorCodeEnum.NO_SUCH_PLUGIN_TEMPLATE);
+    public static final ErrorCode PLUGIN_IS_BOUND = new ErrorCode(ErrorCodeEnum.PLUGIN_IS_BOUND);
 
     public static final ErrorCode SAME_NAME_PLUGIN_TEMPLATE_EXIST = new ErrorCode(ErrorCodeEnum.SAME_NAME_PLUGIN_TEMPLATE_EXIST);
 

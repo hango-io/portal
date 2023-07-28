@@ -3,7 +3,6 @@ package org.hango.cloud.common.infra.plugin.controller;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.hango.cloud.common.infra.base.annotation.MethodReentrantLock;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -17,15 +16,9 @@ import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -50,7 +43,6 @@ public class PluginInfoController extends AbstractController {
     @Autowired
     private IPluginTemplateService pluginTemplateService;
 
-    @MethodReentrantLock
     @Audit(eventName = "BindingPlugin", description = "绑定插件")
     @PostMapping(params = {"Action=BindingPlugin"})
     public String bindingPlugin(@Validated @RequestBody PluginBindingDto pluginBindingDto) {
@@ -66,7 +58,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, null);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "UnbindingPlugin", description = "解绑插件")
     @GetMapping(params = {"Action=UnbindingPlugin"})
     public String unbindingPlugin(@RequestParam(value = "PluginBindingInfoId") long pluginBindingInfoId) {
@@ -81,7 +72,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, null);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "UpdatePluginConfiguration", description = "更新插件配置")
     @PostMapping(params = {"Action=UpdatePluginConfiguration"})
     public String updatePluginConfiguration(@RequestBody PluginBindingDto pluginBindingDto) {
@@ -101,6 +91,7 @@ public class PluginInfoController extends AbstractController {
             pluginConfig = pluginBindingDto.getPluginConfiguration();
         }
         pluginBindingDtoInDB.setPluginConfiguration(pluginConfig);
+        pluginBindingDtoInDB.setTemplateId(pluginBindingDto.getTemplateId());
         long result = pluginInfoService.update(pluginBindingDtoInDB);
         if (BaseConst.ERROR_RESULT == result) {
             return apiReturn(CommonErrorCode.INTERNAL_SERVER_ERROR);
@@ -145,7 +136,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, result);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "UpdatePluginBindingStatus", description = "更新插件绑定状态")
     @GetMapping(params = {"Action=UpdatePluginBindingStatus"})
     public String updatePluginStatus(@RequestParam(value = "PluginBindingInfoId") long pluginBindingInfoId,
@@ -164,7 +154,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, null, null, null);
     }
 
-    @MethodReentrantLock
     @Audit(eventName = "CopyGlobalPlugin", description = "拷贝全局插件至目标网关")
     @PostMapping(params = {"Action=CopyGlobalPlugin"})
     public String copyGlobalPlugin(@RequestBody CopyGlobalPluginDto copyGlobalPlugin) {

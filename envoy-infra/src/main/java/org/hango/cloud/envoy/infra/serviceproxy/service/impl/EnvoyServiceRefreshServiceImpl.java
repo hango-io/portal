@@ -75,7 +75,7 @@ public class EnvoyServiceRefreshServiceImpl implements IEnvoyServiceRefreshServi
             return;
         }
         //域名相同不需要刷新
-        if (CommonUtil.equal(targetHost, hosts)){
+        if (CommonUtil.equalSet(targetHost, hosts)){
             return;
         }
         //刷新路由

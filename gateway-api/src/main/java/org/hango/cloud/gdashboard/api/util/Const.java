@@ -19,11 +19,13 @@ public class Const {
     /**
      * Some time constants
      */
-    public static final long MS_OF_MINUTE = 60 * 1000;
+    public static final long SEC_OF_MINUTE = 60;
+    public static final long SEC_OF_HOUR = SEC_OF_MINUTE * 60;
+    public static final long SEC_OF_DAY = SEC_OF_HOUR * 24;
 
-    public static final long MS_OF_HOUR = 60 * 60 * 1000;
-
-    public static final long MS_OF_DAY = 24 * MS_OF_HOUR;
+    public static final long MS_OF_MINUTE = SEC_OF_MINUTE * 1000;
+    public static final long MS_OF_HOUR = SEC_OF_HOUR * 1000;
+    public static final long MS_OF_DAY = SEC_OF_DAY * 1000;
 
     public static final String EXAMPLE = "example";
 
@@ -188,7 +190,7 @@ public class Const {
 
     public static final String KUBERNETES_GATEWAY = "KubernetesGateway";
 
-    public static final String KUBERNETES_INGRESS = "KubernetesIngress";
+    public static final String KUBERNETES_INGRESS = "Ingress";
 
     public static final String AUTO_GENERATE = "Auto Generate";
 

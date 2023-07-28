@@ -74,6 +74,9 @@ public class DomainInfoServiceImpl implements IDomainInfoService {
         }
         //创建域名
         DomainInfo domainInfoPO = toMeta(domainInfoDTO);
+        if (domainInfoPO == null){
+            return -1L;
+        }
         domainInfoDao.add(domainInfoPO);
         domainInfoDTO.setId(domainInfoPO.getId());
         return domainInfoPO.getId();
@@ -84,6 +87,9 @@ public class DomainInfoServiceImpl implements IDomainInfoService {
     @Override
     public long update(DomainInfoDTO domainInfoDTO){
         DomainInfo domainInfoPO = toMeta(domainInfoDTO);
+        if (domainInfoPO == null){
+            return -1L;
+        }
         //更新域名信息
         domainInfoDao.update(domainInfoPO);
         return domainInfoPO.getId();

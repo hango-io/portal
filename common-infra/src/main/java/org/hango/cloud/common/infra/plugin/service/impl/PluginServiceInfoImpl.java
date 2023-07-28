@@ -87,6 +87,10 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 logger.error("插件流程查询指定的网关不存在! virtualGwId:{}", virtualGwId);
                 return CommonErrorCode.NO_SUCH_GATEWAY;
             }
+            if (CollectionUtils.isEmpty(virtualGateway.getDomainInfos())){
+                logger.error("复制插件时，目前网关未绑定域名，不允许复制, vgId:{}", virtualGwId);
+                return CommonErrorCode.GW_NOT_ASSOCIATED_DOMAIN;
+            }
         }
         // 获取插件getPluginInfo可以不传gwId，默认值为0，此处返回成功（后面会处理所有网关的场景）
         return CommonErrorCode.SUCCESS;
@@ -121,11 +125,6 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         return CommonErrorCode.SUCCESS;
     }
 
-    @Override
-    public PluginInfo getPluginInfoFromDataPlane(String pluginType) {
-        return null;
-    }
-
 
     @Override
     @SuppressWarnings("java:S3776")
@@ -151,7 +150,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
             List<String> hosts = domainInfoService.getHosts(bindingPluginDto.getBindingObjectId(), bindingPluginDto.getVirtualGwId());
             if (CollectionUtils.isEmpty(hosts)) {
                 logger.info("绑定全局插件时指定的域名不存在! virtualGwId:{}, projectId:{}", bindingPluginDto.getVirtualGwId(), bindingPluginDto.getBindingObjectId());
-                return CommonErrorCode.PROJECT_NOT_ASSOCIATED_GATEWAY;
+                return CommonErrorCode.GW_NOT_ASSOCIATED_DOMAIN;
             }
         }else if (PluginBindingInfo.BINDING_OBJECT_TYPE_HOST.equals(bindingPluginDto.getBindingObjectType())){
             DomainInfo domainInfoPO = domainInfoMapper.selectById(bindingPluginDto.getBindingObjectId());
@@ -330,18 +329,11 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     @Transactional(rollbackFor = Exception.class)
     public long update(PluginBindingDto pluginBindingDto) {
         pluginBindingDto.setUpdateTime(System.currentTimeMillis());
-        pluginBindingDto.setUpdateTime(System.currentTimeMillis());
         if (0 < pluginBindingDto.getTemplateId()) {
             PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(pluginBindingDto.getTemplateId());
             pluginBindingDto.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
-            pluginBindingDto.setTemplateId(pluginTemplateDto.getId());
-            if (pluginBindingDto.getTemplateVersion() > 0) {
-                pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
-            } else {
-                pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
-            }
+            pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
         } else {
-            pluginBindingDto.setTemplateId(0);
             pluginBindingDto.setTemplateVersion(0);
         }
         return pluginBindingInfoDao.update(toMeta(pluginBindingDto));

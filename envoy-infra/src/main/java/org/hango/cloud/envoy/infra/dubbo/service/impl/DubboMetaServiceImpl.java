@@ -115,63 +115,6 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
         return toView(dubboMetaDao.get(id));
     }
 
-    @Override
-    public List<DubboMetaDto> findByInterfaceNameAndApplicationName(long virtualGwId, String interfaceName, String applicationName, long offset, long limit) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("interfaceName", interfaceName);
-        params.put("applicationName", applicationName);
-        params.put("virtualGwId", virtualGwId);
-
-        List<DubboMeta> dubboMetaList = dubboMetaDao.getRecordsByField(params, offset, limit);
-        if (CollectionUtils.isEmpty(dubboMetaList)) {
-            return Collections.emptyList();
-        }
-        return dubboMetaList.stream().map(this::toView).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<DubboMetaDto> findByInterfaceNameAndApplicationName(long virtualGwId, String interfaceName, String applicationName) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("interfaceName", interfaceName);
-        params.put("applicationName", applicationName);
-        params.put("virtualGwId", virtualGwId);
-
-        List<DubboMeta> dubboMetaList = dubboMetaDao.getRecordsByField(params);
-        return dubboMetaList.stream().map(this::toView).collect(Collectors.toList());
-    }
-
-    @Override
-    public int countByInterfaceNameAndApplicationName(long virtualGwId, String interfaceName, String applicationName) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("interfaceName", interfaceName);
-        params.put("applicationName", applicationName);
-        params.put("virtualGwId", virtualGwId);
-
-        return dubboMetaDao.getCountByFields(params);
-    }
-
-
-    @Override
-    public List<DubboMetaDto> findByCondition(long virtualGwId, String interfaceName, String applicationName, String group, String version, String method, long offset, long limit) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("virtualGwId", virtualGwId);
-        if (StringUtils.isNotBlank(interfaceName)) {
-            params.put("interfaceName", interfaceName);
-            params.put("dubboGroup", group);
-            params.put("dubboVersion", version);
-        }
-        if (StringUtils.isNotBlank(applicationName)) {
-            params.put("applicationName", applicationName);
-        }
-        if (StringUtils.isNotBlank(method)) {
-            params.put("method", method);
-        }
-        List<DubboMeta> dubboMetaList = dubboMetaDao.getRecordsByField(params, offset, limit);
-        if (CollectionUtils.isEmpty(dubboMetaList)) {
-            return Collections.emptyList();
-        }
-        return dubboMetaList.stream().map(this::toView).collect(Collectors.toList());
-    }
 
     @Override
     public List<DubboMetaDto> findByCondition(long virtualGwId, String interfaceName, String applicationName, String group, String version, String method) {
@@ -193,61 +136,6 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
     }
 
     @Override
-    public int countByCondition(long virtualGwId, String interfaceName, String applicationName, String group, String version, String method) {
-        Map<String, Object> params = Maps.newHashMap();
-        if (StringUtils.isNotBlank(group)) {
-            params.put("dubboGroup", group);
-        }
-        if (StringUtils.isNotBlank(interfaceName)) {
-            params.put("interfaceName", interfaceName);
-        }
-        if (StringUtils.isNotBlank(applicationName)) {
-            params.put("applicationName", applicationName);
-        }
-        if (StringUtils.isNotBlank(method)) {
-            params.put("method", method);
-        }
-        if (StringUtils.isNotBlank(version)) {
-            params.put("dubboVersion", version);
-        }
-        params.put("virtualGwId", virtualGwId);
-        return dubboMetaDao.getCountByFields(params);
-    }
-
-
-    @Override
-    public List<DubboMetaDto> findByApplicationName(String applicationName, long offset, long limit) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("applicationName", applicationName);
-        List<DubboMeta> dubboMetaList = dubboMetaDao.getRecordsByField(params, offset, limit);
-        if (CollectionUtils.isEmpty(dubboMetaList)) {
-            return Collections.emptyList();
-        }
-        return dubboMetaList.stream().map(this::toView).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<DubboMetaDto> findByApplicationName(String applicationName) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("applicationName", applicationName);
-        List<DubboMeta> dubboMetaList = dubboMetaDao.getRecordsByField(params);
-        return dubboMetaList.stream().map(this::toView).collect(Collectors.toList());
-    }
-
-    @Override
-    public int countByApplicationName(String applicationName) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("applicationName", applicationName);
-        return dubboMetaDao.getCountByFields(params);
-    }
-
-
-    @Override
-    public List<DubboMetaDto> findByCondition(long virtualGwId, String interfaceName, String group, String version, String method, long offset, long limit) {
-        return findByCondition(virtualGwId, interfaceName, StringUtils.EMPTY, group, version, method, offset, limit);
-    }
-
-    @Override
     public List<DubboMetaDto> findByCondition(long virtualGwId, String interfaceName, String group, String version, String method) {
         return findByCondition(virtualGwId, interfaceName, StringUtils.EMPTY, group, version, method);
 
@@ -257,11 +145,6 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
     public List<DubboMetaDto> findByCondition(long virtualGwId, String interfaceName, String group, String version) {
         return findByCondition(virtualGwId, interfaceName, group, version, StringUtils.EMPTY);
 
-    }
-
-    @Override
-    public int countByCondition(long virtualGwId, String interfaceName, String group, String version, String method) {
-        return countByCondition(virtualGwId, interfaceName, StringUtils.EMPTY, group, version, method);
     }
 
 
@@ -324,8 +207,8 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
 
     @Transactional(rollbackFor = Exception.class)
     public synchronized void saveDubboMeta(long virtualGwId, String igv, List<DubboMetaDto> dubboMetaDtoList) {
-        String redisKey = String.format(EnvoyConst.DUBBO_META_REFRESH_KEY_TEMPLATE, virtualGwId, igv);
-        logger.info("dubbo meta redis key is {}", redisKey);
+        String cacheKey = String.format(EnvoyConst.DUBBO_META_REFRESH_KEY_TEMPLATE, virtualGwId, igv);
+        logger.info("dubbo meta cacheKey key is {}", cacheKey);
         if (null == dubboMetaDtoList) {
             logger.warn("调用api-plane 失败，查询条件为 : 网关ID = {} , IGV = {}  无返回 ", virtualGwId, igv);
             return;
@@ -339,7 +222,7 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
         }
         //批量新增数据
         batchCreateDubboMeta(dubboMetaDtoList);
-         cacheService.setValue(redisKey, true, envoyConfig.getMetaRefreshInterval());
+        cacheService.setValue(cacheKey, "", envoyConfig.getMetaRefreshInterval());
     }
 
     @Override
@@ -354,7 +237,7 @@ public class DubboMetaServiceImpl implements IDubboMetaService {
             return Collections.emptyList();
         }
         String redisKey = String.format(EnvoyConst.DUBBO_META_REFRESH_KEY_TEMPLATE, virtualGwId, igv);
-        logger.info("dubbo meta redis key is {}", redisKey);
+        logger.info("dubbo meta cache key is {}", redisKey);
         if (cacheService.hasKey(redisKey)) {
             logger.info("距离上次更新不足 {} 毫秒，本次不再更新 ", envoyConfig.getMetaRefreshInterval());
             return findByIgv(virtualGwId, igv);
