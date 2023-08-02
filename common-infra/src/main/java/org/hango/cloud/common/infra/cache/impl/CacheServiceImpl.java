@@ -66,7 +66,13 @@ public class CacheServiceImpl extends ServiceImpl<CacheInfoMapper, CacheInfo> im
 
     @Override
     public boolean hasKey(String key) {
-        return StringUtils.hasText(getValue(key));
+        if (!StringUtils.hasText(key)) {
+            return false;
+        }
+        LambdaQueryWrapper<CacheInfo> query = Wrappers.lambdaQuery();
+        query.gt(CacheInfo::getExpireTime, TimeUtil.getMillTime(LocalDateTime.now()));
+        query.eq(CacheInfo::getCacheKey, key);
+        return getOne(query) != null;
     }
 
     /**
