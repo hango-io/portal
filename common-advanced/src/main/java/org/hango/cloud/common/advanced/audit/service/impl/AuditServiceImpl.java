@@ -283,7 +283,10 @@ public class AuditServiceImpl implements IAuditService {
     private QueryBuilder buildQueryBuilder(AuditQueryDto auditQuery, VirtualGatewayDto virtualGateway) {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery().must(QueryBuilders.rangeQuery("time").gte(auditQuery.getStartTime()).lte(auditQuery.getEndTime()));
         if (auditQuery.getVirtualGwId()!= NumberUtils.LONG_ZERO){
-            queryBuilder.must(QueryBuilders.termQuery("virtualGatewayCode", virtualGateway.getCode()));
+            queryBuilder.must(QueryBuilders.boolQuery()
+                    .should(QueryBuilders.termQuery("virtualGatewayCode", virtualGateway.getCode()))
+                    .should(QueryBuilders.termQuery("virtualGatewayPort", virtualGateway.getPort()))
+            );
         }
         if (auditQuery.getMinDuration() != NumberUtils.INTEGER_ZERO) {
             queryBuilder.must(QueryBuilders.rangeQuery(DURATION).gt(auditQuery.getMinDuration()));
@@ -372,7 +375,6 @@ public class AuditServiceImpl implements IAuditService {
      * 组装ES返回的数据
      *
      * @param hit
-     * @param apiMap
      * @return
      */
     private AuditDto formatEsData(Object hit) {
