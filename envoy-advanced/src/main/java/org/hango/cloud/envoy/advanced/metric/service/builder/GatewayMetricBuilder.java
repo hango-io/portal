@@ -34,6 +34,14 @@ public class GatewayMetricBuilder extends AbstractMetricBuilder {
         METRIC_TEMPLATE.put(AdvancedConst.ERROR_REQUEST, "ceil(sum(increase(envoy_http_downstream_rq_xx{envoy_response_code_class=~\"5\",<filter>}[<time_interval>s])))");
         METRIC_TEMPLATE.put(AdvancedConst.DURATION_95, "(histogram_quantile(0.95, sum by(<sumBy>, le) (increase(envoy_http_downstream_rq_time_bucket{<filter>}[<time_interval>s]))))");
         METRIC_TEMPLATE.put(AdvancedConst.DURATION_99, "(histogram_quantile(0.99, sum by(<sumBy>, le) (increase(envoy_http_downstream_rq_time_bucket{<filter>}[<time_interval>s]))))");
+
+
+        METRIC_TEMPLATE.put(AdvancedConst.ACTIVE_CONNECTION_COUNT, "sum(envoy_http_downstream_cx_active{envoy_http_conn_manager_prefix !=\"!admin\",<filter>})");
+        METRIC_TEMPLATE.put(AdvancedConst.CONNECTION_COUNT, "sum(increase(envoy_http_downstream_cx_total{envoy_http_conn_manager_prefix !=\"!admin\",<filter>}[<time_interval>s]))");
+        METRIC_TEMPLATE.put(AdvancedConst.BYTE_RECEIVED, "sum(increase(envoy_http_downstream_cx_rx_bytes_total{envoy_http_conn_manager_prefix !=\"!admin\",<filter>}[<time_interval>s]))/1024");
+        METRIC_TEMPLATE.put(AdvancedConst.BYTE_SEND, "sum(increase(envoy_http_downstream_cx_tx_bytes_total{envoy_http_conn_manager_prefix !=\"!admin\",<filter>}[<time_interval>s]))/1024");
+        METRIC_TEMPLATE.put(AdvancedConst.TLS_HANDSHAKE, "sum(increase(envoy_listener_ssl_handshake{envoy_listener_address !=\"!admin\",<filter>}[<time_interval>s]))");
+        METRIC_TEMPLATE.put(AdvancedConst.TLS_CONNECTION_ERROR, "sum(increase(envoy_listener_ssl_connection_error{envoy_listener_address !=\"!admin\",<filter>}[<time_interval>s]))");
     }
 
     @Override

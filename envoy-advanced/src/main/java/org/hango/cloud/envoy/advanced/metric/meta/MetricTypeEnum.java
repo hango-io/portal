@@ -1,6 +1,6 @@
 package org.hango.cloud.envoy.advanced.metric.meta;
 
-import org.apache.commons.lang3.StringUtils;
+import org.hango.cloud.common.advanced.base.meta.AdvancedConst;
 
 /**
  * @author zhangbj
@@ -20,7 +20,14 @@ public enum MetricTypeEnum {
     BAD_REQUEST("BAD_REQUEST", "count_4xx", "每分钟4xx数", "次"),
     ERROR_REQUEST("ERROR_REQUEST", "count_5xx", "每分钟5xx数", "次"),
     DURATION_95("DURATION_95", "duration_95", "请求耗时95值", "毫秒"),
-    DURATION_99("DURATION_99", "duration_95", "请求耗时99值", "毫秒");
+    DURATION_99("DURATION_99", "duration_95", "请求耗时99值", "毫秒"),
+    ACTIVE_CONNECTION_COUNT(AdvancedConst.ACTIVE_CONNECTION_COUNT, "active_connection_count", "活跃连接数", "个"),
+    CONNECTION_COUNT(AdvancedConst.CONNECTION_COUNT, "connection_count", "新增连接数", "个"),
+    BYTE_RECEIVED(AdvancedConst.BYTE_RECEIVED, "byte_received", "入带宽", "字节"),
+    BYTE_SEND(AdvancedConst.BYTE_SEND, "byte_send", "出带宽", "字节"),
+    TLS_HANDSHAKE(AdvancedConst.TLS_HANDSHAKE, "tls_handshake", "TLS握手数", "次"),
+    TLS_CONNECTION_ERROR(AdvancedConst.TLS_CONNECTION_ERROR, "tls_connection_error", "TLS连接失败数", "次"),
+    ;
     /**
      * 监控类型
      */

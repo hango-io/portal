@@ -96,6 +96,36 @@ public class AdvancedConst {
     public static final String RANK_TOTAL_COUNT = "RANK_TOTAL_COUNT";
     public static final String RANK_FAILED_COUNT = "RANK_FAILED_COUNT";
     public static final String RANK_BAD_REQUEST_COUNT = "RANK_BAD_REQUEST_COUNT";
+    /**
+     * 活跃连接数
+     */
+    public static final String ACTIVE_CONNECTION_COUNT = "ACTIVE_CONNECTION_COUNT";
+
+    /**
+     * 新增连接数
+     */
+    public static final String CONNECTION_COUNT = "CONNECTION_COUNT";
+
+    /**
+     * 入带宽
+     */
+    public static final String BYTE_RECEIVED = "BYTE_RECEIVED";
+
+    /**
+     * 出带宽
+     */
+    public static final String BYTE_SEND = "BYTE_SEND";
+    /**
+     * TLS握手数
+     */
+    public static final String TLS_HANDSHAKE = "TLS_HANDSHAKE";
+
+    /**
+     * TLS连接失败数
+     */
+    public static final String TLS_CONNECTION_ERROR = "TLS_CONNECTION_ERROR";
+
+
 
     /**
      * 审计查询相关

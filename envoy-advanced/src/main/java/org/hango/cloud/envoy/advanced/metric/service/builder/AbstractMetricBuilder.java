@@ -6,17 +6,17 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.envoy.advanced.base.util.PromUtils;
 import org.hango.cloud.envoy.advanced.metric.dto.MetricDataDto;
 import org.hango.cloud.envoy.advanced.metric.dto.MetricRankDto;
 import org.hango.cloud.envoy.advanced.metric.meta.CountDataQuery;
+import org.hango.cloud.envoy.advanced.metric.meta.DimensionType;
 import org.hango.cloud.envoy.advanced.metric.meta.MetricBaseQuery;
 import org.hango.cloud.envoy.advanced.metric.meta.MetricDataQuery;
 import org.hango.cloud.envoy.advanced.metric.meta.MetricTypeEnum;
 import org.hango.cloud.envoy.advanced.metric.meta.PromResponse;
 import org.hango.cloud.envoy.advanced.metric.meta.RankDataQuery;
-import org.hango.cloud.common.infra.base.meta.BaseConst;
-import org.hango.cloud.envoy.advanced.metric.meta.DimensionType;
 import org.hango.cloud.envoy.advanced.metric.service.MetricFunction;
 import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
@@ -61,6 +61,9 @@ public abstract class AbstractMetricBuilder {
      * 毫秒转秒换算单位
      */
     private static final long MILL_TO_SEC = 1000L;
+
+    private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final SimpleDateFormat DETAULT_DATE_FORMAT = new SimpleDateFormat(TIME_FORMAT);
 
 
     /**
@@ -136,6 +139,18 @@ public abstract class AbstractMetricBuilder {
         return Lists.newArrayList(Maps.newHashMap());
     }
 
+
+    /**
+     * 获取查询该指标的查询label
+     *
+     * @param query 查询条件
+     * @param curMetricType 当前指标项
+     * @return 查询label
+     */
+    protected <T extends MetricBaseQuery> List<Map<String, String>> targets(String curMetricType, T query) {
+        return targets(query);
+    }
+
     /**
      * 获取监控趋势
      *
@@ -151,7 +166,7 @@ public abstract class AbstractMetricBuilder {
 
         for (String metricType : query.getMetricTypes()) {
             Map<String, Object> queryMap = Maps.newHashMap();
-            queryMap.put(QUERY, getPromQl(metricType, param, targets(query)));
+            queryMap.put(QUERY, getPromQl(metricType, param, targets(metricType, query)));
             queryMap.put(START, String.valueOf(query.getStartTime() / MILL_TO_SEC));
             queryMap.put(END, String.valueOf(query.getEndTime() / MILL_TO_SEC));
             queryMap.put(STEP, String.valueOf(query.getStep()));
@@ -218,6 +233,9 @@ public abstract class AbstractMetricBuilder {
     private String getPromQl(String metricType, Map<String, Object> queryMap, List<Map<String, String>> targets) {
         PromUtils.PromExpTemplate promExpTemplate = new PromUtils.PromExpTemplate();
         promExpTemplate.template = template(metricType);
+        if (promExpTemplate.template == null) {
+            return StringUtils.EMPTY;
+        }
         promExpTemplate.baseParams = PromUtils.params();
         queryMap.forEach((k, v) -> promExpTemplate.baseParams.p(k, v));
         return PromUtils.makeExpr(promExpTemplate, targets);
@@ -276,7 +294,13 @@ public abstract class AbstractMetricBuilder {
         long frequency = timeInterval / step + 1;
         for (int i = 0; i < frequency; i++) {
             long calKey = end - i * step;
-            metricDataDtoList.add(new MetricDataDto(simpleDateFormat.format(new Date(calKey * MILL_TO_SEC)), "0.0"));
+            Date date = new Date(calKey * MILL_TO_SEC);
+            metricDataDtoList.add(MetricDataDto.builder()
+                    .date(simpleDateFormat.format(date))
+                    .time(DETAULT_DATE_FORMAT.format(date))
+                    .metricValue("0.0")
+                    .build()
+            );
         }
         return Lists.reverse(metricDataDtoList);
     }
