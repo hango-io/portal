@@ -286,7 +286,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
 
     public HttpClientResponse proxyToApiPlane(String apiPlaneUrl, Map<String, Object> params, String body, HttpHeaders headers) {
         HttpClientResponse response = HttpClientUtil.postRequest(apiPlaneUrl, body, params, headers, EnvoyConst.MODULE_API_PLANE);
-        //存在bak route server且和apiPlaneUrl不相同
+        //存在bak api server且和apiPlaneUrl不相同
         //todo  可以使用hooker将双发与正常业务隔离
         if (StringUtils.isNotBlank(envoyConfig.getBakApiPlaneAddr()) && !apiPlaneUrl.equals(envoyConfig.getBakApiPlaneAddr()) && null != response && HttpClientUtil.isNormalCode(response.getStatusCode())) {
             // 升级双发场景下，用户配置了新插件但老版本api-plane没有，删除旧版本的下发
@@ -294,7 +294,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
 //            if (StringUtils.isNotEmpty(newBody)) {
 //                body = newBody;
 //            }
-//            response = HttpCommonUtil.getFromApiPlane(apiServerConfig.getBakApiPlaneAddr() + "/route/portal", params, body, headers, methodType);
+//            response = HttpCommonUtil.getFromApiPlane(apiServerConfig.getBakApiPlaneAddr() + "/api/portal", params, body, headers, methodType);
         }
         return response;
     }
@@ -410,7 +410,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
         //serviceFilters 暂时没有场景使用，先不传该值
         params.put("Type", registryCenterType);
-        HttpClientResponse response = HttpClientUtil.getRequest(virtualGatewayDto.getConfAddr() + "/route", params, EnvoyConst.MODULE_API_PLANE);
+        HttpClientResponse response = HttpClientUtil.getRequest(virtualGatewayDto.getConfAddr() + "/api", params, EnvoyConst.MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error("调用api-plane查询已发布服务列表，返回http status code非2xx, httpStatusCode:{}, errMsg:{}", response.getStatusCode(), response.getResponseBody());
             return Collections.emptyList();
