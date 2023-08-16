@@ -11,6 +11,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.mapper.CertificateInfoMapper;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
+import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.common.infra.credential.pojo.CertificateInfoPO;
 import org.hango.cloud.common.infra.domain.dao.IDomainInfoDao;
@@ -43,10 +44,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
@@ -163,8 +161,9 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
 
     @Override
     public boolean refreshToGateway(DomainInfoDTO domainInfoDTO) {
-        if (SCHEME_HTTP.equalsIgnoreCase(domainInfoDTO.getProtocol())){
-            //http域名不需要刷新
+        Set<String> protocol = CommonUtil.splitStringToStringSet(domainInfoDTO.getProtocol(), ",");
+        if (!protocol.contains(SCHEME_HTTPS)){
+            //只有https域名需要刷新
             return true;
         }
         DomainInfo dbDomain = domainInfoDao.get(domainInfoDTO.getId());
@@ -182,17 +181,16 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
         boolean res = true;
         //刷新证书
         for (VirtualGatewayDto virtualGateway : virtualGatewayList) {
-            List<DomainInfoDTO> domainInfos = virtualGateway.getDomainInfos();
-            if (CollectionUtils.isEmpty(domainInfos)){
+            if (SCHEME_HTTP.equalsIgnoreCase(virtualGateway.getProtocol())){
+                //http 网关不需要刷新
                 continue;
             }
-            for (DomainInfoDTO domainInfo : domainInfos) {
-                if (domainInfo.getId().equals(domainInfoDTO.getId())){
-                    domainInfo.setCertificateId(domainInfoDTO.getCertificateId());
-                    boolean pubRes = publishToGateway(virtualGateway);
-                    res &= pubRes;
-                }
-            }
+            virtualGateway.getDomainInfos().stream()
+                    .filter(o -> o.getId().equals(domainInfoDTO.getId()))
+                    .findFirst()
+                    .ifPresent(o -> o.setCertificateId(domainInfoDTO.getCertificateId()));
+            boolean pubRes = publishToGateway(virtualGateway);
+            res &= pubRes;
         }
         return res;
     }

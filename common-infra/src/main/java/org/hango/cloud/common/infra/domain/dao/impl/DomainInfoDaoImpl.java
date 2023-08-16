@@ -51,10 +51,10 @@ public class DomainInfoDaoImpl implements IDomainInfoDao {
         LambdaQueryWrapper<DomainInfo> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(DomainInfo::getStatus, query.getStatus());
         wrapper.eq(StringUtils.isNotBlank(query.getHost()), DomainInfo::getHost, query.getHost());
-        wrapper.eq(StringUtils.isNotBlank(query.getProtocol()), DomainInfo::getProtocol, query.getProtocol());
         wrapper.in(CollectionUtils.isNotEmpty(query.getIds()), DomainInfo::getId, query.getIds());
         wrapper.in(CollectionUtils.isNotEmpty(query.getProjectIds()), DomainInfo::getProjectId, query.getProjectIds());
         wrapper.like(StringUtils.isNotBlank(query.getPattern()), DomainInfo::getHost, query.getPattern());
+        wrapper.apply(StringUtils.isNotBlank(query.getProtocol()), "find_in_set ('"+ query.getProtocol() +"', protocol )");
         return wrapper;
     }
 }

@@ -36,7 +36,7 @@ public class AdvancedConst {
     //可以直接放行的接口
     //FIXME 删除不要的uri
     public static final List<String> NO_USERPERMISSION = Arrays.asList("/api/auth/login",
-            "/api/auth/oidc", "/api/restfulSdk", "/api/swagger", "/healthcheck");
+            "/api/auth/oidc", "/api/restfulSdk", "/api/swagger", "/healthcheck", "/actuator/prometheus");
 
 
     public static final String PROJECT_DOMAIN = "project";

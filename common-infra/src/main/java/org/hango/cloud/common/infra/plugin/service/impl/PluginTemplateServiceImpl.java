@@ -91,7 +91,9 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
     @Override
     public long create(PluginTemplateDto pluginTemplateDto) {
         pluginTemplateDto.setTemplateVersion(1);
-        return pluginTemplateDao.add(toMeta(pluginTemplateDto));
+        PluginTemplateInfo info = toMeta(pluginTemplateDto);
+        pluginTemplateDao.add(info);
+        return info.getId();
     }
 
     @Override

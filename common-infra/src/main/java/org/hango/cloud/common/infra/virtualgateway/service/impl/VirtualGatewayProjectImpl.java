@@ -1,9 +1,11 @@
 package org.hango.cloud.common.infra.virtualgateway.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
+import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.domain.dto.DomainBindDTO;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
@@ -182,7 +184,12 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
             return CommonErrorCode.invalidParameter("域名不存在，绑定失败");
         }
         for (DomainInfoDTO domainInfo : domainInfos) {
-            if (!virtualGateway.getProtocol().equalsIgnoreCase(domainInfo.getProtocol())){
+            String domainInfoProtocol = domainInfo.getProtocol();
+            if (StringUtils.isBlank(domainInfoProtocol)){
+                return CommonErrorCode.invalidParameter("域名协议为空，绑定失败");
+            }
+            Set<String> domainProtocolSet = CommonUtil.splitStringToStringSet(domainInfoProtocol, ",");
+            if (!domainProtocolSet.contains(virtualGateway.getProtocol())){
                 return CommonErrorCode.invalidParameter("域名和网关协议不同，绑定失败");
             }
         }

@@ -88,12 +88,8 @@ public class BaseConst {
     /**
      * Https Scheme
      */
-    public static final String SCHEME_HTTPS = "https";
+    public static final String SCHEME_HTTPS = "HTTPS";
 
-    /**
-     * Scheme Joiner
-     */
-    public static final String SCHEME_JOINER = SYMBOL_COLON + "//";
 
 
     /**
@@ -135,6 +131,8 @@ public class BaseConst {
      * 操作审计开关项配置
      */
     public static final String OPERATION_AUDIT_ENABLE = HANGO_PREFIX + ".operation.audit.enable";
+
+
 
     /**
      * api-prefix

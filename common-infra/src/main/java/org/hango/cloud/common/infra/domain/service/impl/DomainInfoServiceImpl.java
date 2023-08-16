@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.mapper.CertificateInfoMapper;
 import org.hango.cloud.common.infra.base.mapper.DomainInfoMapper;
+import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.credential.pojo.CertificateInfoPO;
 import org.hango.cloud.common.infra.domain.dao.IDomainInfoDao;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
@@ -209,9 +210,6 @@ public class DomainInfoServiceImpl implements IDomainInfoService {
         if (!DomainStatusEnum.Managed.name().equals(domainInfoPO.getStatus())){
             return CommonErrorCode.invalidParameter("该域名未被管理，无法进行修改");
         }
-        if (SCHEME_HTTPS.equals(domainInfoDTO.getProtocol()) && domainInfoDTO.getCertificateId() == null){
-            return CommonErrorCode.invalidParameter("HTTPS域名必须携带证书");
-        }
         return CommonErrorCode.SUCCESS;
     }
 
@@ -235,7 +233,8 @@ public class DomainInfoServiceImpl implements IDomainInfoService {
 
 
     private ErrorCode paramCheck(DomainInfoDTO domainInfoDTO){
-        if (SCHEME_HTTPS.equals(domainInfoDTO.getProtocol()) && domainInfoDTO.getCertificateId() == null){
+        Set<String> protocol = CommonUtil.splitStringToStringSet(domainInfoDTO.getProtocol(), ",");
+        if (protocol.contains(SCHEME_HTTPS) && domainInfoDTO.getCertificateId() == null){
             return CommonErrorCode.invalidParameter("HTTPS域名必须携带证书");
         }
         if (domainInfoDTO.getCertificateId() != null){
