@@ -19,6 +19,6 @@ public class PluginOrderItemDto {
 
     private Object rider;
 
-    private String operate;
+    private Object wasm;
 
 }

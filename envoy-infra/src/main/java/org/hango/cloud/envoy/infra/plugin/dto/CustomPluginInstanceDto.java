@@ -15,15 +15,22 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CustomPluginInstanceDto {
-    //todo sx
+    /**
+     * 插件实例id
+     */
+    @JSONField(name = "PluginBindingInfoId")
+    private Long id;
+    /**
+     * 插件绑定对象id，与bindingObjectType共同确定一个具体对象
+     */
     @JSONField(name = "BindingObjectId")
-    private Long Id;
+    private String bindingObjectId;
+
     @JSONField(name = "BindingObjectType")
     private String bindingObjectType;
     @JSONField(name = "BindingObjectName")
     private String bindingObjectName;
-    //todo sx
-    @JSONField(name = "GwName")
+    @JSONField(name = "VirtualGwName")
     private String virtualGwName;
     @JSONField(name = "VirtualGwId")
     private Long virtualGwId;

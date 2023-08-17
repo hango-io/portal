@@ -15,7 +15,6 @@ public class BaseConst {
 
     /************************************** Punctuation Start **************************************/
 
-
     /**
      * 冒号
      */
@@ -25,13 +24,6 @@ public class BaseConst {
      * 逗号
      */
     public static final String SYMBOL_COMMA = ",";
-
-    /**
-     * 斜线
-     */
-    public static final String SYMBOL_SLASH = "/";
-
-    public static final String SYMBOL_BACK_SLASH = "\\";
 
     /**
      * 问号
@@ -44,21 +36,6 @@ public class BaseConst {
     public static final String SYMBOL_AND = "&";
 
     public static final String SYMBOL_ALTERNATION = "|";
-
-    /**
-     * 下划线
-     */
-    public static final String SYMBOL_UNDERLINE = "_";
-
-    /**
-     * 百分号
-     */
-    public static final String SYMBOL_PERCENT = "%";
-
-    /**
-     * 井号
-     */
-    public static final String SYMBOL_POUND_KEY = "#";
 
     /**
      * 中划线
@@ -118,25 +95,6 @@ public class BaseConst {
      */
     public static final String SCHEME_JOINER = SYMBOL_COLON + "//";
 
-    /**
-     * Http Scheme
-     */
-    public static final String HTTP_PREFIX = SCHEME_HTTP + SCHEME_JOINER;
-
-    /**
-     * Https Scheme
-     */
-    public static final String HTTPS_PREFIX = SCHEME_HTTPS + SCHEME_JOINER;
-
-    /**
-     * HTTPS 默认端口
-     */
-    public static final Integer DEFAULT_HTTPS_PORT = 443;
-
-    /**
-     * HTTP 默认端口
-     */
-    public static final Integer DEFAULT_HTTP_PORT = 80;
 
     /**
      * 最大日志记录长度
@@ -148,11 +106,9 @@ public class BaseConst {
     /**
      * Some time constants
      */
-    public static final long MS_OF_MINUTE = 60 * 1000;
 
     public static final long MS_OF_HOUR = 60 * 60 * 1000;
 
-    public static final long MS_OF_DAY = 24 * MS_OF_HOUR;
 
     public static final long HOUR_OF_DAY = 24;
 
@@ -179,12 +135,6 @@ public class BaseConst {
      * 操作审计开关项配置
      */
     public static final String OPERATION_AUDIT_ENABLE = HANGO_PREFIX + ".operation.audit.enable";
-    /**
-     * 配置项，确定是否加载hango基础模块dao层
-     */
-    public static final String HANGO_INFRA_DAO_ENABLE = HANGO_PREFIX + ".infra.dao.enable";
-
-
 
     /**
      * api-prefix
@@ -208,7 +158,6 @@ public class BaseConst {
     public static final String PLANE_PORTAL_PATH = "/api/portal";
 
     public static final String PLANE_PLUGIN_PATH = "/api/plugin";
-    public static final String META_PATH = "/api/metadata";
 
     public static final String RESULT = "Result";
 
@@ -270,15 +219,11 @@ public class BaseConst {
      */
     public static final String SERVICE_LOADBALANCER_SIMPLE = "Simple";
     public static final String SERVICE_LOADBALANCER_SIMPLE_ROUND_ROBIN = "ROUND_ROBIN";
-    public static final String SERVICE_LOADBALANCER_SIMPLE_LEAST_CONN = "LEAST_CONN";
-    public static final String SERVICE_LOADBALANCER_SIMPLE_RANDOM = "RANDOM";
     public static final String SERVICE_LOADBALANCER_HASH = "ConsistentHash";
     public static final String SERVICE_LOADBALANCER_HASH_HTTPHEADERNAME = "HttpHeaderName";
     public static final String SERVICE_LOADBALANCER_HASH_HTTPCOOKIE = "HttpCookie";
     public static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
     public static final String STATIC_EP_VERSION = "version";
-
-    public static final String PROJECT_ID = "projectId";
 
 
     public static final String DUBBO_SERVICE_SUFFIX = ".dubbo";
@@ -287,22 +232,6 @@ public class BaseConst {
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final String ZONE_ID= "Asia/Shanghai";
-
-    public static final String SUCCESS = "Success";
-
-    /**
-     * 路由级别插件标识
-     */
-    public static final String PLUGIN_TYPE_ROUTE = "routeRule";
-    /**
-     * 全局（项目）级别插件标识
-     */
-    public static final String PLUGIN_TYPE_GLOBAL = "global";
-
-    /**
-     * 域名级别插件标识
-     */
-    public static final String PLUGIN_TYPE_HOST = "host";
 
 
     public static final String DEFAULT_ENCODING = "utf-8";
@@ -319,7 +248,15 @@ public class BaseConst {
 
     public static final String HANGO = "hango";
 
-    public static final String RIDER_PLUGIN = "proxy.filters.http.rider";
 
     public static final String ONLINE_STATE = "online";
+
+    /**
+     * 已同步
+     **/
+    public static final int STATUS_NO_NEED_SYNC = 0;
+    /**
+     * 未同步
+     **/
+    public static final int STATUS_NEED_SYNC = 1;
 }

@@ -1,5 +1,6 @@
 package org.hango.cloud.common.infra.plugin.service.impl;
 
+import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
@@ -7,10 +8,11 @@ import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.dto.CopyGlobalPluginDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.impl.VirtualGatewayServiceImpl;
+import org.hango.cloud.envoy.infra.plugin.manager.IPluginOperateManagerService;
 import org.hango.cloud.envoy.infra.plugin.service.impl.EnvoyPluginInfoServiceImpl;
 import org.hango.cloud.util.MockUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,9 @@ public class PluginServiceInfoImplTest{
     private VirtualGatewayServiceImpl virtualGatewayService;
     @MockBean
     private EnvoyPluginInfoServiceImpl envoyPluginInfoService;
+
+    @MockBean
+    private IPluginOperateManagerService pluginOperateManagerService;
     @Autowired
     private VirtualGatewayServiceImpl virtualGatewayInfoService;
 
@@ -48,9 +53,9 @@ public class PluginServiceInfoImplTest{
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        Mockito.when(envoyPluginInfoService.updateGatewayPlugin(Mockito.any(BindingPluginDto.class), Mockito.anyLong())).thenReturn(true);
-        Mockito.when(envoyPluginInfoService.publishGatewayPlugin(Mockito.any())).thenReturn(true);
-        Mockito.when(envoyPluginInfoService.deleteGatewayPlugin(Mockito.any(BindingPluginDto.class), Mockito.anyLong())).thenReturn(true);
+        Mockito.when(pluginOperateManagerService.create(Mockito.any(BindingPluginDto.class))).thenReturn(CommonErrorCode.SUCCESS);
+        Mockito.when(pluginOperateManagerService.update(Mockito.any())).thenReturn(CommonErrorCode.SUCCESS);
+        Mockito.when(pluginOperateManagerService.delete(Mockito.any(BindingPluginDto.class))).thenReturn(CommonErrorCode.SUCCESS);
     }
 
     @Test
@@ -73,8 +78,7 @@ public class PluginServiceInfoImplTest{
         VirtualGatewayDto virtualGatewayDto = preCreate();
         long vgId = virtualGatewayDto.getId();
         PluginBindingDto pluginBindingDto = MockUtil.initProjectPluginBindingDto(vgId);
-        long id = pluginServiceInfo.create(pluginBindingDto);
-        pluginBindingDto.setId(id);
+        pluginServiceInfo.create(pluginBindingDto);
 
         ErrorCode errorCode = pluginServiceInfo.checkUnbindParam(99L);
         assertEquals(errorCode.message, "指定的插件绑定关系不存在");
@@ -87,7 +91,7 @@ public class PluginServiceInfoImplTest{
     public void checkCopyGlobalPluginToGateway() {
         VirtualGatewayDto virtualGatewayDto = preCreate();
         PluginBindingDto pluginBindingDto = MockUtil.initProjectPluginBindingDto(virtualGatewayDto.getId());
-        long id = pluginServiceInfo.create(pluginBindingDto);
+        pluginServiceInfo.create(pluginBindingDto);
         CopyGlobalPluginDto copyGlobalPluginDto = new CopyGlobalPluginDto();
         copyGlobalPluginDto.setVirtualGwId(99L);
         copyGlobalPluginDto.setPluginId(99L);
@@ -99,7 +103,7 @@ public class PluginServiceInfoImplTest{
         assertEquals(errorCode.message, "指定的插件绑定关系不存在");
 
 
-        copyGlobalPluginDto.setPluginId(id);
+        copyGlobalPluginDto.setPluginId(pluginBindingDto.getId());
         errorCode = pluginServiceInfo.checkCopyGlobalPluginToGateway(copyGlobalPluginDto);
         assertEquals(errorCode.message, "处理成功");
 
@@ -111,7 +115,7 @@ public class PluginServiceInfoImplTest{
     public void checkCreateParam() {
         VirtualGatewayDto virtualGatewayDto = preCreate();
         PluginBindingDto pluginBindingDto = MockUtil.initProjectPluginBindingDto(virtualGatewayDto.getId());
-        long id = pluginServiceInfo.create(pluginBindingDto);
+        pluginServiceInfo.create(pluginBindingDto);
 
         PluginBindingDto checkDto = new PluginBindingDto();
         checkDto.setVirtualGwId(99L);
@@ -121,23 +125,23 @@ public class PluginServiceInfoImplTest{
         assertEquals(errorCode.message, "指定的网关不存在");
 
         checkDto.setVirtualGwId(virtualGatewayDto.getId());
-        checkDto.setBindingObjectType(BINDING_OBJECT_TYPE_ROUTE_RULE);
+        checkDto.setBindingObjectType(BindingObjectTypeEnum.ROUTE.getValue());
         errorCode = pluginServiceInfo.checkCreateParam(checkDto);
         assertEquals(errorCode.message, "路由规则未发布");
 
-        checkDto.setBindingObjectType(BINDING_OBJECT_TYPE_GLOBAL);
+        checkDto.setBindingObjectType(BindingObjectTypeEnum.GLOBAL.getValue());
         errorCode = pluginServiceInfo.checkCreateParam(checkDto);
         assertEquals(errorCode.message, "当前网关未绑定域名，不允许发布");
 
-        checkDto.setBindingObjectType(BINDING_OBJECT_TYPE_HOST);
+        checkDto.setBindingObjectType(BindingObjectTypeEnum.HOST.getValue());
         errorCode = pluginServiceInfo.checkCreateParam(checkDto);
-        assertEquals(errorCode.getCode(), "InvalidParameter");
+        assertEquals(errorCode.message, "域名不存在");
 
-        checkDto.setBindingObjectType(BINDING_OBJECT_TYPE_SERVICE);
-        checkDto.setVirtualGwId(virtualGatewayDto.getId());
+        checkDto.setBindingObjectType(BindingObjectTypeEnum.GATEWAY.getValue());
         errorCode = pluginServiceInfo.checkCreateParam(checkDto);
-        assertEquals(errorCode.message, "参数  PluginType 缺失");
+        assertEquals(errorCode.message, "指定的网关不存在");
 
+        checkDto.setBindingObjectId(String.valueOf(virtualGatewayDto.getId()));
         checkDto.setTemplateId(99L);
         checkDto.setPluginType(pluginBindingDto.getPluginType());
         errorCode = pluginServiceInfo.checkCreateParam(checkDto);
@@ -148,24 +152,6 @@ public class PluginServiceInfoImplTest{
         postDelete(virtualGatewayDto);
     }
 
-    @Test
-    public void getBindingInfoList() {
-        VirtualGatewayDto virtualGatewayDto = preCreate();
-        PluginBindingDto pluginBindingDto = MockUtil.initProjectPluginBindingDto(virtualGatewayDto.getId());
-        long id = pluginServiceInfo.create(pluginBindingDto);
-
-        BindingPluginDto bindingPluginDto = new BindingPluginDto();
-        bindingPluginDto.setVirtualGwId(virtualGatewayDto.getId());
-        bindingPluginDto.setBindingObjectId(Long.valueOf(pluginBindingDto.getBindingObjectId()));
-        bindingPluginDto.setPluginType(pluginBindingDto.getPluginType());
-        bindingPluginDto.setBindingObjectType(pluginBindingDto.getBindingObjectType());
-
-        PluginBindingInfo plugin = pluginServiceInfo.getBindingInfo(bindingPluginDto);
-        assertEquals(plugin.getPluginType(), pluginBindingDto.getPluginType());
-
-        pluginServiceInfo.delete(pluginBindingDto);
-        postDelete(virtualGatewayDto);
-    }
 
      private VirtualGatewayDto preCreate(){
          DomainInfoDTO domainInfoDTO = MockUtil.initHttpDomainInfo();

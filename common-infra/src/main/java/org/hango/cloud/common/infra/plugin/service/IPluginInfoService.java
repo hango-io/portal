@@ -78,12 +78,12 @@ public interface IPluginInfoService extends CommonService<PluginBindingInfo, Plu
     /**
      * 查询当前对象上生效的插件绑定关系列表（仅含状态为enable的插件列表）
      */
-    List<PluginBindingInfo> getEnablePluginBindingList(long virtualGwId, String bindingObjectId, String bindingObjectType);
+    List<PluginBindingInfo> getEnablePluginBindingList(long virtualGwId, Long bindingObjectId, String bindingObjectType);
 
     /**
      * 查询当前对象上的插件绑定关系列表（包含状态为enable、disable的插件列表）
      */
-    List<PluginBindingDto> getPluginBindingList(long virtualGwId, String bindingObjectId, String bindingObjectType);
+    List<PluginBindingDto> getPluginBindingList(long virtualGwId, Long bindingObjectId, String bindingObjectType);
 
 
     /**
@@ -95,10 +95,4 @@ public interface IPluginInfoService extends CommonService<PluginBindingInfo, Plu
      * 查询插件列表
      */
     List<PluginBindingDto> getBindingPluginInfoList(PluginBindingInfoQuery query);
-
-    /**
-     *  填充插件值
-     */
-    void fillPluginBindingInfo(PluginBindingDto pluginBindingDto);
-
 }

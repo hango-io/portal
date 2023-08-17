@@ -75,7 +75,7 @@ public class PluginBindingDto extends CommonExtensionDto implements Serializable
     @JSONField(name = "BindingObjectName")
     private String bindingObjectName;
 
-    //todo sx
+    //历史原因，当前返回给前端的是GwName，实际是virtualGwName
     @JSONField(name = "GwName")
     private String virtualGwName;
 
@@ -90,16 +90,4 @@ public class PluginBindingDto extends CommonExtensionDto implements Serializable
 
     @JSONField(name = "GwType")
     private String gwType;
-
-    public PluginBindingDto(Long virtualGwId, String bindingObjectType, String bindingObjectId, String pluginType, String pluginConfiguration) {
-        this.virtualGwId = virtualGwId;
-        this.bindingObjectType = bindingObjectType;
-        this.bindingObjectId = bindingObjectId;
-        this.pluginType = pluginType;
-        this.pluginConfiguration = pluginConfiguration;
-    }
-
-    public PluginBindingDto() {
-    }
-
 }

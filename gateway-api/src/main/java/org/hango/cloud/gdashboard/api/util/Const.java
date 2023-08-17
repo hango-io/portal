@@ -12,9 +12,6 @@ public class Const {
 
     public static final String DEFAULT_ENCODING = "utf-8";
 
-    public static final String DEFAULT_CONTENT_TYPE = "application/json";
-
-    public static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
     /**
      * Some time constants
@@ -23,34 +20,14 @@ public class Const {
     public static final long SEC_OF_HOUR = SEC_OF_MINUTE * 60;
     public static final long SEC_OF_DAY = SEC_OF_HOUR * 24;
 
-    public static final long MS_OF_MINUTE = SEC_OF_MINUTE * 1000;
     public static final long MS_OF_HOUR = SEC_OF_HOUR * 1000;
     public static final long MS_OF_DAY = SEC_OF_DAY * 1000;
 
-    public static final String EXAMPLE = "example";
 
     public static final String HTTP = "http";
 
     public static final String HTTPS = "https";
 
-    /**
-     * Http Method Type
-     */
-    public static final String GET_METHOD = "GET";
-
-    public static final String POST_METHOD = "POST";
-
-    public static final String PUT_METHOD = "PUT";
-
-    public static final String HEAD_METHOD = "HEAD";
-
-    public static final String DELETE_METHOD = "DELETE";
-
-    public static final String OPTIONS_METHOD = "OPTIONS";
-
-    public static final String SP = "##";
-
-    public static final int OK = 200;
 
     public static final int MAX_COUNT = 100;
     /**
@@ -75,10 +52,6 @@ public class Const {
      */
     public static final String REGEX_DESCRIPTION = "^[\\s\\S]{0,200}";
 
-    /**
-     * 通用，选填，支持全文本，最长64字符
-     */
-    public static final String REGEX_COMMON = "^[\\s\\S]{0,64}";
 
     /**
      * 网关API管理
@@ -122,22 +95,12 @@ public class Const {
 
     //api type
     public static final String REGEX_API_TYPE = "RESTFUL";
-    //api description
-    public static final String REGEX_API_DESCRIPTION = "\\S{1,255}|(\\s)";
 
 
     //公共参数
     public static final String ACTION = "Action";
     public static final String VERSION = "Version";
 
-
-    /**
-     * API测试用例 校验规则
-     */
-
-    public static final String CONTAINS = "contains";
-
-    public static final String STATUS_CODE = "status_code";
 
 
     //记录操作日志时，区分对象类型
@@ -164,10 +127,6 @@ public class Const {
 
     public static final String QUERYSTRING_PARAM_TYPE = "QUERYSTRING";
 
-    /**
-     * API状态
-     */
-    public static final String API_DOCUMENT_STATUS = "开发中";
 
     public static final String BLANK_ARRAY_CONST = "_blank_array";
     public static final String BLANK_CONST = "_blank";
@@ -194,7 +153,6 @@ public class Const {
 
     public static final String AUTO_GENERATE = "Auto Generate";
 
-    public static final String ERROR_CODE = "errorCode";
 
     public static final String HEADER = "Header";
     public static final String PARAMETER = "Parameter";

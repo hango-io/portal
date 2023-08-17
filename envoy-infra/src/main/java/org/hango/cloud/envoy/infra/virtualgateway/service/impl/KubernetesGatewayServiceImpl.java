@@ -83,7 +83,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             KubernetesGatewayDTO kubernetesGatewayDTO = new KubernetesGatewayDTO();
             kubernetesGatewayDTO.setDomainId(domainInfoDTO.getId());
             kubernetesGatewayDTO.setHostname(domainInfoDTO.getHost());
-            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, String.valueOf(domainInfoDTO.getId()), BindingObjectTypeEnum.HOST.getValue());
+            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, domainInfoDTO.getId(), BindingObjectTypeEnum.HOST.getValue());
             kubernetesGatewayDTO.setPluginBindingDtos(pluginBindingList);
             kubernetesGatewayDTOS.add(kubernetesGatewayDTO);
         }
@@ -168,7 +168,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             if (rule == null || rule.getDomainId() == null){
                 continue;
             }
-            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, String.valueOf(rule.getDomainId()), BindingObjectTypeEnum.HOST.getValue());
+            List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayId, rule.getDomainId(), BindingObjectTypeEnum.HOST.getValue());
             rule.setPluginBindingDtos(pluginBindingList);
         }
 
@@ -228,11 +228,10 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
         List<KubernetesGatewayInfo> targetResources = virtualGatewayRpcService.getKubernetesGateway(confAddr, null);
         //查询ingress
         List<IngressDTO> ingress = virtualGatewayRpcService.getKubernetesIngress(confAddr, null);
-        if (CollectionUtils.isEmpty(ingress)){
-            return targetResources;
+        if (!CollectionUtils.isEmpty(ingress)){
+            List<KubernetesGatewayInfo> ingressGatewayList = ingress.stream().map(Trans::toGateway).filter(Objects::nonNull).collect(Collectors.toList());
+            targetResources.addAll(ingressGatewayList);
         }
-        List<KubernetesGatewayInfo> ingressGatewayList = ingress.stream().map(Trans::toGateway).filter(Objects::nonNull).collect(Collectors.toList());
-        targetResources.addAll(ingressGatewayList);
         //设置projectId
         kubernetesGatewayService.fillGatewayInfo(targetResources);
         //过滤projectId
@@ -288,7 +287,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
             if (!CollectionUtils.isEmpty(virtualGatewayDto.getDomainInfos())){
                 for (DomainInfoDTO domainInfoDTO : virtualGatewayDto.getDomainInfos()) {
                     //删除插件
-                    List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayDto.getId(), String.valueOf(domainInfoDTO.getId()), BindingObjectTypeEnum.HOST.getValue());
+                    List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(virtualGatewayDto.getId(), domainInfoDTO.getId(), BindingObjectTypeEnum.HOST.getValue());
                     pluginBindingList.forEach(pluginInfoService::delete);
                     //删除域名
                     domainInfoService.delete(domainInfoDTO);
@@ -373,7 +372,7 @@ public class KubernetesGatewayServiceImpl implements IKubernetesGatewayService {
         for (DomainInfoDTO dbDomain : dbDomains) {
             if (!targetHosts.contains(dbDomain.getHost())){
                 //删除插件
-                List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(kubernetesGatewayInfo.getVirtualGatewayId(), String.valueOf(dbDomain.getId()), BindingObjectTypeEnum.HOST.getValue());
+                List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(kubernetesGatewayInfo.getVirtualGatewayId(), dbDomain.getId(), BindingObjectTypeEnum.HOST.getValue());
                 pluginBindingList.forEach(pluginInfoService::delete);
                 //删除域名
                 domainInfoService.delete(dbDomain);

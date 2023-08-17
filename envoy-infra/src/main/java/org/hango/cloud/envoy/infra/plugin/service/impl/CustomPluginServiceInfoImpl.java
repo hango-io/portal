@@ -9,6 +9,7 @@ import org.hango.cloud.common.infra.plugin.dao.IPluginBindingInfoDao;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginUpdateDto;
 import org.hango.cloud.common.infra.plugin.dto.UpdatePluginStatusDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
@@ -24,7 +25,6 @@ import org.hango.cloud.envoy.infra.plugin.dao.ICustomPluginInfoDao;
 import org.hango.cloud.envoy.infra.plugin.dto.*;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfoQuery;
-import org.hango.cloud.envoy.infra.plugin.meta.PluginScopeEnum;
 import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusEnum;
 import org.hango.cloud.envoy.infra.plugin.rpc.CustomPluginRpcService;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
@@ -41,6 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.FILE;
+import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.OCI;
 
 /**
  * 自定义插件service层实现类
@@ -80,20 +83,41 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     @Autowired
     private IEnvoyPluginInfoService iEnvoyPluginInfoService;
 
+    private static final List<String> VALID_VIRTUAL_GATEWAY = Arrays.asList("ApiGateway", "NetworkProxy", "LoadBalance");
+
+
+
     @Override
     public ErrorCode checkPluginImportParameter(CustomPluginInfoDto customPluginInfoDto) {
-        CustomPluginInfoQuery query = CustomPluginInfoQuery.builder()
-                .pluginType(customPluginInfoDto.getPluginType())
-                .build();
-        List<CustomPluginInfo> customPluginInfoList = customPluginInfoDao.getCustomPluginInfoList(query);
         String[] pluginScopes = customPluginInfoDto.getPluginScope().split(",");
         for (String scopes : pluginScopes) {
-            if (PluginScopeEnum.fromScope(scopes) == null) {
+            if (!BindingObjectTypeEnum.getCustomPluginScope().contains(scopes)) {
                 return CommonErrorCode.invalidParameter("插件作用域错误");
             }
         }
+        //校验插件内容
+        ErrorCode errorCode = checkPluginContent(customPluginInfoDto.getSourceType(),customPluginInfoDto.getSourceUrl(), customPluginInfoDto.getSourceContent());
+        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
+            return errorCode;
+        }
+
+        //校验插件名称是否重复
+        errorCode = checkPluginType(customPluginInfoDto);
+        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
+            return errorCode;
+        }
+
+        return CommonErrorCode.SUCCESS;
+    }
+
+    private ErrorCode checkPluginType(CustomPluginInfoDto customPluginInfoDto){
+        CustomPluginInfoQuery query = CustomPluginInfoQuery.builder().pluginType(customPluginInfoDto.getPluginType()).build();
+        List<CustomPluginInfo> customPluginInfoList = customPluginInfoDao.getCustomPluginInfoList(query);
+        if (!CollectionUtils.isEmpty(customPluginInfoList)){
+            return CommonErrorCode.invalidParameter("插件名称已存在");
+        }
         //自定义插件名称不能与系统插件重复
-        List<VirtualGatewayDto> virtualGateways = virtualGatewayService.findAll().stream().filter(virtualGatewayDto -> !"TcpProxy".equals(virtualGatewayDto.getType())).collect(Collectors.toList());
+        List<VirtualGatewayDto> virtualGateways = virtualGatewayService.findAll().stream().filter(o -> VALID_VIRTUAL_GATEWAY.contains(o.getType())).collect(Collectors.toList());
         //查询系统插件
         Set<String> pluginTypes = virtualGateways.stream()
                 .filter(virtualGateway -> EnvoyConst.ENVOY_GATEWAY_TYPE.equals(virtualGateway.getGwType()))
@@ -108,16 +132,21 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
                 return CommonErrorCode.invalidParameter("自定义插件名称不能与系统插件重复");
             }
         }
-        if (!customPluginInfoList.isEmpty()){
-            return CommonErrorCode.EXISTS_PLUGIN_WITH_THE_SAME_NAME;
+        return CommonErrorCode.SUCCESS;
+    }
+
+    private ErrorCode checkPluginContent(String sourceType, String sourceUrl, MultipartFile sourceContent) {
+        if (OCI.equals(sourceType) && !StringUtils.hasText(sourceUrl)){
+            return CommonErrorCode.invalidParameter("OCI源码地址不能为空");
         }
-        MultipartFile sourceContent = customPluginInfoDto.getSourceContent();
-        if (sourceContent == null || sourceContent.isEmpty()) {
-            return CommonErrorCode.invalidParameter("代码文件为空");
-        }
-        String content = EnvoyCommonUtil.file2Str(sourceContent);
-        if (StringUtils.isEmpty(content)){
-            return CommonErrorCode.invalidParameter("代码文件格式错误");
+        if (FILE.equals(sourceType)){
+            if (sourceContent == null || sourceContent.isEmpty()) {
+                return CommonErrorCode.invalidParameter("代码文件为空");
+            }
+            String content = EnvoyCommonUtil.file2Str(sourceContent);
+            if (!StringUtils.hasText(content)){
+                return CommonErrorCode.invalidParameter("代码文件格式错误");
+            }
         }
         return CommonErrorCode.SUCCESS;
     }
@@ -134,19 +163,11 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         }
         String[] pluginScopes = pluginUpdateDto.getPluginScope().split(",");
         for (String scopes : pluginScopes) {
-            if (PluginScopeEnum.fromScope(scopes) == null) {
+            if (!BindingObjectTypeEnum.getCustomPluginScope().contains(scopes)) {
                 return CommonErrorCode.invalidParameter("插件作用域错误");
             }
         }
-        MultipartFile sourceContent = pluginUpdateDto.getSourceContent();
-        if (sourceContent == null || sourceContent.isEmpty()) {
-            return CommonErrorCode.invalidParameter("代码文件为空");
-        }
-        String content = EnvoyCommonUtil.file2Str(sourceContent);
-        if (StringUtils.isEmpty(content)){
-            return CommonErrorCode.invalidParameter("代码文件格式错误");
-        }
-        return CommonErrorCode.SUCCESS;
+        return checkPluginContent(pluginUpdateDto.getSourceType(), pluginUpdateDto.getSourceUrl(), pluginUpdateDto.getSourceContent());
     }
 
     @Override
@@ -156,23 +177,13 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         if (customPluginInfo == null){
             return CommonErrorCode.invalidParameter("自定义插件不存在");
         }
-//        if (PluginStatusEnum.ONLINE.getStatus().equals(updatePluginStatusDto.getPluginStatus())){
-//            // 当前时间戳少于更新时间戳一分钟则不允许修改
-//            Instant now = Instant.now(); // 获取当前时间戳
-//            Instant givenTime = Instant.ofEpochMilli(customPluginInfo.getUpdateTime()); // 将给定时间戳转换为Instant对象
-//            if (now.getEpochSecond() - givenTime.getEpochSecond() < 60) {
-//                return CommonErrorCode.invalidParameter("自定义插件更新时间间隔不足一分钟不允许修改插件状态");
-//            }
-//        }
         String pluginStatus = updatePluginStatusDto.getPluginStatus();
         if (customPluginInfo.getPluginStatus().equals(pluginStatus)){
             return CommonErrorCode.invalidParameter("插件状态已{}，请刷新页面", updatePluginStatusDto.getPluginStatus());
         }
         //下架插件校验
         if (PluginStatusEnum.OFFLINE.getStatus().equals(pluginStatus)){
-            PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
-                    .pluginType(Collections.singletonList(customPluginInfo.getPluginType()))
-                    .build();
+            PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().pluginType(Collections.singletonList(customPluginInfo.getPluginType())).build();
             List<PluginBindingInfo> pluginBindingInfoList = pluginBindingInfoDao.getPluginBindingInfoList(query);
             if (!CollectionUtils.isEmpty(pluginBindingInfoList)){
                 return CommonErrorCode.invalidParameter("插件已绑定网关，不允许下架");
@@ -182,8 +193,8 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     }
 
     @Override
-    public ErrorCode checkDeletePlugin(DeletePluginDto deletePluginDto) {
-        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(deletePluginDto.getId());
+    public ErrorCode checkDeletePlugin(Long id) {
+        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(id);
         if (customPluginInfo == null) {
             return CommonErrorCode.invalidParameter("插件不存在，请刷新页面");
         }
@@ -196,16 +207,6 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     @Override
     public Long pluginImport(CustomPluginInfoDto customPluginInfoDto) {
         CustomPluginInfo customPluginInfo = Trans.customPluginDto2MetaInfo(customPluginInfoDto);
-        List<? extends GatewayDto> gatewayDtos = iGatewayService.findAll();
-        //下发文件
-        for (GatewayDto gateway : gatewayDtos) {
-            Boolean planeResult = customPluginRpcService.publishCustomPlugin(Trans.customPluginInfo2ApiPlaneDto(customPluginInfo), gateway.getConfAddr());
-            if (Boolean.FALSE.equals(planeResult)){
-                logger.error("publish custom plugin to api plane failed, gateway:{}", gateway.getGwClusterName());
-                return -1L;
-            }
-        }
-        //存储db
         customPluginInfo.setPluginStatus(PluginStatusEnum.OFFLINE.getStatus());
         customPluginInfoDao.add(customPluginInfo);
         return customPluginInfo.getId();
@@ -215,27 +216,16 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
     @Override
     public Integer pluginUpdate(PluginUpdateDto pluginUpdateDto) {
         CustomPluginInfo customPluginInfo = customPluginInfoDao.get(pluginUpdateDto.getId());
-        customPluginInfo.setPluginName(pluginUpdateDto.getPluginName());
-        customPluginInfo.setDescription(pluginUpdateDto.getDescription());
-        customPluginInfo.setPluginScope(pluginUpdateDto.getPluginScope());
-        customPluginInfo.setAuthor(pluginUpdateDto.getAuthor());
-        if (StringUtils.hasText(pluginUpdateDto.getSchemaContent())){
-            customPluginInfo.setPluginSchema(pluginUpdateDto.getSchemaContent());
-        }
-        String content = EnvoyCommonUtil.file2Str(pluginUpdateDto.getSourceContent());
-        if (StringUtils.hasText(content)){
-            customPluginInfo.setPluginContent(content);
-
-        }
+        Trans.merge(customPluginInfo, pluginUpdateDto);
         return customPluginInfoDao.update(customPluginInfo);
     }
 
     @Override
     public ErrorCode updatePluginStatus(UpdatePluginStatusDto updatePluginStatusDto) {
-        List<VirtualGatewayDto> allVirtualGateway = virtualGatewayService.findAll().stream().filter(virtualGatewayDto -> !"TcpProxy".equals(virtualGatewayDto.getType())).collect(Collectors.toList());
+        List<VirtualGatewayDto> allVirtualGateway = virtualGatewayService.findAll().stream().filter(virtualGatewayDto -> VALID_VIRTUAL_GATEWAY.contains(virtualGatewayDto.getType())).collect(Collectors.toList());
         CustomPluginInfo customPluginInfo = customPluginInfoDao.get(updatePluginStatusDto.getId());
         customPluginInfo.setPluginStatus(updatePluginStatusDto.getPluginStatus());
-        //更新文件配置
+        //更新配置
         ErrorCode errorCode = handlePluginStatus(customPluginInfo, allVirtualGateway, PluginStatusEnum.fromType(customPluginInfo.getPluginStatus()));
         if (!CommonErrorCode.SUCCESS.equals(errorCode)){
             return errorCode;
@@ -247,9 +237,16 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
 
 
     private ErrorCode handlePluginStatus(CustomPluginInfo customPluginInfo, List<VirtualGatewayDto> virtualGatewayDtos, PluginStatusEnum pluginStatusEnum) {
+        //文件处理
+        if (FILE.equals(customPluginInfo.getSourceType())){
+            ErrorCode errorCode = handleFile(customPluginInfo, pluginStatusEnum);
+            if (!CommonErrorCode.SUCCESS.equals(errorCode)){
+                return errorCode;
+            }
+        }
         //plm item配置更新
         for (VirtualGatewayDto virtualGatewayDto : virtualGatewayDtos) {
-            Boolean result = iPluginManagerService.updateCustomPluginStatus(virtualGatewayDto, customPluginInfo, pluginStatusEnum.getPlaneStatus());
+            Boolean result = iPluginManagerService.updateCustomPluginStatus(virtualGatewayDto, customPluginInfo);
             if (Boolean.FALSE.equals(result)){
                 logger.error("update plugin manager failed, gateway:{}", virtualGatewayDto.getGwClusterName());
                 return CommonErrorCode.INTERNAL_SERVER_ERROR;
@@ -258,21 +255,28 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         return CommonErrorCode.SUCCESS;
     }
 
-
-    @Override
-    public Long deletePlugin(DeletePluginDto deletePluginDto) {
-        CustomPluginInfo customPluginInfo = customPluginInfoDao.get(deletePluginDto.getId());
+    private ErrorCode handleFile(CustomPluginInfo customPluginInfo, PluginStatusEnum pluginStatusEnum){
         List<? extends GatewayDto> gatewayDtos = iGatewayService.findAll();
-        //下发文件
         for (GatewayDto gateway : gatewayDtos) {
-            Boolean planeResult = customPluginRpcService.deleteCustomPlugin(customPluginInfo.getPluginType(), customPluginInfo.getLanguage(), gateway.getConfAddr());
-            if (Boolean.FALSE.equals(planeResult)){
-                logger.error("delete custom plugin to api plane failed, gateway:{}", gateway.getGwClusterName());
-                return -1L;
+            String pluginNmae = Trans.getPluginNmae(customPluginInfo.getPluginType(), customPluginInfo.getLanguage());
+            Boolean planeResult;
+            if (PluginStatusEnum.ONLINE.equals(pluginStatusEnum)){
+                planeResult = customPluginRpcService.publishCustomPlugin(pluginNmae, customPluginInfo.getPluginContent(), gateway);
+            }else {
+                planeResult = customPluginRpcService.deleteCustomPlugin(pluginNmae, gateway);
+            }
+            if (Boolean.FALSE.equals(planeResult)) {
+                return CommonErrorCode.INTERNAL_SERVER_ERROR;
             }
         }
+        return CommonErrorCode.SUCCESS;
+    }
+
+    @Override
+    public ErrorCode deletePlugin(Long id) {
+        CustomPluginInfo customPluginInfo = CustomPluginInfo.builder().id(id).build();
         customPluginInfoDao.delete(customPluginInfo);
-        return deletePluginDto.getId();
+        return CommonErrorCode.SUCCESS;
     }
 
     @Override
@@ -295,6 +299,14 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         return result;
     }
 
+    @Override
+    public CustomPluginInfo getCustomPlugin(String pluginType) {
+        CustomPluginInfoQuery query = CustomPluginInfoQuery.builder()
+                .pluginType(pluginType)
+                .build();
+        List<CustomPluginInfo> customPluginInfoList = customPluginInfoDao.getCustomPluginInfoList(query);
+        return CollectionUtils.isEmpty(customPluginInfoList) ? null : customPluginInfoList.get(0);
+    }
 
     @Override
     public Page<CustomPluginInstanceDto> getCustomPluginInstancePage(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto) {
@@ -317,7 +329,6 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         List<PluginBindingInfo> pluginBindingInfos = page.getRecords();
         List<CustomPluginInstanceDto> customPluginInstanceDtos = pluginBindingInfos.stream()
                 .map(pluginInfoService::toView)
-                .peek(pluginInfoService::fillPluginBindingInfo)
                 .map(this::buildCustomPluginInstanceDto)
                 .collect(Collectors.toList());
         Page<CustomPluginInstanceDto> pageRes = Page.of(page.getCurrent(), page.getTotal());
@@ -326,9 +337,10 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
 
     }
 
-    public CustomPluginInstanceDto buildCustomPluginInstanceDto(PluginBindingDto pluginBindingInfo){
+    private CustomPluginInstanceDto buildCustomPluginInstanceDto(PluginBindingDto pluginBindingInfo){
         CustomPluginInstanceDto customPluginInstanceDto = CustomPluginInstanceDto.builder().build();
         customPluginInstanceDto.setId(pluginBindingInfo.getId());
+        customPluginInstanceDto.setBindingObjectId(pluginBindingInfo.getBindingObjectId());
         customPluginInstanceDto.setBindingObjectType(pluginBindingInfo.getBindingObjectType());
         customPluginInstanceDto.setBindingObjectName(pluginBindingInfo.getBindingObjectName());
         customPluginInstanceDto.setVirtualGwName(pluginBindingInfo.getVirtualGwName());

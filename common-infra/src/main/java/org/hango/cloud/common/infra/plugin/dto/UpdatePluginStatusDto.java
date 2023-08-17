@@ -1,6 +1,8 @@
 package org.hango.cloud.common.infra.plugin.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.Pattern;
 
@@ -10,6 +12,8 @@ import javax.validation.constraints.Pattern;
  * @Author xianyanglin
  * @Date 2023/6/30 16:20
  */
+@Getter
+@Setter
 public class UpdatePluginStatusDto {
     /**
      * 数据库自增id
@@ -22,28 +26,4 @@ public class UpdatePluginStatusDto {
     @JSONField(name = "PluginStatus")
     @Pattern(regexp = "online|offline")
     private String pluginStatus;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getPluginStatus() {
-        return pluginStatus;
-    }
-
-    public void setPluginStatus(String pluginStatus) {
-        this.pluginStatus = pluginStatus;
-    }
-
-    @Override
-    public String toString() {
-        return "UpdatePluginStatusDto{" +
-                "id=" + id +
-                ", pluginStatus='" + pluginStatus + '\'' +
-                '}';
-    }
 }

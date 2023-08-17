@@ -15,19 +15,15 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CustomPluginDTO {
-    /** 插件的名称: uri-restriction */
+    /** 插件的名称: uri-restriction.lua */
     @JSONField(name = "PluginName")
     private String pluginName;
-
-    /** 插件的类型 wasm/lua */
-    @JSONField(name = "Language")
-    private String language;
 
     /** 插件的内容 */
     @JSONField(name = "PluginContent")
     private String pluginContent;
 
-    /** 插件schema */
-    @JSONField(name = "Schema")
-    private String schema;
+    /** 网关标识 */
+    @JSONField(name = "GwCluster")
+    private String gwCluster;
 }

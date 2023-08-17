@@ -216,7 +216,7 @@ public class CopyRouteImpl implements ICopyRoute {
             logger.error("copyRoutePlugins targetRoute is null");
             return;
         }
-        List<PluginBindingDto> alreadyBindingPlugins = pluginInfoService.getPluginBindingList(originGwId, String.valueOf(originRoute.getId()),
+        List<PluginBindingDto> alreadyBindingPlugins = pluginInfoService.getPluginBindingList(originGwId, originRoute.getId(),
                 BindingObjectTypeEnum.ROUTE.getValue());
 
         //先清除目标网关对应路由的全部路由插件
@@ -239,8 +239,7 @@ public class CopyRouteImpl implements ICopyRoute {
     }
 
     private void deleteDestGwRoutePlugins(long routeRuleId, long desGwId) {
-        List<PluginBindingDto> alreadyBindingPluginDes = pluginInfoService.getPluginBindingList(desGwId, String.valueOf(routeRuleId),
-                BindingObjectTypeEnum.ROUTE.getValue());
+        List<PluginBindingDto> alreadyBindingPluginDes = pluginInfoService.getPluginBindingList(desGwId, routeRuleId, BindingObjectTypeEnum.ROUTE.getValue());
         alreadyBindingPluginDes.forEach(item -> pluginInfoService.delete(item));
     }
 }

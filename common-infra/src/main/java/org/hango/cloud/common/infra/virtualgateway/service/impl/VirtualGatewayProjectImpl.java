@@ -99,7 +99,7 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
         if (publishedServiced > 0) {
             return CommonErrorCode.EXIST_PUBLISHED_SERVICE;
         }
-        List<PluginBindingDto> bindingPluginList = pluginInfoService.getPluginBindingList(virtualGwId, String.valueOf(projectId), BindingObjectTypeEnum.GLOBAL.getValue());
+        List<PluginBindingDto> bindingPluginList = pluginInfoService.getPluginBindingList(virtualGwId, projectId, BindingObjectTypeEnum.GLOBAL.getValue());
         if (!CollectionUtils.isEmpty(bindingPluginList)) {
             return CommonErrorCode.EXIST_PUBLISHED_PLUGIN;
         }

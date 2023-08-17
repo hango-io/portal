@@ -37,9 +37,14 @@ public interface IPluginManagerService {
     ErrorCode checkPluginManager(long virtualGwId, String name, boolean enable);
 
     /**
-     * 更新某个插件配置
+     * 更新插件
      */
-    boolean updatePluginManager(long virtualGwId, PluginOrderItemDto itemDto);
+    boolean updatePluginManagerItem(long virtualGwId, PluginOrderItemDto itemDto);
+
+    /**
+     * 删除插件
+     */
+    boolean deletePluginManagerItem(long virtualGwId, PluginOrderItemDto itemDto);
 
     /**
      * 更新数据面插件开关配置（插件开关数据以原有模板为准）
@@ -56,12 +61,11 @@ public interface IPluginManagerService {
      * @return
      */
     boolean offlinePluginManager(VirtualGatewayDto virtualGatewayDto);
-    List<PluginOrderItemDto> getPluginManagers(Long vgId);
     /**
      * 从数据面获取插件配置
      */
     PluginOrderDto getPluginOrder(Long vgId);
 
 
-    Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, CustomPluginInfo customPluginInfo, String operate);
+    Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, CustomPluginInfo customPluginInfo);
 }

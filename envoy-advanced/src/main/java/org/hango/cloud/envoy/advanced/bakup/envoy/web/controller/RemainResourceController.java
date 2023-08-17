@@ -1,11 +1,11 @@
 package org.hango.cloud.envoy.advanced.bakup.envoy.web.controller;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.common.infra.virtualgateway.dto.QueryVirtualGatewayDto;
@@ -72,8 +72,7 @@ public class RemainResourceController extends AbstractController {
             return apiReturnSuccess(result);
         }
         //plugin template check
-        List<PluginTemplateDto> pluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(
-                permissionScopeId, null, NumberUtils.INTEGER_ZERO, NumberUtils.LONG_ONE);
+        List<PluginTemplateDto> pluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(PluginTemplateInfoQuery.builder().projectId(permissionScopeId).build());
         if (!CollectionUtils.isEmpty(pluginTemplateInfoList)) {
             PluginTemplateDto pluginTemplateInfo = pluginTemplateInfoList.get(0);
             result.put(RESOURCE_TYPE_NAME, Const.AUDIT_RESOURCE_TYPE_PLUGIN_TEMPLATE);

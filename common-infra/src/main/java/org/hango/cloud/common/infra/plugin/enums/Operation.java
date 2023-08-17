@@ -1,4 +1,4 @@
-package org.hango.cloud.common.infra.plugin.meta;
+package org.hango.cloud.common.infra.plugin.enums;
 
 public enum Operation {
     /**

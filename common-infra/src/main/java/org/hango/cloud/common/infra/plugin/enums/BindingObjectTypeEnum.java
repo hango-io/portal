@@ -2,6 +2,8 @@ package org.hango.cloud.common.infra.plugin.enums;
 
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -10,7 +12,6 @@ import java.util.stream.Stream;
  */
 public enum BindingObjectTypeEnum {
     ROUTE("routeRule", "路由级插件"),
-    SERVICE("service", "服务级插件"),
     HOST("host", "域名级插件"),
     //历史原因，global并不是全局插件，而是项目级插件
     GLOBAL("global", "项目级插件"),
@@ -34,6 +35,10 @@ public enum BindingObjectTypeEnum {
                 .filter(o -> o.getValue().equals(value))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static List<String> getCustomPluginScope(){
+        return Arrays.asList(ROUTE.getValue(), GLOBAL.getValue(), GATEWAY.getValue());
     }
 
 

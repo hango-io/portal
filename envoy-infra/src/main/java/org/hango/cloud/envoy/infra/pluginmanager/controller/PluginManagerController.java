@@ -56,7 +56,7 @@ public class PluginManagerController extends AbstractController {
         PluginOrderItemDto itemDto = new PluginOrderItemDto();
         itemDto.setName(name);
         itemDto.setEnable(enable);
-        boolean result = pluginManagerService.updatePluginManager(virtualGwId, itemDto);
+        boolean result = pluginManagerService.updatePluginManagerItem(virtualGwId, itemDto);
         return apiReturnSuccess(result);
     }
 

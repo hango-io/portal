@@ -29,7 +29,6 @@ public class PluginBindingQueryDto extends PageQuery {
     /**
      * 插件绑定对象类型，与bindingObjectId共同确定一个具体对象
      */
-    @Pattern(regexp = "routeRule|service|global|host|gateway", message = "插件范围仅支持routeRule/service/global/host/gateway")
     @JSONField(name = "BindingObjectType")
     private String bindingObjectType;
 

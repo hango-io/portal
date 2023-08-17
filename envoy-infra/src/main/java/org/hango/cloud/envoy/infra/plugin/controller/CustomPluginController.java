@@ -12,10 +12,7 @@ import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -77,24 +74,23 @@ public class CustomPluginController  extends AbstractController {
     }
 
     @Audit(eventName = "DeletePlugin", description = "删除插件")
-    @PostMapping(params = {"Action=DeletePlugin"})
-    public String deletePlugin(@RequestBody DeletePluginDto deletePluginDto) {
-        ErrorCode errorCode = customPluginInfoService.checkDeletePlugin(deletePluginDto);
+    @GetMapping(params = {"Action=DeletePlugin"})
+    public String deletePlugin(@RequestParam(value = "Id") Long id) {
+        ErrorCode errorCode = customPluginInfoService.checkDeletePlugin(id);
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return apiReturn(Result.err(errorCode));
         }
-        Long id = customPluginInfoService.deletePlugin(deletePluginDto);
+        errorCode = customPluginInfoService.deletePlugin(id);
+        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
+            return apiReturn(Result.err(errorCode));
+        }
         Map<String,Object> result = new HashMap<>();
         result.put(RESULT,id);
         return apiReturnSuccess(result);
     }
 
-    @PostMapping(params = {"Action=DescribeCustomPluginInfo"})
-    public String describeCustomPluginInfo(@RequestBody Map<String, Object> requestBody) {
-        Object id = requestBody.get("Id");
-        if (Objects.isNull(id)) {
-            return apiReturn(Result.err(CommonErrorCode.invalidParameter("Id is null")));
-        }
+    @GetMapping(params = {"Action=DescribeCustomPluginInfo"})
+    public String describeCustomPluginInfo(@RequestParam(value = "Id") Long id) {
         Long pluginId = Long.parseLong(id.toString());
         DescribeCustomPluginDto describeCustomPluginDto = customPluginInfoService.describeCustomPluginInfo(pluginId);
         Map<String,Object> result = new HashMap<>();

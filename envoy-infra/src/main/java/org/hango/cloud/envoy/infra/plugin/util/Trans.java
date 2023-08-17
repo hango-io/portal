@@ -2,20 +2,21 @@ package org.hango.cloud.envoy.infra.plugin.util;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.PluginDto;
+import org.hango.cloud.common.infra.plugin.dto.PluginUpdateDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.envoy.infra.base.util.EnvoyCommonUtil;
-import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginDTO;
 import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginInfoDto;
 import org.hango.cloud.envoy.infra.plugin.dto.DescribeCustomPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginSource;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 
-import static org.hango.cloud.common.infra.base.meta.BaseConst.RIDER_PLUGIN;
+import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.FILE;
+import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_INGRESS;
 
 /**
  * @Author zhufengwei
@@ -92,19 +93,29 @@ public class Trans {
                 .sourceType(customPluginInfoDto.getSourceType())
                 .pluginCategory(customPluginInfoDto.getPluginCategory())
                 .pluginScope(customPluginInfoDto.getPluginScope())
+                .sourceUrl(customPluginInfoDto.getSourceUrl())
+                .secretName(customPluginInfoDto.getSecretName())
                 .author(customPluginInfoDto.getAuthor())
                 .pluginSchema(customPluginInfoDto.getSchemaContent())
                 .pluginContent(EnvoyCommonUtil.file2Str(customPluginInfoDto.getSourceContent()))
                 .build();
     }
 
-    public static CustomPluginDTO customPluginInfo2ApiPlaneDto(CustomPluginInfo customPluginInfo) {
-        return CustomPluginDTO.builder()
-                .pluginName(customPluginInfo.getPluginType())
-                .language(customPluginInfo.getLanguage())
-                .pluginContent(customPluginInfo.getPluginContent())
-                .schema(customPluginInfo.getPluginSchema())
-                .build();
+
+    public static void merge(CustomPluginInfo source, PluginUpdateDto update) {
+        source.setPluginName(update.getPluginName());
+        source.setDescription(update.getDescription());
+        source.setPluginScope(update.getPluginScope());
+        source.setAuthor(update.getAuthor());
+        source.setSourceType(update.getSourceType());
+        source.setPluginSchema(update.getSchemaContent());
+        source.setLanguage(update.getLanguage());
+
+        source.setSourceUrl(update.getSourceUrl());
+        source.setSecretName(update.getSecretName());
+
+        String content = EnvoyCommonUtil.file2Str(update.getSourceContent());
+        source.setPluginContent(content);
     }
 
     public static DescribeCustomPluginDto customPluginInfo2Dto(CustomPluginInfo customPluginInfo) {
@@ -118,56 +129,53 @@ public class Trans {
         describeCustomPluginDto.setDescription(customPluginInfo.getDescription());
         describeCustomPluginDto.setLanguage(customPluginInfo.getLanguage());
         describeCustomPluginDto.setSourceType(customPluginInfo.getSourceType());
+        describeCustomPluginDto.setSourceUrl(customPluginInfo.getSourceUrl());
+        describeCustomPluginDto.setSecretName(customPluginInfo.getSecretName());
         describeCustomPluginDto.setPluginCategory(customPluginInfo.getPluginCategory());
         describeCustomPluginDto.setPluginStatus(customPluginInfo.getPluginStatus());
         describeCustomPluginDto.setPluginScope(customPluginInfo.getPluginScope());
         describeCustomPluginDto.setAuthor(customPluginInfo.getAuthor());
         describeCustomPluginDto.setUpdateTime(customPluginInfo.getUpdateTime());
-        describeCustomPluginDto.setCreateTime(customPluginInfo.getCreateTime());
         describeCustomPluginDto.setSchemaContent(customPluginInfo.getPluginSchema());
         describeCustomPluginDto.setSourceContent(customPluginInfo.getPluginContent());
         return describeCustomPluginDto;
     }
 
-    public static PluginOrderItemDto buildEngineRulePlugin(EngineRuleDTO engineRuleDTO, VirtualGatewayDto virtualGatewayDto) {
-        JSONObject fileName = new JSONObject();
-        fileName.put("filename",engineRuleDTO.getFilename());
-        JSONObject local = new JSONObject();
-        local.put("local",fileName);
-        JSONObject plugin = new JSONObject();
-        plugin.put("code",local);
-        if (engineRuleDTO.getConfig() != null) {
-            plugin.put("config",engineRuleDTO.getConfig());
-        }
-        plugin.put("name",engineRuleDTO.getName());
-        JSONObject packagePath = new JSONObject();
-        packagePath.put("package_path","/usr/local/lib/rider/?/init.lua;/usr/local/lib/rider/?.lua;");
-        plugin.put("vm_config",packagePath);
-        JSONObject settings = new JSONObject();
-        settings.put("plugin",plugin);
-        JSONObject inline = new JSONObject();
-        inline.put("settings",settings);
+    public static PluginOrderItemDto builderCustomPluginItem(CustomPluginInfo customPluginInfo){
         PluginOrderItemDto pluginOrderItemDto = new PluginOrderItemDto();
-        pluginOrderItemDto.setEnable(true);
-        pluginOrderItemDto.setName(RIDER_PLUGIN);
-        pluginOrderItemDto.setInline(inline);
-        pluginOrderItemDto.setPort(virtualGatewayDto.getPort());
-        pluginOrderItemDto.setOperate(engineRuleDTO.getOperate());
-        pluginOrderItemDto.setSubName(engineRuleDTO.getName());
-        return pluginOrderItemDto;
-    }
-
-    public static PluginOrderItemDto builderRiderItem(String pluginType, String operate, String language, Integer port){
-        PluginOrderItemDto pluginOrderItemDto = new PluginOrderItemDto();
-        pluginOrderItemDto.setEnable(true);
+        String pluginType = customPluginInfo.getPluginType();
+        pluginOrderItemDto.setEnable(false);
         pluginOrderItemDto.setName(pluginType);
-        pluginOrderItemDto.setPort(port);
-        pluginOrderItemDto.setOperate(operate);
-        JSONObject rider = new JSONObject();
-        rider.put("pluginName", pluginType);
-        rider.put("url", "file://usr/local/lib/rider/plugins/" + pluginType + "." + language);
-        pluginOrderItemDto.setRider(rider);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("pluginName", pluginType);
+        String url;
+        if (FILE.equals(customPluginInfo.getSourceType())){
+            url = "file://usr/local/lib/rider/plugins/" + getPluginNmae(pluginType, customPluginInfo.getLanguage());
+        }else {
+            url = "oci://" + customPluginInfo.getSourceUrl();
+            jsonObject.put("imagePullSecretName", customPluginInfo.getSecretName());
+        }
+        jsonObject.put("url", url);
+        if ("lua".equals(customPluginInfo.getLanguage())){
+            pluginOrderItemDto.setRider(jsonObject);
+        }else {
+            pluginOrderItemDto.setWasm(jsonObject);
+        }
         return pluginOrderItemDto;
     }
 
+    public static String getPluginNmae(String pluginType, String language){
+        return pluginType + "." + language;
+    }
+
+    public static String getPluginManagerName(VirtualGatewayDto virtualGatewayDto) {
+        //多个ingress共用plm
+        String name;
+        if (KUBERNETES_INGRESS.equals(virtualGatewayDto.getType())){
+            name =  StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, "ingress", virtualGatewayDto.getGwClusterName());
+        }else {
+            name =  StringUtils.joinWith(BaseConst.SYMBOL_HYPHEN, "gw-cluster", virtualGatewayDto.getGwClusterName(), virtualGatewayDto.getCode());
+        }
+        return name.replace("_", "-");
+    }
 }

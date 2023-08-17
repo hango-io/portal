@@ -56,7 +56,8 @@ public class EnvoyPluginManagerController extends AbstractController {
     }
 
     @GetMapping(params = {"Action=DescribePluginInfoList"})
-    public String getPluginInfoList(@RequestParam(value = "VirtualGwId", required = false, defaultValue = "0") long virtualGwId, @Pattern(regexp = "|routeRule|service|global|host", message = "插件范围仅支持routeRule/service/global/host") @RequestParam(value = "PluginScope", required = false, defaultValue = "") String pluginScope) {
+    public String getPluginInfoList(@RequestParam(value = "VirtualGwId", required = false, defaultValue = "0") long virtualGwId,
+                                    @Pattern(regexp = "|routeRule|gateway|global|host", message = "插件范围仅支持routeRule/gateway/global/host") @RequestParam(value = "PluginScope", required = false, defaultValue = "") String pluginScope) {
         logger.info("分页查询插件详情列表, virtualGwId:{}, pluginScope:{}", virtualGwId, pluginScope);
         ErrorCode checkResult = envoyPluginInfoService.checkDescribePlugin(virtualGwId);
         if (!CommonErrorCode.SUCCESS.equals(checkResult)) {

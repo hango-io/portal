@@ -1,7 +1,7 @@
 package org.hango.cloud.common.infra.plugin.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
@@ -10,6 +10,7 @@ import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.slf4j.Logger;
@@ -22,8 +23,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
 
 /**
  * 插件模板service层实现类
@@ -42,7 +44,8 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
 
     @Override
     public ErrorCode checkCreateParam(PluginTemplateDto templateInfo) {
-        List<PluginTemplateInfo> pluginTemplateInfos = getTemplateByName(templateInfo.getTemplateName(), templateInfo.getProjectId());
+        PluginTemplateInfoQuery query = PluginTemplateInfoQuery.builder().projectId(templateInfo.getProjectId()).templateName(templateInfo.getTemplateName()).build();
+        List<PluginTemplateInfo> pluginTemplateInfos = pluginTemplateDao.getPluginTemplateInfoList(query);
         if (!CollectionUtils.isEmpty(pluginTemplateInfos)) {
             logger.info("创建模板时，项目下已存在同名模板/全局模版已存在");
             return CommonErrorCode.SAME_NAME_PLUGIN_TEMPLATE_EXIST;
@@ -58,13 +61,15 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
             logger.info("更新模板详情时，指定模板不存在! id:{}", pluginTemplateDto.getId());
             return CommonErrorCode.NO_SUCH_PLUGIN_TEMPLATE;
         }
-        List<PluginTemplateInfo> pluginTemplateInfos = getTemplateByName(pluginTemplateDto.getTemplateName(), pluginTemplateDto.getProjectId());
-        if (!CollectionUtils.isEmpty(pluginTemplateInfos)) {
-            for (PluginTemplateInfo template : pluginTemplateInfos) {
-                if (template.getId() != pluginTemplateDto.getId()) {
-                    logger.info("修改模板时，项目下已存在同名模板/全局模板已存在同名模版");
-                    return CommonErrorCode.SAME_NAME_PLUGIN_TEMPLATE_EXIST;
-                }
+        PluginTemplateInfoQuery query = PluginTemplateInfoQuery.builder().projectId(pluginTemplateDto.getProjectId()).templateName(pluginTemplateDto.getTemplateName()).build();
+        List<PluginTemplateInfo> pluginTemplateInfos = pluginTemplateDao.getPluginTemplateInfoList(query);
+        if (CollectionUtils.isEmpty(pluginTemplateInfos)) {
+            return CommonErrorCode.SUCCESS;
+        }
+        for (PluginTemplateInfo template : pluginTemplateInfos) {
+            if (template.getId() != pluginTemplateDto.getId()) {
+                logger.info("修改模板时，项目下已存在同名模板/全局模板已存在同名模版");
+                return CommonErrorCode.SAME_NAME_PLUGIN_TEMPLATE_EXIST;
             }
         }
         return CommonErrorCode.SUCCESS;
@@ -75,86 +80,35 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         if (pluginTemplateDto == null) {
             return CommonErrorCode.NO_SUCH_PLUGIN_TEMPLATE;
         }
+        PluginTemplateInfo pluginTemplateInfo = pluginTemplateDao.get(pluginTemplateDto.getId());
+        if (pluginTemplateInfo == null) {
+            return CommonErrorCode.NO_SUCH_PLUGIN_TEMPLATE;
+        }
         return CommonErrorCode.SUCCESS;
     }
 
-    private List<PluginTemplateInfo> getTemplateByName(String templateName, long projectId) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("templateName", templateName);
-        params.put("projectId", projectId);
-        return pluginTemplateDao.getRecordsByField(params);
-    }
 
     @Override
     public long create(PluginTemplateDto pluginTemplateDto) {
-        pluginTemplateDto.setCreateTime(System.currentTimeMillis());
-        pluginTemplateDto.setUpdateTime(System.currentTimeMillis());
         pluginTemplateDto.setTemplateVersion(1);
         return pluginTemplateDao.add(toMeta(pluginTemplateDto));
     }
 
     @Override
-    public PluginTemplateDto get(long id) {
-        PluginTemplateDto pluginTemplateDto = toView(pluginTemplateDao.get(id));
-        return fillTemplateDto(pluginTemplateDto);
-    }
-
-    private PluginTemplateDto fillTemplateDto(PluginTemplateDto pluginTemplateDto) {
-        if (pluginTemplateDto == null) {
-            return null;
-        }
-        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().templateId(pluginTemplateDto.getId()).build();
-        List<PluginBindingDto> bindingInfos = pluginInfoService.getBindingPluginInfoList(query);
-        if (!CollectionUtils.isEmpty(bindingInfos)) {
-            pluginTemplateDto.setBindingDtoList(bindingInfos);
-            fillTemplateStatus(pluginTemplateDto, bindingInfos);
-        } else {
-            pluginTemplateDto.setTemplateStatus(PluginTemplateInfo.STATUS_NO_NEED_SYNC);
-            pluginTemplateDto.setBindingDtoList(Lists.newArrayList());
-        }
-        return pluginTemplateDto;
-    }
-
-    private void fillTemplateStatus(PluginTemplateDto templateDto, List<PluginBindingDto> bindingInfos) {
-        boolean allNeedSync = true;
-        boolean noNeedSync = true;
-        for (PluginBindingDto pluginBindingDto : bindingInfos) {
-            if (pluginBindingDto.getTemplateVersion() != templateDto.getTemplateVersion()) {
-                noNeedSync = false;
-            }
-            if (pluginBindingDto.getTemplateVersion() == templateDto.getTemplateVersion()) {
-                allNeedSync = false;
-            }
-        }
-        if (allNeedSync && !noNeedSync) {
-            templateDto.setTemplateStatus(PluginTemplateInfo.STATUS_NEED_SYNC);
-        } else if (noNeedSync && !allNeedSync) {
-            templateDto.setTemplateStatus(PluginTemplateInfo.STATUS_NO_NEED_SYNC);
-        } else {
-            templateDto.setTemplateStatus(PluginTemplateInfo.STATUS_INCOMPLETE_SYNC);
-        }
-    }
-
-    @Override
     public long update(PluginTemplateDto pluginTemplateDto) {
-        PluginTemplateDto pluginTemplateInDB = get(pluginTemplateDto.getId());
-        if (null == pluginTemplateInDB) {
-            return BaseConst.ERROR_RESULT;
+        PluginTemplateDto target = get(pluginTemplateDto.getId());
+        if (StringUtils.hasText(pluginTemplateDto.getPluginConfiguration()) &&
+                !pluginTemplateDto.getPluginConfiguration().equals(target.getPluginConfiguration())) {
+            target.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
+            target.setTemplateVersion(target.getTemplateVersion() + 1);
         }
-        if (!StringUtils.isEmpty(pluginTemplateDto.getPluginConfiguration())) {
-            if (!pluginTemplateDto.getPluginConfiguration().equals(pluginTemplateInDB.getPluginConfiguration())) {
-                pluginTemplateInDB.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
-                pluginTemplateInDB.setTemplateVersion(pluginTemplateInDB.getTemplateVersion() + 1);
-            }
-        }
-        if (!StringUtils.isEmpty(pluginTemplateDto.getTemplateName())) {
-            pluginTemplateInDB.setTemplateName(pluginTemplateDto.getTemplateName());
+        if (StringUtils.hasText(pluginTemplateDto.getTemplateName())) {
+            target.setTemplateName(pluginTemplateDto.getTemplateName());
         }
         if (null != pluginTemplateDto.getTemplateNotes()) {
-            pluginTemplateInDB.setTemplateNotes(pluginTemplateDto.getTemplateNotes());
+            target.setTemplateNotes(pluginTemplateDto.getTemplateNotes());
         }
-        pluginTemplateInDB.setUpdateTime(System.currentTimeMillis());
-        return pluginTemplateDao.update(toMeta(pluginTemplateInDB));
+        return pluginTemplateDao.update(toMeta(target));
     }
 
     @Override
@@ -170,19 +124,15 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         pluginTemplateDao.delete(toMeta(pluginTemplateDto));
     }
 
+
     @Override
-    public long getPluginTemplateInfoCount(long projectId, String pluginType) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("projectId", projectId);
-        if (!StringUtils.isEmpty(pluginType)) {
-            params.put("pluginType", pluginType);
-        }
-        return pluginTemplateDao.getCountByFields(params);
+    public Page<PluginTemplateInfo> getPluginTemplateInfoPage(PluginTemplateInfoQuery query) {
+        return pluginTemplateDao.getPluginTemplateInfoPage(query);
     }
 
     @Override
-    public List<PluginTemplateDto> getPluginTemplateInfoList(long projectId, String pluginType, long offset, long limit) {
-        List<PluginTemplateInfo> pluginTemplateInfoList = pluginTemplateDao.getPluginTemplateInfoList(projectId, pluginType, offset, limit);
+    public List<PluginTemplateDto> getPluginTemplateInfoList(PluginTemplateInfoQuery query) {
+        List<PluginTemplateInfo> pluginTemplateInfoList = pluginTemplateDao.getPluginTemplateInfoList(query);
         if (CollectionUtils.isEmpty(pluginTemplateInfoList)) {
             return Collections.emptyList();
         }
@@ -190,6 +140,41 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
                 .map(this::fillTemplateDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public PluginTemplateDto get(long id) {
+        PluginTemplateDto pluginTemplateDto = toView(pluginTemplateDao.get(id));
+        return fillTemplateDto(pluginTemplateDto);
+    }
+
+    private PluginTemplateDto fillTemplateDto(PluginTemplateDto pluginTemplateDto) {
+        if (pluginTemplateDto == null) {
+            return null;
+        }
+        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().templateId(pluginTemplateDto.getId()).build();
+        List<PluginBindingDto> bindingInfos = pluginInfoService.getBindingPluginInfoList(query);
+        pluginTemplateDto.setBindingDtoList(bindingInfos);
+        if (CollectionUtils.isEmpty(bindingInfos)) {
+            pluginTemplateDto.setTemplateStatus(STATUS_NO_NEED_SYNC);
+            return pluginTemplateDto;
+        }
+        fillTemplateStatus(pluginTemplateDto, bindingInfos);
+        return pluginTemplateDto;
+    }
+
+    private void fillTemplateStatus(PluginTemplateDto templateDto, List<PluginBindingDto> bindingInfos) {
+        templateDto.setTemplateStatus(STATUS_NO_NEED_SYNC);
+        for (PluginBindingDto pluginBindingDto : bindingInfos) {
+            if (pluginBindingDto.getTemplateVersion() == templateDto.getTemplateVersion()){
+                pluginBindingDto.setTemplateStatus(STATUS_NO_NEED_SYNC);
+                continue;
+            }
+            templateDto.setTemplateStatus(STATUS_NEED_SYNC);
+            pluginBindingDto.setTemplateStatus(STATUS_NEED_SYNC);
+        }
+    }
+
+
 
     @Override
     public ErrorCode checkSyncTemplate(long id, List<Long> pluginBindingInfoIds) {
@@ -221,30 +206,12 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         List<PluginBindingDto> failedBindingInfos = Lists.newArrayList();
         for (Long pluginBindingInfoId : pluginBindingInfoIds) {
             PluginBindingDto pluginBindingDto = pluginInfoService.get(pluginBindingInfoId);
-            if (pluginBindingDto == null || pluginBindingDto.getTemplateId() == id) {
-                continue;
-            }
-            pluginBindingDto.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
             long update = pluginInfoService.update(pluginBindingDto);
             if  (BaseConst.ERROR_RESULT == update) {
                 failedBindingInfos.add(pluginBindingDto);
             }
         }
         return failedBindingInfos;
-    }
-
-    @Override
-    public List<PluginTemplateDto> batchGet(List<Long> templateIdList) {
-        List<PluginTemplateInfo> templateInfos = pluginTemplateDao.batchGet(templateIdList);
-        return CollectionUtils.isEmpty(templateInfos) ? Lists.newArrayList()
-                : templateInfos.stream().map(this::toView).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<PluginTemplateInfo> getPluginTemplateByType(String pluginType) {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("pluginType", pluginType);
-        return pluginTemplateDao.getRecordsByField(params);
     }
 
     @Override

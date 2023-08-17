@@ -204,7 +204,6 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
         PluginBindingDto oldPluginBindingInfo = getWsPluginBindingInfo(virtualGwId, routeId);
         PluginBindingInfo pluginBindingInfo = createEnvoyPluginBindingInfo(virtualGwId, routeId, pluginConfiguration);
         if (Objects.nonNull(oldPluginBindingInfo)) {
-            oldPluginBindingInfo.setUpdateTime(pluginBindingInfo.getUpdateTime());
             oldPluginBindingInfo.setPluginConfiguration(pluginBindingInfo.getPluginConfiguration());
             pluginBindingUpdateResult = pluginInfoService.update(oldPluginBindingInfo) != BaseConst.ERROR_RESULT;
         } else {

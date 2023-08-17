@@ -18,6 +18,7 @@ import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyErrorCode;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.hango.cloud.envoy.infra.trafficmark.dao.ITrafficMarkDao;
@@ -367,9 +368,12 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
     }
 
     private String getTrafficMarkKey(TrafficMarkInfo trafficColorRule) {
-        List<PluginOrderItemDto> plugins = pluginManagerService.getPluginManagers(trafficColorRule.getVirtualGwId());
-        Assert.notNull(plugins, "PluginManager配置信息有问题，请排查");
-        Optional<PluginOrderItemDto> optional = plugins.stream().filter(e -> e.getName().equals(EnvoyConst.PLUGIN_NAME_TRAFFIC_MARK)).findFirst();
+        PluginOrderDto pluginOrder = pluginManagerService.getPluginOrder(trafficColorRule.getVirtualGwId());
+        if (pluginOrder == null || pluginOrder.getPlugins() == null) {
+            logger.error("[traffic mark] error pluginOrder when getTrafficMarkKey");
+            throw new RuntimeException("PluginManager配置信息有问题，请排查");
+        }
+        Optional<PluginOrderItemDto> optional = pluginOrder.getPlugins().stream().filter(e -> e.getName().equals(EnvoyConst.PLUGIN_NAME_TRAFFIC_MARK)).findFirst();
         Assert.isTrue(optional.isPresent(), "PluginManager不存在插件proxy.filters.http.traffic_mark的配置，请排查");
         logger.info("getTrafficMarkKey info :{}", JSON.toJSONString(optional.get()));
         JSONObject inline = (JSONObject) optional.get().getInline();
@@ -388,7 +392,7 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
         for (String routeId : trafficColorRule.getRouteRuleIds().split(",")) {
             RouteDto route = routeService.get(Long.parseLong(routeId));
             List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(trafficColorRule.getVirtualGwId(),
-                    routeId, BindingObjectTypeEnum.ROUTE.getValue());
+                    Long.valueOf(routeId), BindingObjectTypeEnum.ROUTE.getValue());
             boolean isAddTrafficMarkPlugin = true;
             for (PluginBindingDto pluginBindingDto : pluginBindingList) {
                 // 已存在"traffic-mark"插件，进行插件配置修改
@@ -417,7 +421,7 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
                 logger.info("[traffic mark] assembleTrafficMarkPlugin finished, traffic_mark_plugin: {}", trafficMarkPlugin);
                 PluginBindingDto pluginBindingDto = new PluginBindingDto();
                 pluginBindingDto.setVirtualGwId(trafficColorRule.getVirtualGwId());
-                pluginBindingDto.setBindingObjectType(BaseConst.PLUGIN_TYPE_ROUTE);
+                pluginBindingDto.setBindingObjectType(BindingObjectTypeEnum.ROUTE.getValue());
                 pluginBindingDto.setBindingObjectId(String.valueOf(route.getId()));
                 pluginBindingDto.setPluginName("流量染色");
                 pluginBindingDto.setPluginType(EnvoyConst.PLUGIN_TYPE_TRAFFIC_MARK);
@@ -447,8 +451,7 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
             RouteDto route = routeService.get(Long.parseLong(routeId));
             if (route != null) {
                 List<PluginBindingDto> pluginBindingList = pluginInfoService.getPluginBindingList(trafficColorRule.getVirtualGwId(),
-                        routeId,
-                        BindingObjectTypeEnum.ROUTE.getValue());
+                        Long.valueOf(routeId), BindingObjectTypeEnum.ROUTE.getValue());
                 //剔除流量染色插件
                 for (PluginBindingDto pluginBinding : pluginBindingList) {
                     if (pluginBinding.getPluginType().equals(EnvoyConst.PLUGIN_TYPE_TRAFFIC_MARK)) {

@@ -63,10 +63,10 @@ public class PluginInfoConvertService {
         }
         if (pluginBindingDto.getTemplateId() <= 0){
             pluginBindingDto.setTemplateId(0);
+            return;
         }
         PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(pluginBindingDto.getTemplateId());
         if (pluginTemplateDto != null) {
-            pluginBindingDto.setTemplateId(pluginTemplateDto.getId());
             pluginBindingDto.setTemplateVersion(pluginTemplateDto.getTemplateVersion());
             pluginBindingDto.setPluginConfiguration(pluginTemplateDto.getPluginConfiguration());
         }

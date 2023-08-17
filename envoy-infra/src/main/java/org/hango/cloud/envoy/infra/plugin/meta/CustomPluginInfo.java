@@ -44,6 +44,7 @@ public class CustomPluginInfo {
     /**
      * 插件描述
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String description;
 
     /**
@@ -53,9 +54,21 @@ public class CustomPluginInfo {
 
 
     /**
-     * 插件代码来源：file/image
+     * 插件代码来源：file/oci
      */
     private String sourceType;
+
+    /**
+     * 插件地址
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String sourceUrl;
+
+    /**
+     * 镜像仓库secret
+     */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    private String secretName;
 
     /**
      * 插件分类 trafficPolicy（流量管理）、auth(认证鉴权)  security(安全)、dataFormat（数据转换）
@@ -85,5 +98,6 @@ public class CustomPluginInfo {
     /**
      * 脚本内容
      */
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String pluginContent;
 }

@@ -188,11 +188,10 @@ public class EnvoyVgServiceImpl implements IEnvoyVgService {
             }
             for (DomainInfoDTO domainInfo : domainInfos) {
                 if (domainInfo.getId().equals(domainInfoDTO.getId())){
-                    continue;
+                    domainInfo.setCertificateId(domainInfoDTO.getCertificateId());
+                    boolean pubRes = publishToGateway(virtualGateway);
+                    res &= pubRes;
                 }
-                domainInfo.setCertificateId(domainInfoDTO.getCertificateId());
-                boolean pubRes = publishToGateway(virtualGateway);
-                res &= pubRes;
             }
         }
         return res;

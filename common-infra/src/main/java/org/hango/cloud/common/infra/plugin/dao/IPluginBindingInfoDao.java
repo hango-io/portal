@@ -16,13 +16,13 @@ import java.util.List;
 public interface IPluginBindingInfoDao extends ICommonDao<PluginBindingInfo> {
 
     /**
-     * 分页查询域名信息
+     * 分页查询插件信息
      */
     Page<PluginBindingInfo> getPluginBindingInfoPage(PluginBindingInfoQuery query);
 
 
     /**
-     * 查询域名列表
+     * 查询插件列表
      */
     List<PluginBindingInfo> getPluginBindingInfoList(PluginBindingInfoQuery query);
 

@@ -1,10 +1,8 @@
 package org.hango.cloud.envoy.infra.base.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.hango.cloud.common.infra.base.dto.ResourceDTO;
 import org.hango.cloud.common.infra.route.dao.RouteMapper;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
@@ -18,8 +16,6 @@ import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.envoy.infra.base.aop.VersionManager;
-import org.hango.cloud.envoy.infra.base.aop.VersionManagerAdvice;
-import org.hango.cloud.envoy.infra.plugin.dto.GatewayPluginDto;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.DpServiceProxyDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -56,7 +52,7 @@ public class VersionManagerService {
     /**
      * 下发配置，切面实现版本号管理
      * 最后2个参数plugin和resourceDTO的位置不要改动
-     * @see VersionManagerAdvice#publishProxyToApiPlane(ProceedingJoinPoint, VersionManager)
+//     * @see VersionManagerAdvice#publishProxyToApiPlane(ProceedingJoinPoint, VersionManager)
      */
     @VersionManager
     public Boolean publishServiceWithVersionManager(String url, Map<String, Object> params, HttpHeaders headers, DpServiceProxyDto service, ResourceDTO resourceDTO){
@@ -68,7 +64,7 @@ public class VersionManagerService {
     /**
      * 下发配置，切面实现版本号管理
      * 最后2个参数plugin和resourceDTO的位置不要改动
-     * @see VersionManagerAdvice#publishProxyToApiPlane(ProceedingJoinPoint, VersionManager)
+//     * @see VersionManagerAdvice#publishProxyToApiPlane(ProceedingJoinPoint, VersionManager)
      */
     @VersionManager
     public Boolean publishRouteWithVersionManager(String url, Map<String, Object> params, HttpHeaders headers, JSONObject route, ResourceDTO resourceDTO){
@@ -79,11 +75,11 @@ public class VersionManagerService {
     /**
      * 下发配置，切面实现版本号管理
      * 最后2个参数plugin和resourceDTO的位置不要改动
-     * @see VersionManagerAdvice#publishProxyToApiPlane(ProceedingJoinPoint, VersionManager)
+//     * @see VersionManagerAdvice#publishProxyToApiPlane(ProceedingJoinPoint, VersionManager)
      */
     @VersionManager
-    public Boolean publishPluginWithVersionManager(String url, Map<String, Object> params, HttpHeaders headers, GatewayPluginDto plugin, ResourceDTO resourceDTO){
-        HttpClientResponse response = HttpClientUtil.postRequest(url, JSON.toJSONString(plugin), params, headers, MODULE_API_PLANE);
+    public Boolean publishPluginWithVersionManager(String url, Map<String, Object> params, HttpHeaders headers, String plugin, ResourceDTO resourceDTO){
+        HttpClientResponse response = HttpClientUtil.postRequest(url, plugin, params, headers, MODULE_API_PLANE);
         return handleResponse(response);
     }
 

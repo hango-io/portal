@@ -5,6 +5,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.plugin.dto.PluginUpdateDto;
 import org.hango.cloud.common.infra.plugin.dto.UpdatePluginStatusDto;
 import org.hango.cloud.envoy.infra.plugin.dto.*;
+import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 
 public interface CustomPluginInfoService {
     /**
@@ -47,21 +48,16 @@ public interface CustomPluginInfoService {
      * @return 插件ID
      */
     ErrorCode updatePluginStatus(UpdatePluginStatusDto updatePluginStatusDto);
+
     /**
      * 删除插件参数检查
-     *
-     * @param deletePluginDto 删除插件
-     * @return 插件ID
      */
-    ErrorCode checkDeletePlugin(DeletePluginDto deletePluginDto);
+    ErrorCode checkDeletePlugin(Long id);
 
     /**
      * 删除插件
-     *
-     * @param deletePluginDto 删除插件
-     * @return 插件ID
      */
-    Long deletePlugin(DeletePluginDto deletePluginDto);
+    ErrorCode deletePlugin(Long id);
     /**
      * 根据插件ID查询插件详情
      *
@@ -85,4 +81,10 @@ public interface CustomPluginInfoService {
      * @return 插件ID
      */
     Page<CustomPluginInstanceDto> getCustomPluginInstancePage(CustomPluginInstanceListQueryDto customPluginInstanceListQueryDto);
+
+
+    /**
+     * 查询插件
+     */
+    CustomPluginInfo getCustomPlugin(String pluginType);
 }

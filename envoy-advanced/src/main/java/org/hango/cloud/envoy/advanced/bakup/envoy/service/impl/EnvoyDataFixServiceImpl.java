@@ -7,9 +7,10 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dao.IPluginBindingInfoDao;
+import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
-import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.common.infra.route.dao.IRouteDao;
 import org.hango.cloud.common.infra.route.dao.RouteMapper;
@@ -229,9 +230,10 @@ public class EnvoyDataFixServiceImpl implements IEnvoyDateFixService {
             List<PluginBindingInfo> pluginBindingList = envoyPluginBindingInfoDao.getPluginBindingInfoList(query);
             pluginBindingList.forEach(pluginBindingInfo -> envoyPluginBindingInfoDao.update(convertAuthType(pluginBindingInfo)));
             logger.info("Ending: envoy plugin binding fix end");
-            List<PluginTemplateInfo> pluginTemplateList = getPluginTemplateByType("super-auth");
-            pluginTemplateList.stream().map(pluginTemplateInfo -> pluginTemplateService.toView(convertAuthType(pluginTemplateInfo)))
-                    .forEach(pluginTemplateInfo -> pluginTemplateService.update(pluginTemplateInfo));
+
+            List<PluginTemplateDto> pluginTemplateList = pluginTemplateService.getPluginTemplateInfoList(PluginTemplateInfoQuery.builder().pluginType("super-auth").build());
+            pluginTemplateList.forEach(this::convertAuthType);
+            pluginTemplateList.forEach(pluginTemplateService::update);
         } catch (Exception e) {
             logger.error("fix auth plugin error", e);
             return false;
@@ -263,20 +265,16 @@ public class EnvoyDataFixServiceImpl implements IEnvoyDateFixService {
         return authnTokind.get(authnType);
     }
 
-    private List<PluginTemplateInfo> getPluginTemplateByType(String pluginType) {
-        return pluginTemplateService.getPluginTemplateByType(pluginType);
-    }
 
-    private PluginTemplateInfo convertAuthType(PluginTemplateInfo pluginTemplateInfo) {
+    private void convertAuthType(PluginTemplateDto pluginTemplateInfo) {
         //fix kind
         JSONObject jsonObject = JSONObject.parseObject(pluginTemplateInfo.getPluginConfiguration());
         String kind = authnToKind(jsonObject.getString("authnType"));
         if (null == kind) {
-            return pluginTemplateInfo;
+            return;
         }
         jsonObject.put("kind", kind);
         pluginTemplateInfo.setPluginConfiguration(JSONObject.toJSONString(jsonObject));
         pluginTemplateInfo.setPluginType(kind);
-        return pluginTemplateInfo;
     }
 }

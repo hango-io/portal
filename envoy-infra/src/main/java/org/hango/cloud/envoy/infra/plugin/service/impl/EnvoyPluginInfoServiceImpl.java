@@ -9,21 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.mapper.DomainInfoMapper;
-import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
-import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
-import org.hango.cloud.common.infra.domain.meta.DomainInfo;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.plugin.dto.PluginDto;
-import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
-import org.hango.cloud.common.infra.plugin.meta.Operation;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
-import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.service.IRouteService;
-import org.hango.cloud.common.infra.virtualgateway.dto.PermissionScopeDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayProjectService;
@@ -31,19 +23,15 @@ import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
 import org.hango.cloud.envoy.infra.base.meta.PluginConstant;
 import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
 import org.hango.cloud.envoy.infra.plugin.dao.ICustomPluginInfoDao;
-import org.hango.cloud.envoy.infra.plugin.dto.GatewayPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfoQuery;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.util.Trans;
-import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -122,7 +110,9 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
         //查询自定义插件
         List<PluginDto> customPluginInfos = customPluginInfoDao.findAll().stream()
                 .filter(pluginDto-> ONLINE_STATE.equals(pluginDto.getPluginStatus()))
-                .map(Trans::fromCustomPluginMeta).collect(Collectors.toList());
+                .map(Trans::fromCustomPluginMeta)
+                .peek(pluginDto -> pluginDto.setPluginSchema(null))
+                .collect(Collectors.toList());
         plugins.addAll(customPluginInfos);
         //根据pluginScope进行过滤/排序
         return plugins.stream()
@@ -236,336 +226,4 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
         plugin.setPluginSchema(result.getString("Schema"));
         return plugin;
     }
-
-
-    /**
-     * 发布网关插件
-     *
-     * @param bindingPluginDto 网关插件聚合信息对象
-     * @return 是否操作成功
-     */
-    @Override
-    public boolean publishGatewayPlugin(BindingPluginDto bindingPluginDto) {
-        logger.info("{} start to publishGatewayPlugin, virtualGwId: [{}], bindingObjectId: [{}]", PluginConstant.PLUGIN_LOG_NOTE, bindingPluginDto.getVirtualGwId(), bindingPluginDto.getBindingObjectId());
-        // 新路由插件操作不需要关注pluginId
-        return opsForGatewayPlugin(bindingPluginDto, Operation.CREATE, Collections.singletonList(0L));
-    }
-
-    /**
-     * 更新指定ID的网关插件
-     *
-     * @param bindingPluginDto 网关插件聚合信息对象
-     * @param pluginId         需要被更新的插件ID
-     * @return 是否操作成功
-     */
-    @Override
-    public boolean updateGatewayPlugin(BindingPluginDto bindingPluginDto, long pluginId) {
-        return opsForGatewayPlugin(bindingPluginDto, Operation.UPDATE, Collections.singletonList(pluginId));
-    }
-
-    /**
-     * 删除指定ID的网关插件
-     *
-     * @param bindingPluginDto 网关插件聚合信息对象
-     * @param pluginId         需要被删除的插件ID
-     * @return 是否操作成功
-     */
-    @Override
-    public boolean deleteGatewayPlugin(BindingPluginDto bindingPluginDto, long pluginId) {
-        return deleteGatewayPlugin(bindingPluginDto, Collections.singletonList(pluginId));
-    }
-
-    @Override
-    public boolean deleteGatewayPlugin(BindingPluginDto bindingPluginDto, List<Long> pluginIdList) {
-        return opsForGatewayPlugin(bindingPluginDto, Operation.DELETE, pluginIdList);
-    }
-
-
-    /**
-     * 插件流程的公共请求操作方法，Gportal请求Api-plane的端点函数
-     *
-     * @param bindingPluginDto 插件聚合对象
-     * @param operation        本次插件的操作方法（详见本文件中的Operation枚举类）
-     * @param pluginIdList     插件ID集合（主要用于update和delete）
-     * @return 是否请求操作成功
-     */
-    private boolean opsForGatewayPlugin(BindingPluginDto bindingPluginDto, Operation operation, List<Long> pluginIdList) {
-        logger.info("{} gateway plugin bindingPluginDto:{}, operation: {}, pluginIdList:{}",
-                PluginConstant.PLUGIN_LOG_NOTE, bindingPluginDto, operation.getAction(), pluginIdList);
-        List<String> toBePublishedPluginList = createToBePublishedPluginList(bindingPluginDto, operation, pluginIdList);
-        toBePublishedPluginList.forEach(plugin -> logger.info("{} gateway plugin info: {}", PluginConstant.PLUGIN_LOG_NOTE, plugin));
-        // 非拷贝路由场景不执行该方法
-        prepareForCopyingRoute(bindingPluginDto);
-        return createPluginAndMakeRequest(bindingPluginDto, operation, toBePublishedPluginList);
-    }
-
-    private void prepareForCopyingRoute(BindingPluginDto bindingPluginDto) {
-        // 拷贝路由场景需要将网关ID赋值为目标网关ID
-        if (bindingPluginDto.isCopyRoute()) {
-            logger.info("{} gateway plugin for copy route, origin gatewayId: {}, dest gatewayId: {}",
-                    PluginConstant.PLUGIN_LOG_NOTE,
-                    bindingPluginDto.getVirtualGwId(),
-                    bindingPluginDto.getDestGatewayId());
-            bindingPluginDto.setVirtualGwId(Long.parseLong(bindingPluginDto.getDestGatewayId()));
-        }
-    }
-
-    /**
-     * 根据操作类型获取全局或路由插件列表
-     *
-     * @param bindingPluginInfo
-     * @param operation
-     * @param pluginIdList
-     * @return
-     */
-    @Override
-    public List<String> createToBePublishedPluginList(BindingPluginDto bindingPluginInfo,
-                                                      Operation operation,
-                                                      List<Long> pluginIdList) {
-        List<String> toBePublishedPluginList;
-        if (bindingPluginInfo.isRoutePlugin()) {
-            logger.info("{} this is route plugin.", PluginConstant.PLUGIN_LOG_NOTE);
-            List<PluginBindingInfo> enabledPluginList = pluginInfoService.getEnablePluginBindingList(bindingPluginInfo.getVirtualGwId(),
-                    String.valueOf(bindingPluginInfo.getBindingObjectId()),
-                    bindingPluginInfo.getBindingObjectType());
-            toBePublishedPluginList = createToBePublishedRoutePluginList(enabledPluginList,
-                    operation,
-                    bindingPluginInfo.getPluginConfiguration(),
-                    pluginIdList);
-        } else if (bindingPluginInfo.isGlobalPlugin() || bindingPluginInfo.isHostPlugin()) {
-            logger.info("{} this is {} plugin.", bindingPluginInfo.getPluginType(), PluginConstant.PLUGIN_LOG_NOTE);
-            toBePublishedPluginList =
-                    createToBePublishedGlobalPluginList(operation, bindingPluginInfo.getPluginConfiguration());
-        } else {
-            toBePublishedPluginList = new ArrayList<>();
-            logger.error("{} illegal plugin type! not route or global.", PluginConstant.PLUGIN_LOG_NOTE);
-        }
-        return toBePublishedPluginList;
-    }
-
-
-    // 根据操作类型创建对应路由的待发布插件列表
-    private List<String> createToBePublishedRoutePluginList(List<PluginBindingInfo> enabledPluginList,
-                                                            Operation operation,
-                                                            String pluginConfig,
-                                                            List<Long> pluginIdList) {
-        List<String> toBePublishedPluginList;
-        switch (operation) {
-            case CREATE: {
-                // 为当前的插件集合添加一个新的插件配置
-                toBePublishedPluginList = enabledPluginList.stream()
-                        .map(PluginBindingInfo::getPluginConfiguration)
-                        .collect(Collectors.toList());
-                if (!StringUtils.isEmpty(pluginConfig)) {
-                    toBePublishedPluginList.add(pluginConfig);
-                }
-                break;
-            }
-            case UPDATE: {
-                // 修改对应pluginId的插件的配置
-                final Long toBeUpdatePluginId = pluginIdList.get(0);
-                toBePublishedPluginList = enabledPluginList.stream()
-                        .map(bindingInfoItem -> {
-                            if (toBeUpdatePluginId != bindingInfoItem.getId()) {
-                                return bindingInfoItem.getPluginConfiguration();
-                            }
-                            return pluginConfig;
-                        })
-                        .collect(Collectors.toList());
-                break;
-            }
-            case DELETE: {
-                // 过滤去除对应pluginId的插件的配置
-                enabledPluginList.forEach(plugin -> {
-                    for (Long pluginId : pluginIdList) {
-                        if (pluginId.equals(plugin.getId())) {
-                            plugin.setId(-1L);
-                        }
-                    }
-                });
-                toBePublishedPluginList = enabledPluginList.stream()
-                        .filter(plugin -> plugin.getId() != -1L)
-                        .map(PluginBindingInfo::getPluginConfiguration)
-                        .collect(Collectors.toList());
-                break;
-            }
-            default:
-                toBePublishedPluginList = new ArrayList<>();
-                logger.error("{} illegal operation of route plugin!", PluginConstant.PLUGIN_LOG_NOTE);
-                break;
-        }
-
-        return toBePublishedPluginList;
-    }
-
-
-    // 根据操作类型创建对应项目的待发布插件列表
-    private List<String> createToBePublishedGlobalPluginList(Operation operation, String pluginConfig) {
-        List<String> toBePublishedPluginList = new ArrayList<>();
-        switch (operation) {
-            case CREATE:
-            case UPDATE:
-                toBePublishedPluginList.add(pluginConfig);
-                break;
-            case DELETE:
-                break;
-            default:
-                logger.error("{} illegal operation of global plugin!", PluginConstant.PLUGIN_LOG_NOTE);
-        }
-        return toBePublishedPluginList;
-    }
-
-    @Override
-    public boolean createPluginAndMakeRequest(BindingPluginDto bindingPluginDto, Operation operation, List<String> toBePublishedPluginList) {
-        RouteDto routeRuleProxyInfo;
-        // 路由使能状态，路由不使能则不发布（该标志不影响全局插件）
-        String enableState = BaseConst.ENABLE_STATE;
-        GatewayPluginDto gatewayPlugin;
-
-        // 获取插件实体gatewayPlugin信息
-        if (bindingPluginDto.isRoutePlugin()) {
-            routeRuleProxyInfo = routeRuleProxyService
-                    .getRoute(bindingPluginDto.getVirtualGwId(), bindingPluginDto.getBindingObjectId());
-            gatewayPlugin = createRoutePlugin(bindingPluginDto, routeRuleProxyInfo, toBePublishedPluginList);
-            enableState = routeRuleProxyInfo.getEnableState();
-        }else if (bindingPluginDto.isHostPlugin()){
-            gatewayPlugin = createHostPlugin(bindingPluginDto, toBePublishedPluginList);
-        } else {
-             gatewayPlugin = createGlobalPlugin(bindingPluginDto, toBePublishedPluginList);
-        }
-
-        // 使能状态下进行路由插件发布，发送相关配置至api-plane，否则在控制台进行虚拟发布；路由启用情况，虽然路由本身是disable状态，但仍然要发布插件
-        if (bindingPluginDto.canPublishPlugin(enableState) || bindingPluginDto.isEnableRouteOperation()) {
-            logger.info("{} bindingID:{}, bindingID is route ID for route plugins or project ID for global" +
-                            "plugins; GatewayPluginDto plugins start to change",
-                    PluginConstant.PLUGIN_LOG_NOTE, bindingPluginDto.getBindingObjectId());
-            return changeGatewayPluginFromApiPlane(operation, gatewayPlugin);
-        }
-        return true;
-    }
-
-    private boolean changeGatewayPluginFromApiPlane(Operation operation, GatewayPluginDto gatewayPlugin) {
-        boolean responseStatus;
-        if (operation.equals(Operation.DELETE)) {
-            responseStatus = deleteGatewayPluginFromApiPlane(gatewayPlugin);
-        } else {
-            responseStatus = publishGatewayPluginToApiPlane(gatewayPlugin);
-        }
-        if (!responseStatus) {
-            logger.info("{} request to Api-plane failed", PluginConstant.PLUGIN_LOG_NOTE);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * 向API-Plane请求删除路由插件
-     *
-     * @param plugin 待删除插件信息
-     * @return 请求是否成功
-     */
-    public boolean deleteGatewayPluginFromApiPlane(GatewayPluginDto plugin) {
-        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
-        params.put(ACTION, "DeletePlugin");
-        return requestForGatewayPlugin(plugin, params);
-    }
-
-    /**
-     * 向API-Plane请求发布路由插件
-     *
-     * @param plugin 待发布插件信息
-     * @return 请求是否成功
-     */
-    public boolean publishGatewayPluginToApiPlane(GatewayPluginDto plugin) {
-        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
-        params.put(ACTION, "PublishPlugin");
-        return requestForGatewayPlugin(plugin, params);
-    }
-
-    private boolean requestForGatewayPlugin(GatewayPluginDto plugin, Map<String, Object> params) {
-        params.put(VERSION, PLANE_VERSION);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String action = (String) params.get(ACTION);
-//        ResourceDTO resourceDTO = versionManagerService.getResourceDTO(virtualGateway.getId(), plugin.getBindingObjectId(), plugin.getBindingObjectType(), plugin.getPluginType(), action);
-        return versionManagerService.publishPluginWithVersionManager(plugin.getAddr() + PLANE_PORTAL_PATH, params, headers, plugin, null);
-    }
-
-
-    /**
-     * 路由插件创建实体
-     *
-     * @param bindingPluginInfo  插件绑定信息
-     * @param routeRuleProxyInfo 路由实体信息
-     * @param pluginList         待发布插件配置集合
-     * @return 网关插件实体（在Api-plane转换为GatewayPlugin CRD）
-     */
-    private GatewayPluginDto createRoutePlugin(BindingPluginDto bindingPluginInfo,
-                                               RouteDto routeRuleProxyInfo,
-                                               List<String> pluginList) {
-        // 虚拟主机信息不传
-        return createPlugin(bindingPluginInfo, routeRuleProxyInfo, null, null, pluginList);
-    }
-
-    /**
-     * 全局（项目级）插件创建实体
-     *
-     * @param bindingPluginInfo 插件绑定信息
-     * @param pluginList        待发布插件配置集合
-     * @return 网关插件实体（在Api-plane转换为GatewayPlugin CRD）
-     */
-    private GatewayPluginDto createGlobalPlugin(BindingPluginDto bindingPluginInfo, List<String> pluginList) {
-        // 路由信息不传
-        List<String> hosts = domainInfoService.getHosts(bindingPluginInfo.getBindingObjectId(), bindingPluginInfo.getVirtualGwId());
-        PermissionScopeDto project = virtualGatewayProjectService.getProjectScope(bindingPluginInfo.getBindingObjectId());
-        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(bindingPluginInfo.getVirtualGwId());
-        String code = project.getPermissionScopeEnName() + "-" + bindingPluginInfo.getBindingObjectId() + "-" + virtualGatewayDto.getCode();
-        return createPlugin(bindingPluginInfo, null, code, hosts, pluginList);
-    }
-
-    /**
-     * 域名插件创建实体
-     *
-     * @param bindingPluginInfo 插件绑定信息
-     * @param pluginList        待发布插件配置集合
-     * @return 网关插件实体（在Api-plane转换为GatewayPlugin CRD）
-     */
-    private GatewayPluginDto createHostPlugin(BindingPluginDto bindingPluginInfo, List<String> pluginList) {
-        // 路由信息不传
-        DomainInfo domainInfoPO = domainInfoMapper.selectById(bindingPluginInfo.getBindingObjectId());
-        List<String> hosts = Collections.singletonList(domainInfoPO.getHost());
-        String code = bindingPluginInfo.getBindingObjectType() + "-" + bindingPluginInfo.getBindingObjectId();
-        return createPlugin(bindingPluginInfo, null, code, hosts, pluginList);
-    }
-
-    private GatewayPluginDto createPlugin(BindingPluginDto bindingPluginInfo,
-                                          RouteDto routeDto,
-                                          String code,
-                                          List<String> hosts,
-                                          List<String> pluginList) {
-        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(bindingPluginInfo.getVirtualGwId());
-
-        GatewayPluginDto gatewayPlugin = new GatewayPluginDto();
-        gatewayPlugin.setAddr(virtualGatewayDto.getConfAddr());
-        gatewayPlugin.setPort(virtualGatewayDto.getPort());
-        gatewayPlugin.setPluginType(bindingPluginInfo.getPluginType());
-        gatewayPlugin.setGateway(virtualGatewayDto.getGwClusterName().toLowerCase() + "-" + virtualGatewayDto.getCode());
-        gatewayPlugin.setPlugins(pluginList);
-        gatewayPlugin.setBindingObjectId(bindingPluginInfo.getBindingObjectId());
-        gatewayPlugin.setBindingObjectType(bindingPluginInfo.getBindingObjectType());
-        if (routeDto != null) {
-            gatewayPlugin.setRouteId(buildVirtualServiceName(
-                    routeDto.getName(), String.valueOf(routeDto.getProjectId()), CommonUtil.genGatewayStrForRoute(virtualGatewayDto)));
-        }
-        if (!CollectionUtils.isEmpty(hosts)){
-            gatewayPlugin.setHosts(hosts);
-        }
-        gatewayPlugin.setCode(code + "-" + bindingPluginInfo.getPluginType());
-        return gatewayPlugin;
-    }
-
-    String buildVirtualServiceName(String apiName, String projectId, String gw) {
-        return String.format("%s-%s-%s", apiName, projectId, gw);
-    }
-
 }

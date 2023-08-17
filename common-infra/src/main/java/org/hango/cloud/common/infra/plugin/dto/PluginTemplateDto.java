@@ -1,10 +1,7 @@
 package org.hango.cloud.common.infra.plugin.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hango.cloud.common.infra.base.dto.CommonExtensionDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Pattern;
@@ -194,24 +191,5 @@ public class PluginTemplateDto extends CommonExtensionDto implements Serializabl
 
     public void setPluginName(final String pluginName) {
         PluginName = pluginName;
-    }
-
-    public PluginTemplateInfo toMeta() {
-        PluginTemplateInfo templateInfo = new PluginTemplateInfo();
-        templateInfo.setId(getId());
-        templateInfo.setTemplateNotes(getTemplateNotes());
-        templateInfo.setProjectId(getProjectId());
-        templateInfo.setPluginType(getPluginType());
-        templateInfo.setUpdateTime(getUpdateTime());
-        templateInfo.setCreateTime(getCreateTime());
-        templateInfo.setTemplateName(getTemplateName());
-        templateInfo.setTemplateVersion(getTemplateVersion());
-        templateInfo.setPluginConfiguration(getPluginConfiguration());
-        return templateInfo;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

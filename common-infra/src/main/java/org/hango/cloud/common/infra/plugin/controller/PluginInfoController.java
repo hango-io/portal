@@ -53,11 +53,11 @@ public class PluginInfoController extends AbstractController {
     @PostMapping(params = {"Action=BindingPlugin"})
     public String bindingPlugin(@Validated @RequestBody PluginBindingDto pluginBindingDto) {
         logger.info("绑定插件， pluginBindingDto:{}", pluginBindingDto);
+        pluginInfoConvertService.fillPluginInfo(pluginBindingDto);
         ErrorCode checkResult = pluginInfoService.checkCreateParam(pluginBindingDto);
         if (!CommonErrorCode.SUCCESS.equals(checkResult)) {
             return apiReturn(checkResult);
         }
-        pluginInfoConvertService.fillPluginInfo(pluginBindingDto);
         long result = pluginInfoService.create(pluginBindingDto);
         if (BaseConst.ERROR_RESULT == result) {
             return apiReturn(CommonErrorCode.INTERNAL_SERVER_ERROR);
@@ -121,7 +121,7 @@ public class PluginInfoController extends AbstractController {
         Page<PluginBindingInfo> pageResult = pluginInfoService.getOutsideBindingPluginPage(queryDto);
         List<PluginBindingInfo> records = pageResult.getRecords();
         if (CollectionUtils.isNotEmpty(records)) {
-            List<PluginBindingDto> pluginBindingDtos = records.stream().map(pluginInfoService::toView).peek(pluginInfoService::fillPluginBindingInfo).collect(Collectors.toList());
+            List<PluginBindingDto> pluginBindingDtos = records.stream().map(pluginInfoService::toView).collect(Collectors.toList());
             result.put("PluginBindingList", pluginBindingDtos);
         }
         result.put(TOTAL_COUNT, pageResult.getTotal());

@@ -32,4 +32,9 @@ public class EnvoyConst {
      */
     public static final Integer PLUGIN_STATE_DISABLE = 0;
     public static final Integer PLUGIN_STATE_ENABLE = 1;
+
+
+    public static final String FILE = "file";
+
+    public static final String OCI = "oci";
 }

@@ -130,6 +130,7 @@ public class EnvoyWebServiceServiceImplTest extends BaseServiceImplTest {
 
                 pluginBindingInfo.setBindingStatus(DISABLE_STATE);
                 pluginBindingInfo.setGwType("envoy");
+                pluginBindingInfo.setProjectId(3L);
                 pluginBindingInfoDao.add(pluginBindingInfo);
                 flag = true;
             }

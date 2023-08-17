@@ -7,10 +7,8 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.List;
 
 /**
  * @ClassName PluginUpdateDto
@@ -39,6 +37,32 @@ public class PluginUpdateDto {
     @JSONField(name = "Description")
     @Length(max = 32, message = "插件描述不能超过32个字符")
     private String description;
+
+    /**
+     * 插件语言
+     */
+    @JSONField(name = "Language")
+    @Pattern(regexp = "lua|wasm")
+    private String language;
+    /**
+     * 脚本类型
+     */
+    @JSONField(name = "SourceType")
+    @Pattern(regexp = "file|oci")
+    private String sourceType;
+
+    /**
+     * 脚本类型
+     */
+    @JSONField(name = "SourceUrl")
+    private String sourceUrl;
+
+    /**
+     * secretName
+     */
+    @JSONField(name = "SecretName")
+    private String secretName;
+
     /**
      * 脚本内容 base
      */
@@ -48,7 +72,6 @@ public class PluginUpdateDto {
     /**
      * 插件作用域:route(路由)，global(全局),gateway(网关)
      */
-    //todo yl 可以支持list
     @JSONField(name = "PluginScope")
     @NotEmpty
     private String pluginScope;

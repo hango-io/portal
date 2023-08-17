@@ -1,11 +1,13 @@
 package org.hango.cloud.common.infra.plugin.service;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.service.CommonService;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfoQuery;
 
 import java.util.List;
 
@@ -17,24 +19,14 @@ import java.util.List;
 public interface IPluginTemplateService extends CommonService<PluginTemplateInfo, PluginTemplateDto> {
 
     /**
-     * 查询指定项目下的模板列表数量
-     *
-     * @param projectId  项目id
-     * @param pluginType 插件类型
-     * @return 插件模板数量
+     * 获取模板信息列表
      */
-    long getPluginTemplateInfoCount(long projectId, String pluginType);
+    List<PluginTemplateDto> getPluginTemplateInfoList(PluginTemplateInfoQuery query);
 
     /**
-     * 查询指定项目下的模板列表
-     *
-     * @param projectId  项目id
-     * @param pluginType 插件类型
-     * @param offset     分页参数offset
-     * @param limit      分页参数limit
-     * @return {@link List<PluginTemplateDto>} 模板列表
+     * 分页查询模板信息
      */
-    List<PluginTemplateDto> getPluginTemplateInfoList(long projectId, String pluginType, long offset, long limit);
+    Page<PluginTemplateInfo> getPluginTemplateInfoPage(PluginTemplateInfoQuery query);
 
     /**
      * 同步模板配置到插件的参数校验
@@ -54,18 +46,5 @@ public interface IPluginTemplateService extends CommonService<PluginTemplateInfo
      */
     List<PluginBindingDto> syncTemplate(long id, List<Long> pluginBindingInfoIds);
 
-    /**
-     * 批量获取插件模板
-     * @param templateIdList 模板id
-     * @return 插件模板
-     */
-    List<PluginTemplateDto> batchGet(List<Long> templateIdList);
 
-    /**
-     * 根据插件类型获取插件模板
-     *
-     * @param pluginType
-     * @return
-     */
-    List<PluginTemplateInfo> getPluginTemplateByType(String pluginType);
 }

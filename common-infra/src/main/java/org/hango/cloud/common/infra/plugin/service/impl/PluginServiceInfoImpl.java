@@ -24,7 +24,6 @@ import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.service.IRouteService;
-import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
@@ -214,6 +213,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                     logger.info("绑定域名插件时指定的域名不存在! virtualGwId:{}}", virtualGwId);
                     return CommonErrorCode.invalidParameter("域名不存在");
                 }
+                break;
             case GATEWAY:
                 VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(bindingObjectId);
                 if (null == virtualGatewayDto) {
@@ -222,10 +222,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 }
                 break;
             default:
-                ServiceProxyDto serviceProxyDto = serviceProxyService.get(bindingObjectId);
-                if (null == serviceProxyDto) {
-                    logger.info("服务尚未发布到指定网关，不允许绑定插件！ virtualGwId:{}, serviceId:{}", virtualGwId, bindingObjectId);
-                }
+                return CommonErrorCode.invalidParameter("无效的插件绑定对象类型");
         }
         return CommonErrorCode.SUCCESS;
     }
@@ -242,7 +239,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
 
         // 查询目标网关下相同类型的全局插件（项目级）
         BindingPluginDto bindingPlugin = BindingPluginDto.createBindingPluginFromPluginBindingInfo(pluginBindingInfo);
-        bindingPlugin.setBindingObjectType(BaseConst.PLUGIN_TYPE_GLOBAL);
+        bindingPlugin.setBindingObjectType(BindingObjectTypeEnum.GLOBAL.getValue());
         bindingPlugin.setVirtualGwId(virtualGwId);
         PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
                 .virtualGwId(bindingPlugin.getVirtualGwId())
@@ -297,12 +294,16 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public long create(PluginBindingDto pluginBindingDto) {
-        return pluginBindingInfoDao.add(pluginInfoConvertService.trans(pluginBindingDto));
+        PluginBindingInfo pluginBindingInfo = pluginInfoConvertService.trans(pluginBindingDto);
+        int id = pluginBindingInfoDao.add(pluginBindingInfo);
+        pluginBindingDto.setId(pluginBindingInfo.getId());
+        return id;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public long update(PluginBindingDto pluginBindingDto) {
+        pluginInfoConvertService.fillPluginInfo(pluginBindingDto);
         return pluginBindingInfoDao.update(toMeta(pluginBindingDto));
 
     }
@@ -313,10 +314,10 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     }
 
     @Override
-    public List<PluginBindingInfo> getEnablePluginBindingList(long virtualGwId, String bindingObjectId, String bindingObjectType) {
+    public List<PluginBindingInfo> getEnablePluginBindingList(long virtualGwId, Long bindingObjectId, String bindingObjectType) {
         PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
                 .virtualGwId(virtualGwId)
-                .bindingObjectId(bindingObjectId)
+                .bindingObjectId(String.valueOf(bindingObjectId))
                 .bindingObjectType(bindingObjectType)
                 .bindingStatus(ENABLE_STATE)
                 .build();
@@ -325,10 +326,10 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     }
 
     @Override
-    public List<PluginBindingDto> getPluginBindingList(long virtualGwId, String bindingObjectId, String bindingObjectType) {
+    public List<PluginBindingDto> getPluginBindingList(long virtualGwId, Long bindingObjectId, String bindingObjectType) {
         PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
                 .virtualGwId(virtualGwId)
-                .bindingObjectId(bindingObjectId)
+                .bindingObjectId(String.valueOf(bindingObjectId))
                 .bindingObjectType(bindingObjectType)
                 .build();
 
@@ -382,8 +383,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         return CommonErrorCode.SUCCESS;
     }
 
-    @Override
-    public void fillPluginBindingInfo(PluginBindingDto pluginBindingDto) {
+    private void fillPluginBindingInfo(PluginBindingDto pluginBindingDto) {
         if(pluginBindingDto == null){
             return;
         }
@@ -409,6 +409,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
             case HOST:
                 DomainInfo domainInfoPO = domainInfoMapper.selectById(bindingObjectId);
                 pluginBindingDto.setBindingObjectName(domainInfoPO == null ? StringUtils.EMPTY : domainInfoPO.getHost());
+                break;
             default:
                 break;
         }
@@ -427,6 +428,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         }
         PluginBindingDto pluginBindingDto = new PluginBindingDto();
         BeanUtils.copyProperties(pluginBindingInfo, pluginBindingDto);
+        fillPluginBindingInfo(pluginBindingDto);
         return pluginBindingDto;
     }
 
@@ -439,5 +441,4 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         BeanUtils.copyProperties(pluginBindingDto, pluginBindingInfo);
         return pluginBindingInfo;
     }
-
 }
