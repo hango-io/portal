@@ -61,8 +61,8 @@ public class PluginInfoConvertService {
         if (BindingObjectTypeEnum.GLOBAL.getValue().equals(pluginBindingDto.getBindingObjectType())) {
             pluginBindingDto.setBindingObjectId(String.valueOf(ProjectTraceHolder.getProId()));
         }
-        if (pluginBindingDto.getTemplateId() <= 0){
-            pluginBindingDto.setTemplateId(0);
+        if (pluginBindingDto.getTemplateId() == null || pluginBindingDto.getTemplateId() <= 0){
+            pluginBindingDto.setTemplateId(0L);
             return;
         }
         PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(pluginBindingDto.getTemplateId());

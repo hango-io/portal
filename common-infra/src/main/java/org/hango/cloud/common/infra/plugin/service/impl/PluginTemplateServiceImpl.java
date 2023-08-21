@@ -117,8 +117,8 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().templateId(pluginTemplateDto.getId()).build();
         List<PluginBindingDto> bindingPluginInfoList = pluginInfoService.getBindingPluginInfoList(query);
         for (PluginBindingDto pluginBindingDto : bindingPluginInfoList) {
-            pluginBindingDto.setTemplateId(0);
-            pluginBindingDto.setTemplateVersion(0);
+            pluginBindingDto.setTemplateId(0L);
+            pluginBindingDto.setTemplateVersion(0L);
             pluginInfoService.update(pluginBindingDto);
         }
         pluginTemplateDao.delete(toMeta(pluginTemplateDto));

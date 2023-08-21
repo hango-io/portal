@@ -136,7 +136,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     public ErrorCode checkCreateParam(PluginBindingDto pluginBindingDto) {
         long projectId = ProjectTraceHolder.getProId();
         pluginBindingDto.setProjectId(projectId);
-        long templateId = pluginBindingDto.getTemplateId();
+        Long templateId = pluginBindingDto.getTemplateId();
         VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(pluginBindingDto.getVirtualGwId());
         if (null == virtualGateway) {
             logger.info("绑定插件时指定的网关id不存在！ virtualGwId：{}", pluginBindingDto.getVirtualGwId());
@@ -168,7 +168,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 return CommonErrorCode.CANNOT_DUPLICATE_BINDING_AUTH_PLUGIN;
             }
         }
-        if (0 < templateId) {
+        if (templateId != null && 0 < templateId) {
             PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(templateId);
             if (null == pluginTemplateDto) {
                 logger.info("指定插件模板不存在! templateId:{}", templateId);
@@ -342,7 +342,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
 
     @Override
     public ErrorCode checkUpdateParam(PluginBindingDto pluginBindingDto) {
-        if (0 < pluginBindingDto.getTemplateId()) {
+        if (pluginBindingDto.getTemplateId() != null && 0 < pluginBindingDto.getTemplateId()) {
             PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(pluginBindingDto.getTemplateId());
             if (null == pluginTemplateDto) {
                 logger.info("更新插件配置时，指定的模板不存在! templateId:{}", pluginBindingDto.getTemplateId());

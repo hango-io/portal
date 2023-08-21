@@ -6,7 +6,6 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
@@ -57,7 +56,6 @@ public class ApiModelController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=CreateApiModel"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateApiModel", description = "创建模型")
     public Object addModel(@Validated @RequestBody CreateApiModelDto createApiModelDto) {
         logger.info("请求创建模型，创建的数据模型：{}", createApiModelDto);
         //操作审计记录资源名称
@@ -94,7 +92,6 @@ public class ApiModelController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=UpdateApiModel"}, method = RequestMethod.POST)
-    @Audit(eventName = "ModifyApiModel", description = "修改模型")
     public Object modifyModel(@Validated @RequestBody CreateApiModelDto createApiModelDto) {
         //操作审计记录资源名称
         //AuditResourceHolder.set(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_MODEL, createApiModelDto.getId(), createApiModelDto.getModelName()));
@@ -223,7 +220,6 @@ public class ApiModelController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=DeleteApiModel"}, method = RequestMethod.GET)
-    @Audit(eventName = "DeleteApiModel", description = "删除模型")
     public String deleteApiModelByModelId(@NotNull @RequestParam(value = "ModelId") long modelId) {
 
         logger.info("请求删除模型，modelId为：{}", modelId);

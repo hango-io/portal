@@ -11,12 +11,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.Result;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
-import org.hango.cloud.common.infra.route.dto.RouteDto;
-import org.hango.cloud.common.infra.route.dto.CopyRouteDTO;
-import org.hango.cloud.common.infra.route.dto.RouteMirrorDto;
-import org.hango.cloud.common.infra.route.dto.RouteQueryDto;
-import org.hango.cloud.common.infra.route.dto.UpdateRouteDto;
+import org.hango.cloud.common.infra.route.dto.*;
 import org.hango.cloud.common.infra.route.pojo.RoutePO;
 import org.hango.cloud.common.infra.route.service.ICopyRoute;
 import org.hango.cloud.common.infra.route.service.IRouteService;
@@ -50,7 +45,6 @@ public class RouteV1Controller extends AbstractController {
     @Autowired
     private ICopyRoute copyRouteRuleProxy;
 
-    @Audit(eventName = "CreateRoute", description = "创建路由")
     @PostMapping(params = {"Action=CreateRoute"})
     public String createRoute(@Valid @RequestBody RouteDto routeDto) {
         logger.info("创建路由（创建即发布）, CreateRoute dto:{}", routeDto);
@@ -95,7 +89,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, result);
     }
 
-    @Audit(eventName = "UpdateRoute", description = "更新路由")
     @PostMapping(params = {"Action=UpdateRoute"})
     public String updateRoute(@Validated @RequestBody UpdateRouteDto updateRouteDto) {
         logger.info("更新路由规则，routeDto: {}", updateRouteDto);
@@ -113,7 +106,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturn(new Result(routeDto.getId()));
     }
 
-    @Audit(eventName = "DeleteRoute", description = "下线规则")
     @PostMapping(params = {"Action=DeleteRoute"})
     public String deleteRoute(@Min(1) @RequestParam(value = "RouteId") long routeId) {
         logger.info("根据路由规则删除路由 id: {}", routeId);
@@ -130,7 +122,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturn(new Result(routeDto.getId()));
     }
 
-    @Audit(eventName = "UpdateRouteEnableState", description = "更新路由使能状态")
     @PostMapping(params = {"Action=UpdateRouteEnableState"})
     public Object updateRouteEnableState(@Min(1) @RequestParam(value = "RouteId") long routeId,
                                          @RequestParam(value = "EnableState", defaultValue = "enable") String enableState) {
@@ -148,7 +139,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturnSuccess(null);
     }
 
-    @Audit(eventName = "CopyRoute", description = "项目下跨网关拷贝路由")
     @PostMapping(params = {"Action=CopyRoute"})
     public Object copyRoute(@Min(1) @RequestParam(value = "RouteId") long routeId,
                             @Min(1) @RequestParam(value = "OriginGwId") long originGwId,
@@ -167,7 +157,6 @@ public class RouteV1Controller extends AbstractController {
         return apiReturnSuccess(copyRouteId);
     }
 
-    @Audit(eventName = "PublishRouteMirror", description = "发布路由流量镜像规则")
     @PostMapping(params = {"Action=PublishRouteMirror"})
     public String publishRouteMirror(@Valid @RequestBody RouteMirrorDto routeMirrorDto) {
         logger.info("发布路由流量镜像规则, routeMirrorDto:{}", routeMirrorDto);

@@ -427,7 +427,8 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
                 pluginBindingDto.setPluginType(EnvoyConst.PLUGIN_TYPE_TRAFFIC_MARK);
                 pluginBindingDto.setPluginConfiguration(trafficMarkPlugin);
                 pluginBindingDto.setProjectId(-1);
-                pluginBindingDto.setTemplateId(-1);
+                pluginBindingDto.setTemplateId(0L);
+                pluginBindingDto.setTemplateVersion(0L);
                 logger.info("[traffic mark] traffic_mark_plugin not exists, start to create, pluginBindingDto: {}",
                         JSON.toJSONString(pluginBindingDto));
                 long result = pluginInfoService.create(pluginBindingDto);

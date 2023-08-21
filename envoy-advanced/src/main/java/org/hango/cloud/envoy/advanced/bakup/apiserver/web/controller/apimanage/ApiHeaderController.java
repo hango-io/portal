@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import org.hango.cloud.common.advanced.authentication.holder.UserPermissionHolder;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
 import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
@@ -22,11 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +50,6 @@ public class ApiHeaderController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=CreateRequestHeader"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateRequestHeader", description = "编辑API request header参数")
     public Object addRequestHeader(@Validated @RequestBody ApiHeadersDto apiHeadersDto) {
         logger.info("创建API request:header：api header:{}", apiHeadersDto);
         ApiErrorCode errorCode = apiHeaderService.checkCreateOrUpdateHeader(apiHeadersDto);
@@ -93,7 +87,6 @@ public class ApiHeaderController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=CreateResponseHeader"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateResponseHeader", description = "编辑API response header参数")
     public Object addResponseHeader(@Validated @RequestBody ApiHeadersDto apiHeadersDto) {
         logger.info("创建API response header，api response header:{}", apiHeadersDto);
         ApiErrorCode errorCode = apiHeaderService.checkCreateOrUpdateHeader(apiHeadersDto);

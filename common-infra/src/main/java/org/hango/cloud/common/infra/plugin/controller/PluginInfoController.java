@@ -10,7 +10,6 @@ import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.plugin.convert.PluginInfoConvertService;
 import org.hango.cloud.common.infra.plugin.dto.CopyGlobalPluginDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
@@ -49,7 +48,6 @@ public class PluginInfoController extends AbstractController {
     @Autowired
     private PluginInfoConvertService pluginInfoConvertService;
 
-    @Audit(eventName = "BindingPlugin", description = "绑定插件")
     @PostMapping(params = {"Action=BindingPlugin"})
     public String bindingPlugin(@Validated @RequestBody PluginBindingDto pluginBindingDto) {
         logger.info("绑定插件， pluginBindingDto:{}", pluginBindingDto);
@@ -65,7 +63,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, null);
     }
 
-    @Audit(eventName = "UnbindingPlugin", description = "解绑插件")
     @GetMapping(params = {"Action=UnbindingPlugin"})
     public String unbindingPlugin(@RequestParam(value = "PluginBindingInfoId") long pluginBindingInfoId) {
         // 由于一个对象可以绑定多个一样的插件，所以解绑的时候需要指定具体的绑定关系
@@ -79,7 +76,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, null);
     }
 
-    @Audit(eventName = "UpdatePluginConfiguration", description = "更新插件配置")
     @PostMapping(params = {"Action=UpdatePluginConfiguration"})
     public String updatePluginConfiguration(@RequestBody PluginBindingDto pluginBindingDto) {
         logger.info("更新插件配置, pluginBindingDto:{}", pluginBindingDto);
@@ -128,7 +124,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, StringUtils.EMPTY, StringUtils.EMPTY, result);
     }
 
-    @Audit(eventName = "UpdatePluginBindingStatus", description = "更新插件绑定状态")
     @GetMapping(params = {"Action=UpdatePluginBindingStatus"})
     public String updatePluginStatus(@RequestParam(value = "PluginBindingInfoId") long pluginBindingInfoId,
                                      @Pattern(regexp = "enable|disable", message = "状态仅能为enable或disable") @RequestParam(value = "BindingStatus") String bindingStatus) {
@@ -146,7 +141,6 @@ public class PluginInfoController extends AbstractController {
         return apiReturn(HttpStatus.SC_OK, null, null, null);
     }
 
-    @Audit(eventName = "CopyGlobalPlugin", description = "拷贝全局插件至目标网关")
     @PostMapping(params = {"Action=CopyGlobalPlugin"})
     public String copyGlobalPlugin(@RequestBody CopyGlobalPluginDto copyGlobalPlugin) {
         logger.info("[copyGlobalPlugin] 拷贝全局插件至目标网关 {}", copyGlobalPlugin);

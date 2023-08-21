@@ -9,7 +9,6 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
@@ -52,7 +51,6 @@ public class ApiBasicInfoController extends AbstractController {
      * 创建新的API
      */
     @RequestMapping(params = {"Action=CreateApi"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreteApi", description = "创建API")
     public Object addApi(@Validated @RequestBody ApiInfoBasicDto apiInfoBasicDto) {
         logger.info("创建API，apiInfoBasicDto:{}", apiInfoBasicDto);
         //操作审计记录资源名称
@@ -109,7 +107,6 @@ public class ApiBasicInfoController extends AbstractController {
      * @return 更新结果
      */
     @RequestMapping(params = {"Action=UpdateApi"}, method = RequestMethod.POST)
-    @Audit(eventName = "UpdateApi", description = "修改API")
     public Object updateApi(@Validated @RequestBody ApiInfoBasicDto apiInfoBasicDto) {
         logger.info("更新API基本信息，apiInfoBasicBto:{}", apiInfoBasicDto);
 
@@ -160,7 +157,6 @@ public class ApiBasicInfoController extends AbstractController {
      * @return 删除结果
      */
     @RequestMapping(params = {"Action=DeleteApiById"}, method = RequestMethod.GET)
-    @Audit(eventName = "DeleteApi", description = "删除API")
     public Object deleteApi(@RequestParam(value = "ApiId") long apiId) {
         logger.info("请求删除apiId:{}的接口信息", apiId);
         //操作审计记录资源名称

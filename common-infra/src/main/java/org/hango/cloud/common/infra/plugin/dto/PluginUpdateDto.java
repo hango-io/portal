@@ -25,6 +25,15 @@ public class PluginUpdateDto {
     @NotNull
     @JSONField(name = "Id")
     private Long id;
+
+    /**
+     * 插件名称
+     * 以小写字母或数字开头和结尾，支持符号：-，2-63个字符
+     */
+    @JSONField(name = "PluginType")
+    @Pattern(regexp = "^[a-z0-9]([a-z0-9\\-]{0,61}[a-z0-9])?$")
+    private String pluginType;
+
     /**
      * 插件中文名称
      */

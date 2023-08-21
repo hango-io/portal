@@ -6,7 +6,6 @@ import org.hango.cloud.common.advanced.authentication.holder.UserPermissionHolde
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.envoy.advanced.bakup.apiserver.meta.AssociationType;
 import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
@@ -62,7 +61,6 @@ public class ApiBodyController extends AbstractController {
      * @return 创建request body结果
      */
     @RequestMapping(params = {"Action=CreateRequestBody"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateRequestBody", description = "编辑API request body参数")
     public Object addRequestBody(@Validated @RequestBody ApiBodysDto apiBodysDto) {
         logger.info("创建request body，apiBody：{}", apiBodysDto);
         ApiErrorCode errorCode = apiBodyService.checkApiBodyBasicInfo(apiBodysDto);
@@ -93,7 +91,6 @@ public class ApiBodyController extends AbstractController {
      * @return 创建queryString结果
      */
     @RequestMapping(params = {"Action=CreateQueryString"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateQueryString", description = "编辑API queryString参数")
     public Object addQueryString(@Validated @RequestBody ApiBodysDto apiBodysDto) {
         logger.info("创建request body，apiBody：{}", apiBodysDto);
         ApiErrorCode errorCode = apiBodyService.checkApiBodyBasicInfo(apiBodysDto);
@@ -148,7 +145,6 @@ public class ApiBodyController extends AbstractController {
      * @return 创建结果
      */
     @RequestMapping(params = {"Action=CreateStatusCode"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateStatusCode", description = "编辑API status code")
     public Object addStatusCode(@Validated @RequestBody ApiStatusCodesDto apiStatusCodesDto) {
         ApiInfo apiInfo = apiInfoService.getApiById(apiStatusCodesDto.getId());
         if (apiInfo == null) {
@@ -200,7 +196,6 @@ public class ApiBodyController extends AbstractController {
      * @return 创建结果
      */
     @RequestMapping(params = {"Action=CreateResponseBody"}, method = RequestMethod.POST)
-    @Audit(eventName = "CreateResponseBody", description = "编辑response body 参数")
     public Object addResponseBody(@Validated @RequestBody ApiBodysDto apiBodysDto) {
         logger.info("创建request body，apiBody：{}", apiBodysDto);
         ApiErrorCode errorCode = apiBodyService.checkApiBodyBasicInfo(apiBodysDto);
@@ -278,7 +273,6 @@ public class ApiBodyController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=GenerateBodyByJson"}, method = RequestMethod.POST)
-    @Audit(eventName = "GenerateBodyByJson", description = "导入Json生成参数")
     public Object addBodyByJson(@Validated @RequestBody ApiBodyJsonDto apiBodyJsonDto) {
         ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, apiBodyJsonDto.getId(), null);
        

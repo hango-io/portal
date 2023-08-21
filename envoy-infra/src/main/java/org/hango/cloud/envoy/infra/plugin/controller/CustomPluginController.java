@@ -6,16 +6,17 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.Result;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
-import org.hango.cloud.common.infra.plugin.dto.*;
-import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
+import org.hango.cloud.common.infra.plugin.dto.PluginUpdateDto;
+import org.hango.cloud.common.infra.plugin.dto.UpdatePluginStatusDto;
 import org.hango.cloud.envoy.infra.plugin.dto.*;
+import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @ClassName CustomPluginController
@@ -31,7 +32,6 @@ public class CustomPluginController  extends AbstractController {
     @Autowired
     CustomPluginInfoService customPluginInfoService;
 
-    @Audit(eventName = "PluginImport", description = "上传自定义插件")
     @PostMapping(params = {"Action=PluginImport"})
     public String pluginImport(@Valid CustomPluginInfoDto customPluginInfoDto) {
         ErrorCode errorCode = customPluginInfoService.checkPluginImportParameter(customPluginInfoDto);
@@ -44,20 +44,18 @@ public class CustomPluginController  extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "PluginUpdate", description = "修改自定义插件")
     @PostMapping(params = {"Action=PluginUpdate"})
     public String pluginUpdate(@Valid PluginUpdateDto pluginUpdateDto) {
         ErrorCode errorCode = customPluginInfoService.checkUpdateCustomPlugin(pluginUpdateDto);
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return apiReturn(Result.err(errorCode));
         }
-        Integer id = customPluginInfoService.pluginUpdate(pluginUpdateDto);
+        customPluginInfoService.pluginUpdate(pluginUpdateDto);
         Map<String,Object> result = new HashMap<>();
-        result.put(RESULT,id);
+        result.put(RESULT,pluginUpdateDto.getId());
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "UpdatePluginStatus", description = "上下架插件")
     @PostMapping(params = {"Action=UpdatePluginStatus"})
     public String updatePluginStatus(@RequestBody @Valid UpdatePluginStatusDto updatePluginStatusDto) {
         ErrorCode errorCode = customPluginInfoService.checkUpdatePluginStatus(updatePluginStatusDto);
@@ -73,7 +71,6 @@ public class CustomPluginController  extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "DeletePlugin", description = "删除插件")
     @GetMapping(params = {"Action=DeletePlugin"})
     public String deletePlugin(@RequestParam(value = "Id") Long id) {
         ErrorCode errorCode = customPluginInfoService.checkDeletePlugin(id);

@@ -8,7 +8,6 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.serviceproxy.convert.ServiceProxyConvert;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
@@ -55,7 +54,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "CreateService", description = "创建服务")
     @RequestMapping(params = {"Action=CreateService"}, method = RequestMethod.POST)
     public String publishService(@Validated @RequestBody ServiceProxyDto serviceProxyDto) {
         logger.info("发布服务至网关，服务发布信息ServiceProxyDto:{}", serviceProxyDto);
@@ -69,7 +67,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(id);
     }
 
-    @Audit(eventName = "UpdateService", description = "更新服务")
     @RequestMapping(params = {"Action=UpdateService"}, method = RequestMethod.POST)
     public String updatePublishService(@Validated @RequestBody ServiceProxyUpdateDto serviceProxyUpdateDto) {
         logger.info("更新服务发布信息ServiceProxyDto:{}", serviceProxyUpdateDto);

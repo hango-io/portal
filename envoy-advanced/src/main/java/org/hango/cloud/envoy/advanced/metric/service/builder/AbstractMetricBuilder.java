@@ -63,7 +63,6 @@ public abstract class AbstractMetricBuilder {
     private static final long MILL_TO_SEC = 1000L;
 
     private static final String TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final SimpleDateFormat DETAULT_DATE_FORMAT = new SimpleDateFormat(TIME_FORMAT);
 
 
     /**
@@ -297,7 +296,7 @@ public abstract class AbstractMetricBuilder {
             Date date = new Date(calKey * MILL_TO_SEC);
             metricDataDtoList.add(MetricDataDto.builder()
                     .date(simpleDateFormat.format(date))
-                    .time(DETAULT_DATE_FORMAT.format(date))
+                    .time(new SimpleDateFormat(TIME_FORMAT).format(date))
                     .metricValue("0.0")
                     .build()
             );

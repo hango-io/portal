@@ -11,7 +11,6 @@ import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.holder.RequestContextHolder;
 import org.hango.cloud.common.infra.cache.ICacheService;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
@@ -124,7 +123,6 @@ public class ImportSwaggerController extends AbstractController {
     }
 
     @RequestMapping(params = {"Action=ConfirmImportByFile"}, method = RequestMethod.POST)
-    @Audit(eventName = "ConfirmImportByFile", description = "从指定文件导入Swagger文档")
     public String confirmSwaggerByFile(@RequestParam("file") MultipartFile file, @RequestHeader("Service-Id") Long serviceId) {
         //操作审计记录资源名称
         ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, serviceId, "导入swagger");
@@ -160,7 +158,6 @@ public class ImportSwaggerController extends AbstractController {
     }
 
     @RequestMapping(params = {"Action=ConfirmImportByLocation"}, method = RequestMethod.POST)
-    @Audit(eventName = "ConfirmImportByLocation", description = "从远程地址导入Swagger文档")
     public String confirmSwaggerByLocation(@RequestBody String body, @RequestHeader("Service-Id") Long serviceId) {
         //操作审计记录资源名称
         ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, serviceId, "导入swagger");

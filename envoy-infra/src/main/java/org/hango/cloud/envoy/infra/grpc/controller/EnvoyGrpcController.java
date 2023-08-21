@@ -7,7 +7,6 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.Pair;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.grpc.dto.EnvoyPublishedServiceProtobufDto;
@@ -20,11 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
@@ -108,7 +103,6 @@ public class EnvoyGrpcController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=SaveAndPublishedPbFile"}, method = RequestMethod.POST)
-    @Audit(eventName = "PublishPbFile", description = "发布pb文件")
     public Object publishPbFile(@RequestParam("ServiceId") long serviceId, @RequestParam("VirtualGwId") long virtualGwId, @RequestParam("PbServiceList") List<String> pbServiceList, @RequestParam("File") MultipartFile file) {
         logger.info("发布Pb文件, serviceId:{}, 服务列表为: {}, 文件名: {}", serviceId, pbServiceList, file.getOriginalFilename());
         Pair<ErrorCode, PbCompileResultDto> checkResult = grpcProtobufService.checkPublishPbFile(serviceId, file, pbServiceList);
@@ -142,7 +136,6 @@ public class EnvoyGrpcController extends AbstractController {
      * @return
      */
     @RequestMapping(params = {"Action=OfflinePbFile"}, method = RequestMethod.GET)
-    @Audit(eventName = "OfflinePbFile", description = "下线pb文件")
     public Object offlinePbFile(@RequestParam("ServiceId") long serviceId) {
         logger.info("下线pb文件, serviceId: {}",  serviceId);
         ErrorCode errorCode = grpcProtobufService.checkOfflinePbFile(serviceId);
