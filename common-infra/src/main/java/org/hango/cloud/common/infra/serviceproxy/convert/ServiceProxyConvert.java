@@ -62,13 +62,31 @@ public class ServiceProxyConvert {
         if (serviceProxyDto.getTrafficPolicy() == null){
             serviceProxyDto.setTrafficPolicy(new ServiceTrafficPolicyDto());
         }
-        ServiceTrafficPolicyDto trafficPolicy = serviceProxyDto.getTrafficPolicy();
+        //处理服务TrafficPolicy
+        fillTrafficPolicy(serviceProxyDto.getTrafficPolicy());
+        List<SubsetDto> subsets = serviceProxyDto.getSubsets();
+        if (subsets != null){
+            //处理subset TrafficPolicy
+            for (SubsetDto subset : subsets) {
+                if (subset.getTrafficPolicy() == null){
+                    subset.setTrafficPolicy(new ServiceTrafficPolicyDto());
+                }
+                fillTrafficPolicy(subset.getTrafficPolicy());
+            }
+        }
+    }
+
+
+    public static void fillTrafficPolicy(ServiceTrafficPolicyDto trafficPolicy) {
         if (trafficPolicy.getLoadBalancer() == null){
             ServiceLoadBalancerDto serviceLoadBalancerDto = new ServiceLoadBalancerDto();
             serviceLoadBalancerDto.setSimple(SERVICE_LOADBALANCER_SIMPLE_ROUND_ROBIN);
             serviceLoadBalancerDto.setType(SERVICE_LOADBALANCER_SIMPLE);
             trafficPolicy.setLoadBalancer(serviceLoadBalancerDto);
         }
+
+        clearLoadBalancer(trafficPolicy.getLoadBalancer());
+
         if (trafficPolicy.getConnectionPoolDto() == null){
             trafficPolicy.setConnectionPoolDto(new ServiceConnectionPoolDto());
         }
@@ -110,4 +128,11 @@ public class ServiceProxyConvert {
         }
     }
 
+
+
+    private static void clearLoadBalancer(ServiceLoadBalancerDto loadBalancer){
+        if (BaseConst.SERVICE_LOADBALANCER_SIMPLE.equals(loadBalancer.getType())) {
+            loadBalancer.setConsistentHash(null);
+        }
+    }
 }
