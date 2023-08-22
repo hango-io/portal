@@ -1,7 +1,6 @@
 package org.hango.cloud.envoy.infra.route.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
 import org.hango.cloud.common.infra.base.dto.ResourceDTO;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -17,6 +16,7 @@ import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.service.IRouteService;
+import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.base.meta.PluginConstant;
@@ -79,16 +79,19 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
     @Autowired
     private VersionManagerService versionManagerService;
 
+    @Autowired
+    private IServiceProxyService serviceProxyService;
+
 
     @Override
-    public boolean publishRoute(RouteDto routeDto, List<String> pluginConfigurations) {
+    public boolean publishRoute(RouteDto routeDto) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(routeDto.getVirtualGwId());
         Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
         params.put("Action", "PublishAPI");
         params.put("Version", "2019-07-25");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        JSONObject body = envoyRouteBuilderService.buildRouteInfo(routeDto, pluginConfigurations);
+        JSONObject body = envoyRouteBuilderService.buildRouteInfo(routeDto);
         // TODO route 多集群适配（此处路由ID和服务ID都不是发布的时候拿得到的，所以这里创建阶段的调用，都是空，需要考虑如何适配）
 //        ResourceDTO resourceDTO = versionManagerService.getResourceDTO(routeDto.getVirtualGwId(), routeDto.getId(), ResourceEnum.Route);
         ResourceDTO resourceDTO = null;
@@ -121,7 +124,7 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        JSONObject body = envoyRouteBuilderService.buildRouteInfo(routeRuleProxyInfo, Lists.newArrayList());
+        JSONObject body = envoyRouteBuilderService.buildRouteInfo(routeRuleProxyInfo);
         HttpClientResponse response = HttpClientUtil.postRequest(virtualGateway.getConfAddr() + PLANE_PORTAL_PATH, body.toJSONString(), params, headers, MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error("调用api-plane删除服务接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
@@ -167,17 +170,16 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
                 BindingObjectTypeEnum.ROUTE.getValue(), routeDto.getId(), "", "");
         // 使能状态修改为enable
         if (isPublish(routeDto.getEnableState())) {
-            return doPublishRouteWithPlugin(routeDto, alreadyBindingPlugins, bindingPluginDto);
+            return doPublishRouteWithPlugin(routeDto, bindingPluginDto);
         } else {
             return doOfflineRouteWithPlugin(routeDto, alreadyBindingPlugins, bindingPluginDto);
         }
     }
 
 
-    private long doPublishRouteWithPlugin(RouteDto routeDto, List<PluginBindingInfo> alreadyBindingPlugins, BindingPluginDto bindingPluginDto) {
+    private long doPublishRouteWithPlugin(RouteDto routeDto, BindingPluginDto bindingPluginDto) {
         // 发布路由
-        List<String> newPluginConfigurations = alreadyBindingPlugins.stream().map(PluginBindingInfo::getPluginConfiguration).collect(Collectors.toList());
-        if (!publishRoute(routeDto, newPluginConfigurations)) {
+        if (!publishRoute(routeDto)) {
             return BaseConst.ERROR_RESULT;
         }
         bindingPluginDto.setEnableRouteOperation(true);
@@ -207,5 +209,4 @@ public class EnvoyRouteServiceImpl implements IEnvoyRouteService {
     private boolean isPublish(String enableState) {
         return BaseConst.ENABLE_STATE.equals(enableState);
     }
-
 }

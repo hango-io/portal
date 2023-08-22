@@ -27,6 +27,7 @@ public class PluginOperateManagerServiceImpl implements IPluginOperateManagerSer
     @Autowired
     private List<PluginOperateService> pluginOperateServices;
 
+    @Override
     public ErrorCode create(BindingPluginDto bindingPluginDto) {
         //获取operator
         PluginOperateService pluginOperate = getPluginOperate(bindingPluginDto.getBindingObjectType());
@@ -34,6 +35,7 @@ public class PluginOperateManagerServiceImpl implements IPluginOperateManagerSer
         return pluginOperate.create(bindingPluginDto);
     }
 
+    @Override
     public ErrorCode update(BindingPluginDto bindingPluginDto) {
         List<Long> pluginIdList = bindingPluginDto.getPluginIdList();
         if (CollectionUtils.isEmpty(pluginIdList)){
@@ -51,6 +53,7 @@ public class PluginOperateManagerServiceImpl implements IPluginOperateManagerSer
         return pluginOperate.update(bindingPluginDto);
     }
 
+    @Override
     public ErrorCode delete(BindingPluginDto bindingPluginDto) {
         //获取operator
         PluginOperateService pluginOperate = getPluginOperate(bindingPluginDto.getBindingObjectType());

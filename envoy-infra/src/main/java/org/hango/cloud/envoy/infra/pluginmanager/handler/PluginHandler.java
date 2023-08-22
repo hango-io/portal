@@ -23,6 +23,7 @@ public abstract class PluginHandler {
         pluginIgnoreList.add("proxy.filters.http.metadatahub");
         pluginIgnoreList.add("proxy.filters.http.detailed_stats");
         pluginIgnoreList.add("proxy.filters.http.soapjsontranscoder");
+        pluginIgnoreList.add("envoy.filters.http.stateful_session");
     }
 
     /**

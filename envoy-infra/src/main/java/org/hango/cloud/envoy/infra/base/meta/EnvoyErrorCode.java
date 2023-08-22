@@ -74,5 +74,4 @@ public class EnvoyErrorCode extends ErrorCode {
         return new EnvoyErrorCode(EnvoyErrorCodeEnum.RESOURCE_DOWNLOAD_FAILED, url);
     }
 
-
 }

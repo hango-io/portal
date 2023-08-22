@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.hooker.AbstractRouteHooker;
 import org.hango.cloud.common.infra.route.pojo.RoutePO;
+import org.hango.cloud.envoy.infra.plugin.manager.RoutePluginOperateService;
 import org.hango.cloud.envoy.infra.route.service.IEnvoyRouteService;
 import org.hango.cloud.envoy.infra.trafficmark.meta.TrafficMarkInfo;
 import org.hango.cloud.envoy.infra.trafficmark.service.ITrafficMarkService;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,6 +33,9 @@ public class EnvoyRouteHooker extends AbstractRouteHooker<RoutePO, RouteDto> {
 
     @Autowired
     private ITrafficMarkService trafficMarkService;
+
+    @Autowired
+    private RoutePluginOperateService routePluginOperateService;
     @Override
     public int getOrder() {
         return 100;
@@ -42,10 +45,23 @@ public class EnvoyRouteHooker extends AbstractRouteHooker<RoutePO, RouteDto> {
     protected void preCreateHook(RouteDto routeDto) {
         // 禁用状态不需要发布服务
         if (BaseConst.ENABLE_STATE.equals(routeDto.getEnableState())
-                && !envoyRouteService.publishRoute(routeDto, Collections.emptyList())) {
+                && !envoyRouteService.publishRoute(routeDto)) {
             throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Override
+    protected Object postCreateHook(Object returnData) {
+        RouteDto routeDto = MethodAroundHolder.getNextParam(RouteDto.class);
+        routeDto.setId(((long) returnData));
+        ErrorCode errorCode = routePluginOperateService.create(routePluginOperateService.getRouteDefaultBindInfo(routeDto));
+        if (!CommonErrorCode.SUCCESS.getCode().equals(errorCode.getCode())) {
+            logger.error("create route plugin failed, routeId: {}, errorCode: {}", returnData, errorCode);
+            throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return returnData;
+    }
+
 
 
     @Override
@@ -63,6 +79,10 @@ public class EnvoyRouteHooker extends AbstractRouteHooker<RoutePO, RouteDto> {
 
     @Override
     protected void preDeleteHook(RouteDto routeDto) {
+        ErrorCode errorCode = routePluginOperateService.delete(routePluginOperateService.getRouteDefaultBindInfo(routeDto));
+        if (!CommonErrorCode.SUCCESS.getCode().equals(errorCode.getCode())) {
+            throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
         boolean success = envoyRouteService.deleteRoute(routeDto);
         if (!success) {
             throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);

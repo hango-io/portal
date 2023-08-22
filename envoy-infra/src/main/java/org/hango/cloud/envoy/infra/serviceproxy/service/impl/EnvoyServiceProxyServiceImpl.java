@@ -20,6 +20,8 @@ import org.hango.cloud.common.infra.healthcheck.dto.HealthCheckRuleDto;
 import org.hango.cloud.common.infra.healthcheck.dto.PassiveHealthCheckRuleDto;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.dto.RouteStringMatchDto;
+import org.hango.cloud.common.infra.route.pojo.RouteQuery;
+import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.convert.ServiceProxyConvert;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
@@ -37,6 +39,7 @@ import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
 import org.hango.cloud.envoy.infra.grpc.meta.EnvoyServiceProtobufProxy;
 import org.hango.cloud.envoy.infra.grpc.service.IEnvoyGrpcProtobufService;
 import org.hango.cloud.envoy.infra.healthcheck.service.IEnvoyHealthCheckService;
+import org.hango.cloud.envoy.infra.plugin.manager.RoutePluginOperateService;
 import org.hango.cloud.envoy.infra.route.service.IEnvoyRouteService;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.DpServiceProxyDto;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.KubernetesServiceDTO;
@@ -60,6 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -107,8 +111,12 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
     private IEnvoyVgService vgService;
 
     @Autowired
-    private IEnvoyRouteService routeService;
+    private IEnvoyRouteService envoyRouteService;
 
+    @Autowired
+    private IRouteService routeService;
+    @Autowired
+    private RoutePluginOperateService routePluginOperateService;
 
 
     @Override
@@ -144,7 +152,7 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
             return false;
         }
         RouteDto routeDto = buildDefaultL4VirtualService(virtualGatewayDto, serviceProxyDto, create);
-        return create ? routeService.publishRoute(routeDto, Collections.emptyList()) : routeService.deleteRouteRuleByApiPlane(routeDto);
+        return create ? envoyRouteService.publishRoute(routeDto) : envoyRouteService.deleteRouteRuleByApiPlane(routeDto);
     }
 
 
@@ -190,6 +198,32 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
         }
         route.setExtension(destinations);
         return route;
+    }
+
+    /**
+     * 刷新路由会话状态
+     *
+     * 当服务的会话状态发生变化时，需要刷新对应路由会话状态
+     * @param serviceProxyDto
+     * @return
+     */
+    @Override
+    public boolean refreshRouteSessionStatus(ServiceProxyDto serviceProxyDto) {
+        ServiceProxyDto originService = serviceProxyService.get(serviceProxyDto.getId());
+        if (originService == null) {
+            logger.debug("创建场景，无需刷新路由会话状态");
+            return true;
+        }
+        if (Objects.equals(originService.getTrafficPolicy(), serviceProxyDto.getTrafficPolicy())) {
+            logger.debug("路由会话状态未发生变化，无需刷新路由会话状态");
+            return true;
+        }
+        if (Objects.equals(originService.getTrafficPolicy().getSessionState(), serviceProxyDto.getTrafficPolicy().getSessionState())) {
+            logger.debug("路由会话状态未发生变化，无需刷新路由会话状态");
+            return true;
+        }
+        List<RouteDto> routeList = routeService.getRouteList(RouteQuery.builder().serviceId(serviceProxyDto.getId()).build());
+        return CommonErrorCode.SUCCESS.equals(routePluginOperateService.batchUpdateUsingRoute(routeList));
     }
 
     private Map<String, Object> buildDestinationServices(ServiceProxyDto serviceProxy) {

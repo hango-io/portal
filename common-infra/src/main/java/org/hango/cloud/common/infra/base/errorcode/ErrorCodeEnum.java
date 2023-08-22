@@ -102,7 +102,6 @@ public enum ErrorCodeEnum {
 
     PUBLISH_TYPE_NOT_SUPPORT("PublishTypeNotSupport", "The publish type of service can not support this operation", "该服务的发布方式并不支持本操作", 400),
 
-    BACKEND_SERVICE_DIFFERENT("BackendServiceDifferent", "Backend services are different.", "发布服务，指定后端服务不同不允许创建", 400),
 
     DUPLICATED_SUBSET_NAME("DuplicatedSubsetName", "SubsetName is duplicated", "版本名称不能重复", 400),
 
@@ -124,7 +123,6 @@ public enum ErrorCodeEnum {
 
     /************************************** Route Rule Start **************************************/
     NO_SUCH_ROUTE_RULE("NoSuchRouteRule", "No such route rule", "指定的路由规则不存在", 400),
-    NO_ROUTE_RULE_PATH("NoRouteRulePath", "No route rule path", "创建路由，path不能为空", 400),
     ROUTE_PATH_INVALID("RoutePathInvalid", "No route rule path", "路由path不合法", 400),
     NO_SUCH_DOMAIN("NoSuchDomain", "No such route domain", "域名不存在", 400),
     ROUTE_RULE_CONTAINS_NGINX_CAPTURE("RouteRuleContainsNginxCapture", "Route rule contains nginx capture regex", "创建路由，path正则中不能包含nginx捕获正则", 400),
@@ -159,23 +157,13 @@ public enum ErrorCodeEnum {
     /************************************** API End **************************************/
     /************************************** Load Balance Start **************************************/
     //负载均衡相关
-    INVALID_SLOW_START_WINDOW("InvalidSlowStartWindow", "The service warm-up time can be configured in the range [1s-3600s] only", "服务预热时间窗仅支持配置[1s-3600s]区间", 400),
-    INVALID_LOAD_BALANCE_TYPE("InvalidLoadBanlanceType", "This load balance type is invalid", "服务负载均衡类型取值为Simple或ConsistentHash", 400),
-    INVALID_SIMPLE_LOAD_BALANCE_TYPE("InvalidSimpleLoadBanlanceType", "This simple load balance type is invalid", "Simple类型的负载均衡规则，仅包含ROUND_ROUBIN、LEAST_CONN、RANDOM", 400),
     INVALID_CONSISTENT_HASH_OBJECT("InvalidConsistentHashObject", "Consistent hash object is invalid", "一致性哈希对象格式非法", 400),
-    INVALID_CONSISTENT_HASH_TYPE("InvalidConsistentHashType", "Consistent hash type is invalid", "一致性哈希对象类型为HttpHeaderName、HttpCookie、UseSourceIp三者之一", 400),
     INVALID_CONSISTENT_HASH_HTTP_COOKIE_OBJECT("InvalidConsistentHashHttpCookieObject", "Http cookie is invalid", "一致性哈希对象使用cookie时，cookie对象不能为空", 400),
     INVALID_CONSISTENT_HASH_HTTP_COOKIE_NAME("InvalidConsistentHashHttpCookieName", "Http cookie name is invalid", "一致性哈希对象使用cookie时，cookie名称不能为空", 400),
     INVALID_CONSISTENT_HASH_HTTP_COOKIE_TTL("InvalidConsistentHashHttpCookieName", "Http cookie ttl is invalid", "一致性哈希对象使用cookie时，cookie ttl不能小于0", 400),
     INVALID_CONSISTENT_HASH_HTTP_HEADER_NAME("InvalidConsistentHashHttpHeaderName", "Http header name is invalid", "一致性哈希对象使用HttpHeaderName时，HttpHeaderName不能为空", 400),
     INVALID_CONSISTENT_HASH_SOURCE_IP("InvalidConsistentHashSourceIP", "Source ip is invalid", "一致性哈希对象使用源IP时，源IP不能为空", 400),
 
-    INVALID_HTTP_1_MAX_PENDING_REQUESTS("InvalidHttp1MaxPendingRequests", "http1MaxPendingRequests is invalid", "http1MaxPendingRequests不能小于0", 400),
-    INVALID_HTTP_2_MAX_REQUESTS("InvalidHttp2MaxRequests", "Http2MaxRequests is invalid", "http2MaxRequests不能小于0", 400),
-    INVALID_IDLE_TIMEOUT("InvalidIdleTimeout", "IdleTimeout is invalid", "idleTimeout不能小于0", 400),
-    INVALID_MAX_REQUESTS_PER_CONNECTION("InvalidMaxRequestsPerConnection", "MaxRequestsPerConnection is invalid", "maxRequestsPerConnection不能小于0", 400),
-    INVALID_MAX_CONNECTIONS("InvalidmaxConnections", "MaxConnections is invalid", "maxConnections不能小于0", 400),
-    INVALID_CONNECT_TIMEOUT("InvalidConnectTimeout", "ConnectTimeout is invalid", "connectTimeout不能小于0", 400),
 
     /************************************** Load Balance End **************************************/
 
@@ -185,7 +173,6 @@ public enum ErrorCodeEnum {
     NO_SUCH_PLUGIN_BINDING("NoSuchPluginBinding", "No such plugin binding info", "指定的插件绑定关系不存在", 400),
     NO_SUCH_PLUGIN_TEMPLATE("NoSuchPluginTemplate", "No such plugin template", "指定的插件模板不存在", 400),
     SAME_NAME_PLUGIN_TEMPLATE_EXIST("SameNamePluginTemplateExist", "The plugin template with the same name already exists and cannot be created.", "同名插件模板已存在，不允许重复创建!", 400),
-    PLUGIN_IS_BOUND("PLUGIN_IS_BOUND","PLUGIN_IS_BOUND","该插件已经存在绑定关系",400),
     CANNOT_DUPLICATE_BINDING("CannotDuplicateBinding", "The plugin binding already exists and duplicate binding are not allowed", "插件绑定关系已存在，不允许重复绑定同一插件", 400),
     CANNOT_DUPLICATE_BINDING_AUTH_PLUGIN("CannotDuplicateBindingAuthPlugin", "The auth type plugin binding already exists",
             "认证类型插件绑定关系已存在，不允许重复绑定", 400),
@@ -194,12 +181,12 @@ public enum ErrorCodeEnum {
     INVALID_PARAMETER("InvalidParameter", "invaild parameter", "%s", 400),
 
     //健康检查相关
-    INVALID_API_PATH("InvalidApiPath", "Api path is invalid", "接口路径不合法", 400),
     INVALID_HTTP_STATUS_CODE("InvalidHttpStatusCode", "Http status code is invalid", "健康状态码不合法", 400),
-    INVALID_CONSECUTIVE_ERRORS("InvalidConsecutiveErrors", "Consecutive errors parameter is invalid", "连续失败次数不合法", 400),
 
-    INVALID_BASE_EJECTION_TIME("InvalidBaseEjectionTime", "Base ejection time is invalid", "驱逐时间不合法", 400),
-    INVALID_MAX_EJECTION_PRECENT("InvalidMaxEjectionPercent", "Max ejection percent is invalid", "最多可驱逐的实例比不合法", 400),
+    CANNOT_DELETE_ONLINE_API("CannotDeleteOnlineApi", "You can't delete api until offline the api", "在下线接口之前，不能删除接口", 400),
+
+    NOT_SUPPORT_MULTI_ADDR("NotSupportMultiAddr", "not support multi addr", "暂不支持多地址发布", 400),
+
 
     /************************************** Plugin End **************************************/
     ;

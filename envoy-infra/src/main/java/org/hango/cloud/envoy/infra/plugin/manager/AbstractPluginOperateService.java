@@ -1,6 +1,7 @@
 package org.hango.cloud.envoy.infra.plugin.manager;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
@@ -14,12 +15,17 @@ import org.hango.cloud.gdashboard.api.util.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PORTAL_PATH;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_VERSION;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.VERSION;
 import static org.hango.cloud.gdashboard.api.util.Const.ACTION;
 
 /**
@@ -38,6 +44,23 @@ public abstract class AbstractPluginOperateService implements PluginOperateServi
         Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
         params.put(ACTION, "PublishPlugin");
         boolean result = requestForGatewayPlugin(plugin.getAddr(), JSONObject.toJSONString(plugin), params);
+        if (!result) {
+            return CommonErrorCode.INTERNAL_SERVER_ERROR;
+        }
+        return CommonErrorCode.SUCCESS;
+    }
+
+    protected ErrorCode batchPublishPlugin(List<GatewayPluginDto> plugins) {
+        if (CollectionUtils.isEmpty(plugins)){
+            return CommonErrorCode.SUCCESS;
+        }
+        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        params.put(ACTION, "BatchPublishPlugin");
+        Set<String> addrs = plugins.stream().map(GatewayPluginDto::getAddr).collect(Collectors.toSet());
+        if (addrs.size() != NumberUtils.INTEGER_ONE) {
+            return CommonErrorCode.NOT_SUPPORT_MULTI_ADDR;
+        }
+        boolean result = requestForGatewayPlugin(plugins.get(0).getAddr(), JSONObject.toJSONString(plugins), params);
         if (!result) {
             return CommonErrorCode.INTERNAL_SERVER_ERROR;
         }

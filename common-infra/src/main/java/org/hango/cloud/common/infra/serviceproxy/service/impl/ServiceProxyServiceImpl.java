@@ -159,6 +159,7 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
             serviceProxyDto.setVirtualGwName(virtualGatewayDto.getName());
             serviceProxyDto.setVirtualGwCode(virtualGatewayDto.getCode());
             serviceProxyDto.setGwType(virtualGatewayDto.getGwType());
+            serviceProxyDto.setVirtualGwType(virtualGatewayDto.getType());
             serviceProxyDto.setGwAddr(virtualGatewayDto.getAddr());
         }
         return serviceProxyDto;

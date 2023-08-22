@@ -38,6 +38,16 @@ public interface IEnvoyServiceProxyService extends CommonService<ServiceProxyInf
 
     Boolean refreshRouteHost(Long vgId, Long serviceId, String hosts);
 
+    /**
+     * 刷新路由会话状态
+     * <p>
+     * 当服务的会话状态发生变化时，需要刷新对应路由会话状态
+     *
+     * @param serviceProxyDto
+     * @return
+     */
+    boolean refreshRouteSessionStatus(ServiceProxyDto serviceProxyDto);
+
 
     /**
      * 从网关数据面下线

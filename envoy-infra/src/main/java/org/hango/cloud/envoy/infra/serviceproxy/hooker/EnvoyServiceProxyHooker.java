@@ -57,7 +57,14 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
         }
     }
 
-
+    @Override
+    protected Object postUpdateHook(Object returnData) {
+        ServiceProxyDto service = MethodAroundHolder.getNextParam(ServiceProxyDto.class);
+        if (!envoyServiceProxyService.refreshRouteSessionStatus(service)) {
+            throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        return returnData;
+    }
     @Override
     protected void preDeleteHook(ServiceProxyDto serviceProxyDto) {
         if (!envoyServiceProxyService.offlineToGateway(serviceProxyDto)) {

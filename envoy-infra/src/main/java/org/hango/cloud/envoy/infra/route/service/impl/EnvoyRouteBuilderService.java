@@ -59,11 +59,11 @@ public class EnvoyRouteBuilderService {
     @Autowired
     private IDomainInfoService domainInfoService;
 
-    public JSONObject buildRouteInfo(RouteDto routeDto, List<String> pluginConfigurations) {
+    public JSONObject buildRouteInfo(RouteDto routeDto) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(routeDto.getVirtualGwId());
         List<ServiceProxyDto> serviceProxyDtoList = serviceProxyService.getServiceByIds(routeDto.getServiceIds());
         //构建基本信息
-        JSONObject body = buildBaseInfo(routeDto, pluginConfigurations, virtualGatewayDto);
+        JSONObject body = buildBaseInfo(routeDto, virtualGatewayDto);
         //构建header信息
         buildHeaderInfo(body, routeDto);
         //构建服务实例
@@ -80,7 +80,7 @@ public class EnvoyRouteBuilderService {
         return body;
     }
 
-    private JSONObject buildBaseInfo(RouteDto routeDto, List<String> pluginConfigurations, VirtualGatewayDto virtualGatewayDto) {
+    private JSONObject buildBaseInfo(RouteDto routeDto, VirtualGatewayDto virtualGatewayDto) {
         JSONObject body = new JSONObject();
         body.put("Gateway", CommonUtil.genGatewayStrForRoute(virtualGatewayDto));
         body.put("Code", routeDto.getName());
@@ -91,7 +91,6 @@ public class EnvoyRouteBuilderService {
         body.put("Hosts", hosts);
         body.put("RequestUris", routeDto.getUriMatchDto().getValue());
         body.put("UriMatch", routeDto.getUriMatchDto().getType());
-        body.put("Plugins", pluginConfigurations);
         body.put("Order", routeDto.getOrders());
         body.put("ProjectId", routeDto.getProjectId());
         body.put("Methods", routeDto.getMethod());
