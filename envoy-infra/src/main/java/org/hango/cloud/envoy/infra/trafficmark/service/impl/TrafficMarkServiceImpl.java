@@ -349,6 +349,10 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
         }
 
         request.put("headers", matchList);
+
+        if (!matchList.isEmpty()) {
+            request.put("requestSwitch", true);
+        }
         return request;
     }
 
@@ -364,6 +368,10 @@ public class TrafficMarkServiceImpl implements ITrafficMarkService {
         }
 
         request.put("parameters", matchList);
+
+        if (!matchList.isEmpty()) {
+            request.put("requestSwitch", true);
+        }
         return request;
     }
 
