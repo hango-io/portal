@@ -82,6 +82,15 @@ public class OperationAuditKind {
         kindMap.put("UpdatePluginManager", OperationAuditRule.get().eventName("UpdatePluginManager").description("更新插件全局配置").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).readRSIFromQuery("Name"));
         /*********************************************** plugin End *****************************************************/
 
+        /*********************************************** plugin template Start *****************************************************/
+        kindMap.put("CreatePluginTemplate", OperationAuditRule.get().eventName("CreatePluginTemplate").description("创建私有模板").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSNReq("$.TemplateName"));
+        kindMap.put("CreateGlobalPluginTemplate", OperationAuditRule.get().eventName("CreateGlobalPluginTemplate").description("创建公告模板").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSNReq("TemplateName"));
+        kindMap.put("UpdatePluginTemplate", OperationAuditRule.get().eventName("UpdatePluginTemplate").description("更新模板配置").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSIReq("$.jsonPathForRSNReq"));
+        kindMap.put("DeletePluginTemplate", OperationAuditRule.get().eventName("DeletePluginTemplate").description("删除模板").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).readRSIFromQuery("Id"));
+        kindMap.put("SyncPluginTemplates", OperationAuditRule.get().eventName("SyncPluginTemplates").description("同步插件配置").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSNReq("$.Id"));
+
+        /*********************************************** plugin template End *****************************************************/
+
 
         /*********************************************** plugin market Start *****************************************************/
         kindMap.put("PluginImport", OperationAuditRule.get().eventName("PluginImport").description("上传自定义插件").resourceType(AuditConst.AUDIT_RESOURCE_TYPE_PLUGIN).jsonPathForRSIResp(DEFAULT_RETURN));

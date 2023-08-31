@@ -1,9 +1,15 @@
-package org.hango.cloud.envoy.advanced.republish.service.impl;
+package org.hango.cloud.envoy.advanced.manager.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
+import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
+import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
+import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.pojo.RouteQuery;
 import org.hango.cloud.common.infra.route.service.IRouteService;
@@ -11,8 +17,9 @@ import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
-import org.hango.cloud.envoy.advanced.republish.dto.RepublishResult;
-import org.hango.cloud.envoy.advanced.republish.service.IRepublishService;
+import org.hango.cloud.envoy.advanced.manager.dto.RepublishResult;
+import org.hango.cloud.envoy.advanced.manager.service.IRepublishService;
+import org.hango.cloud.envoy.infra.plugin.manager.IPluginOperateManagerService;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.hango.cloud.envoy.infra.route.service.IEnvoyRouteService;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.ResultDTO;
@@ -55,6 +62,12 @@ public class RepublishServiceImpl implements IRepublishService {
     @Autowired
     private IPluginManagerService pluginManagerService;
 
+    @Autowired
+    private IPluginInfoService pluginInfoService;
+
+    @Autowired
+    private IPluginOperateManagerService pluginOperateManagerService;
+
     @Override
     public ErrorCode checkRepublishParam(List<Long> vgIds) {
         for (Long vgId : vgIds) {
@@ -95,13 +108,35 @@ public class RepublishServiceImpl implements IRepublishService {
                 errorName.add(serviceProxyDto.getName());
             }
         }
-        result.setResultDTO(ResultDTO.of(serviceProxyDtos.size(), new ArrayList<>(errorName)));
+        result.setService(ResultDTO.of(serviceProxyDtos.size(), new ArrayList<>(errorName)));
+        //刷新全局插件
+        List<String> errMsg = rePublishPlugin(virtualGatewayDto);
+        result.setPlugin(ResultDTO.of(errMsg.size(), errMsg));
         //刷新网关
         Boolean res = refreshGateway(virtualGatewayDto);
         if (Boolean.FALSE.equals(res)){
             result.setErrmsg("republish gateway/plm cr error");
         }
         return result;
+    }
+
+    private List<String> rePublishPlugin(VirtualGatewayDto virtualGatewayDto){
+        List<String> errorName = new ArrayList<>();
+        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().virtualGwId(virtualGatewayDto.getId()).build();
+        List<PluginBindingDto> bindingPluginInfoList = pluginInfoService.getBindingPluginInfoList(query);
+        for (PluginBindingDto pluginBindingDto : bindingPluginInfoList) {
+            if (pluginBindingDto.getBindingObjectType().equals(BindingObjectTypeEnum.ROUTE.getValue())){
+                //路由级插件更新路由时会相应更新
+                continue;
+            }
+            BindingPluginDto bindingPluginDto = BindingPluginDto.createBindingPluginFromPluginBindingInfo(pluginInfoService.toMeta(pluginBindingDto));
+            ErrorCode result = pluginOperateManagerService.update(bindingPluginDto);
+            if (!CommonErrorCode.SUCCESS.equals(result)){
+                log.error("republish plugin error|{}", JSONObject.toJSONString(pluginBindingDto));
+                errorName.add(pluginBindingDto.getPluginType());
+            }
+        }
+        return errorName;
     }
 
 

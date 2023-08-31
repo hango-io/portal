@@ -1,5 +1,6 @@
 package org.hango.cloud.common.infra.plugin.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
@@ -136,7 +137,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     public ErrorCode checkCreateParam(PluginBindingDto pluginBindingDto) {
         long projectId = ProjectTraceHolder.getProId();
         pluginBindingDto.setProjectId(projectId);
-        Long templateId = pluginBindingDto.getTemplateId();
+
         VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(pluginBindingDto.getVirtualGwId());
         if (null == virtualGateway) {
             logger.info("绑定插件时指定的网关id不存在！ virtualGwId：{}", pluginBindingDto.getVirtualGwId());
@@ -168,6 +169,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 return CommonErrorCode.CANNOT_DUPLICATE_BINDING_AUTH_PLUGIN;
             }
         }
+        Long templateId = pluginBindingDto.getTemplateId();
         if (templateId != null && 0 < templateId) {
             PluginTemplateDto pluginTemplateDto = pluginTemplateService.get(templateId);
             if (null == pluginTemplateDto) {
@@ -219,6 +221,11 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 if (null == virtualGatewayDto) {
                     logger.info("绑定插件时指定的网关不存在！ virtualGwId：{}", virtualGwId);
                     return CommonErrorCode.NO_SUCH_GATEWAY;
+                }
+                Long templateId = pluginBindingDto.getTemplateId();
+                if (templateId != null && templateId > 0){
+                    logger.info("网关级插件不允许绑定插件模板! pluginBindingDto:{}", JSONObject.toJSONString(pluginBindingDto));
+                    return CommonErrorCode.invalidParameter("网关级插件不允许绑定模板");
                 }
                 break;
             default:

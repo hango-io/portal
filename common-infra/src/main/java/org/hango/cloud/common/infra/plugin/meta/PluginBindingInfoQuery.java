@@ -24,6 +24,8 @@ public class PluginBindingInfoQuery extends PageQuery {
 
     private String bindingObjectType;
 
+    private List<String> bindingObjectTypes;
+
     private String bindingStatus;
 
     private Long templateId;

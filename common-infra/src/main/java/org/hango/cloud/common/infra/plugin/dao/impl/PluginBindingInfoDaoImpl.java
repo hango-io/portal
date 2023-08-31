@@ -53,6 +53,7 @@ public class PluginBindingInfoDaoImpl implements IPluginBindingInfoDao {
         wrapper.eq(StringUtils.isNotBlank(query.getBindingObjectType()), PluginBindingInfo::getBindingObjectType, query.getBindingObjectType());
         wrapper.eq(StringUtils.isNotBlank(query.getBindingStatus()), PluginBindingInfo::getBindingStatus, query.getBindingStatus());
         wrapper.in(CollectionUtils.isNotEmpty(query.getPluginType()), PluginBindingInfo::getPluginType, query.getPluginType());
+        wrapper.in(CollectionUtils.isNotEmpty(query.getBindingObjectTypes()), PluginBindingInfo::getBindingObjectType, query.getBindingObjectTypes());
         wrapper.notIn(CollectionUtils.isNotEmpty(query.getExcludedPluginType()), PluginBindingInfo::getPluginType, query.getExcludedPluginType());
         wrapper.like(StringUtils.isNotBlank(query.getPattern()), PluginBindingInfo::getPluginType, query.getPattern());
         return wrapper;

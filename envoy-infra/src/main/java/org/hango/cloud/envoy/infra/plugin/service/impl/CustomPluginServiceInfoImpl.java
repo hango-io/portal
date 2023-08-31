@@ -347,8 +347,11 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         customPluginInstanceDto.setUpdateTime(pluginBindingInfo.getUpdateTime());
         customPluginInstanceDto.setBindingStatus(pluginBindingInfo.getBindingStatus());
         customPluginInstanceDto.setVirtualGwId(pluginBindingInfo.getVirtualGwId());
-        PermissionScopeDto projectScope = virtualGatewayProjectService.getProjectScope(pluginBindingInfo.getProjectId());
-        customPluginInstanceDto.setProject(projectScope ==null ? "-" : projectScope.getPermissionScopeName());
+        //网关级插件不展示项目
+        if (!BindingObjectTypeEnum.GATEWAY.getValue().equals(pluginBindingInfo.getBindingObjectType())){
+            PermissionScopeDto projectScope = virtualGatewayProjectService.getProjectScope(pluginBindingInfo.getProjectId());
+            customPluginInstanceDto.setProject(projectScope ==null ? "-" : projectScope.getPermissionScopeName());
+        }
         return customPluginInstanceDto;
     }
 

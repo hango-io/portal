@@ -135,6 +135,7 @@ public class Trans {
         describeCustomPluginDto.setPluginStatus(customPluginInfo.getPluginStatus());
         describeCustomPluginDto.setPluginScope(customPluginInfo.getPluginScope());
         describeCustomPluginDto.setAuthor(customPluginInfo.getAuthor());
+        describeCustomPluginDto.setCreateTime(customPluginInfo.getCreateTime());
         describeCustomPluginDto.setUpdateTime(customPluginInfo.getUpdateTime());
         describeCustomPluginDto.setSchemaContent(customPluginInfo.getPluginSchema());
         describeCustomPluginDto.setSourceContent(customPluginInfo.getPluginContent());

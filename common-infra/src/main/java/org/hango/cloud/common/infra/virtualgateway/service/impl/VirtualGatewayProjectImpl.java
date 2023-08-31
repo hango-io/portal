@@ -11,7 +11,9 @@ import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.*;
@@ -217,9 +219,16 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
         VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(domainBindDTO.getVirtualGwId());
         Set<Long> targetDomain = virtualGateway.getDomainInfos().stream().map(DomainInfoDTO::getId).collect(Collectors.toSet());
         domainBindDTO.getDomainIds().forEach(targetDomain::remove);
-        if (CollectionUtils.isEmpty(targetDomain)
-                && !CollectionUtils.isEmpty(serviceProxyService.getServiceProxyListByVirtualGwId(domainBindDTO.getVirtualGwId()))){
-            return CommonErrorCode.invalidParameter("当前虚拟网关下存在服务，不允许清空域名");
+        if (CollectionUtils.isEmpty(targetDomain)){
+            List<ServiceProxyDto> serviceProxyDtos = serviceProxyService.getServiceProxyListByVirtualGwId(domainBindDTO.getVirtualGwId());
+            if (!CollectionUtils.isEmpty(serviceProxyDtos)){
+                return CommonErrorCode.invalidParameter("当前虚拟网关下存在服务，不允许清空域名");
+            }
+            PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().virtualGwId(domainBindDTO.getVirtualGwId()).build();
+            List<PluginBindingDto> pluginBindingDtos = pluginInfoService.getBindingPluginInfoList(query);
+            if (!CollectionUtils.isEmpty(pluginBindingDtos)){
+                return CommonErrorCode.invalidParameter("当前虚拟网关下存在插件，不允许清空域名");
+            }
         }
         return CommonErrorCode.SUCCESS;
     }

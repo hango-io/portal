@@ -138,30 +138,26 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         if (CollectionUtils.isEmpty(pluginTemplateInfoList)) {
             return Collections.emptyList();
         }
-        return pluginTemplateInfoList.stream().map(this::toView)
-                .map(this::fillTemplateDto)
-                .collect(Collectors.toList());
+        return pluginTemplateInfoList.stream().map(this::toView).collect(Collectors.toList());
     }
 
     @Override
     public PluginTemplateDto get(long id) {
-        PluginTemplateDto pluginTemplateDto = toView(pluginTemplateDao.get(id));
-        return fillTemplateDto(pluginTemplateDto);
+        return toView(pluginTemplateDao.get(id));
     }
 
-    private PluginTemplateDto fillTemplateDto(PluginTemplateDto pluginTemplateDto) {
+    private void fillTemplateDto(PluginTemplateDto pluginTemplateDto) {
         if (pluginTemplateDto == null) {
-            return null;
+            return;
         }
         PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().templateId(pluginTemplateDto.getId()).build();
         List<PluginBindingDto> bindingInfos = pluginInfoService.getBindingPluginInfoList(query);
         pluginTemplateDto.setBindingDtoList(bindingInfos);
         if (CollectionUtils.isEmpty(bindingInfos)) {
             pluginTemplateDto.setTemplateStatus(STATUS_NO_NEED_SYNC);
-            return pluginTemplateDto;
+            return;
         }
         fillTemplateStatus(pluginTemplateDto, bindingInfos);
-        return pluginTemplateDto;
     }
 
     private void fillTemplateStatus(PluginTemplateDto templateDto, List<PluginBindingDto> bindingInfos) {
@@ -236,6 +232,8 @@ public class PluginTemplateServiceImpl implements IPluginTemplateService {
         if (pluginTemplateInfo.getProjectId() == 0) {
             templateDto.setGlobal(true);
         }
+        //设置模板状态
+        fillTemplateDto(templateDto);
         return templateDto;
     }
 

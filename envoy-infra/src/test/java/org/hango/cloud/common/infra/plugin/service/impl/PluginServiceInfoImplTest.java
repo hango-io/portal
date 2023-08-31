@@ -145,7 +145,7 @@ public class PluginServiceInfoImplTest{
         checkDto.setTemplateId(99L);
         checkDto.setPluginType(pluginBindingDto.getPluginType());
         errorCode = pluginServiceInfo.checkCreateParam(checkDto);
-        assertEquals(errorCode.message, "指定的插件模板不存在");
+        assertEquals(errorCode.message, "网关级插件不允许绑定模板");
 
 
         pluginServiceInfo.delete(pluginBindingDto);

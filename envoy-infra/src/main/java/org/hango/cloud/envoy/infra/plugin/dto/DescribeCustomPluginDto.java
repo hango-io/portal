@@ -91,6 +91,12 @@ public class DescribeCustomPluginDto {
     private String author;
 
     /**
+     * 插件创建时间
+     */
+    @JSONField(name = "CreateTime")
+    private Long createTime;
+
+    /**
      * 插件修改时间
      */
     @JSONField(name = "UpdateTime")

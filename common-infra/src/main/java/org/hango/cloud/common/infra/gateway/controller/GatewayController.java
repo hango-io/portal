@@ -75,26 +75,6 @@ public class GatewayController extends AbstractController {
     }
 
     /**
-     * 删除网关信息
-     *
-     * @param id
-     */
-    @GetMapping(params = {"Action=DeleteGateway"})
-    public Object deleteGateway(@RequestParam(name = "Id") long id) {
-        logger.info("删除网关信息! Id = {}", id);
-        GatewayDto gatewayDto = gatewayService.get(id);
-        if (gatewayDto == null) {
-            return apiReturn(new Result());
-        }
-        ErrorCode errorCode = gatewayService.checkDeleteParam(gatewayDto);
-        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
-            return apiReturn(Result.err(errorCode));
-        }
-        gatewayService.delete(gatewayDto);
-        return apiReturn(new Result());
-    }
-
-    /**
      * 查询所有网关信息
      *
      * @return

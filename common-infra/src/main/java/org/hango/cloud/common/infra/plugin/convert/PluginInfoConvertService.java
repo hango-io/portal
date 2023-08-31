@@ -12,6 +12,9 @@ import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.ENABLE_STATE;
 
@@ -35,6 +38,10 @@ public class PluginInfoConvertService {
                 .bindingObjectType(pluginBindingQueryDto.getBindingObjectType())
                 .pattern(pluginBindingQueryDto.getPattern())
                 .build();
+        if (!StringUtils.hasText(pluginBindingQueryDto.getBindingObjectType())) {
+            //网关级插件默认不展示
+            pluginBindingInfoQuery.setBindingObjectTypes(Arrays.asList(BindingObjectTypeEnum.GLOBAL.getValue(), BindingObjectTypeEnum.HOST.getValue(), BindingObjectTypeEnum.ROUTE.getValue()));
+        }
         pluginBindingInfoQuery.setLimit(pluginBindingQueryDto.getLimit());
         pluginBindingInfoQuery.setOffset(pluginBindingQueryDto.getOffset());
         pluginBindingInfoQuery.setSortByKey(pluginBindingQueryDto.getSortByKey());
@@ -54,6 +61,8 @@ public class PluginInfoConvertService {
         bindingInfo.setPluginType(pluginBindingDto.getPluginType());
         bindingInfo.setPluginName(pluginBindingDto.getPluginName());
         bindingInfo.setBindingStatus(ENABLE_STATE);
+        bindingInfo.setTemplateId(pluginBindingDto.getTemplateId());
+        bindingInfo.setTemplateVersion(pluginBindingDto.getTemplateVersion());
         return bindingInfo;
     }
 

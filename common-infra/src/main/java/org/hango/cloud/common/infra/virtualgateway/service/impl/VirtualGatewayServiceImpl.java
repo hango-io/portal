@@ -195,7 +195,9 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         virtualGateway.setType(virtualGatewayDto.getType());
         virtualGateway.setAddr(virtualGatewayDto.getAddr());
         List<Long> projectIdList = virtualGatewayDto.getProjectIdList();
-        virtualGateway.setProjectId(projectIdList.stream().map(Object::toString).collect(Collectors.joining(",")));
+        if (!CollectionUtils.isEmpty(projectIdList)) {
+            virtualGateway.setProjectId(projectIdList.stream().map(Object::toString).collect(Collectors.joining(",")));
+        }
         List<DomainInfoDTO> domainInfos = virtualGatewayDto.getDomainInfos();
         if (!CollectionUtils.isEmpty(domainInfos)){
             virtualGateway.setDomainId(domainInfos.stream().map(DomainInfoDTO::getId).map(Object::toString).collect(Collectors.joining(",")));

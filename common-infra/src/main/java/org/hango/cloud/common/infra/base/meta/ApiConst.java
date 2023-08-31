@@ -19,6 +19,8 @@ public class ApiConst {
 
     public static final String REPUBLISH = "republish";
 
+    public static final String CLEANUP = "cleanup";
+
 
     public static final String VIRTUAL_GATEWAY = "virtualGateway";
 
@@ -31,4 +33,6 @@ public class ApiConst {
     public static final String HANGO_DOMAIN_V1_PREFIX = V_1_PREFIX + DOMAIN;
 
     public static final String HANGO_REPUBLISH = V_1_PREFIX + REPUBLISH;
+
+    public static final String HANGO_CLEANUP = V_1_PREFIX + CLEANUP;
 }

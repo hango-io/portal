@@ -13,6 +13,7 @@ import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.plugin.dto.PluginDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.service.IRouteService;
@@ -20,7 +21,6 @@ import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayProjectService;
 import org.hango.cloud.envoy.infra.base.meta.EnvoyConst;
-import org.hango.cloud.envoy.infra.base.meta.PluginConstant;
 import org.hango.cloud.envoy.infra.base.service.VersionManagerService;
 import org.hango.cloud.envoy.infra.plugin.dao.ICustomPluginInfoDao;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
@@ -125,8 +125,11 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
 
     private boolean filter(long virtualGwId,String pluginScope, PluginDto item) {
         //未传虚拟网关，不允许展示网关属性插件
-        if (virtualGwId <= 0 && GATEWAY_PROPERTIES_PLUGINS.contains(item.getPluginType())){
-            return false;
+        if (virtualGwId <= 0){
+            if (GATEWAY_PROPERTIES_PLUGINS.contains(item.getPluginType())
+                    || item.getPluginScope().contains(BindingObjectTypeEnum.GATEWAY.getValue())){
+                return false;
+            }
         }
         if (StringUtils.isBlank(item.getPluginScope())) {
             return false;
@@ -135,8 +138,8 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
             return true;
         }
         // 全局插件与host插件一致，此处将host直接当做global处理
-        if (pluginScope.equals(PluginConstant.PLUGIN_SCOPE_HOST)) {
-            pluginScope = PluginConstant.PLUGIN_SCOPE_GLOBAL;
+        if (pluginScope.equals(BindingObjectTypeEnum.HOST.getValue())) {
+            pluginScope = BindingObjectTypeEnum.GLOBAL.getValue();
         }
         Set<String> pluginScopeSet = Arrays.stream(item.getPluginScope().split(",")).map(String::trim).collect(Collectors.toSet());
         return pluginScopeSet.contains(pluginScope);
