@@ -11,6 +11,7 @@ import org.hango.cloud.envoy.infra.base.util.EnvoyCommonUtil;
 import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginInfoDto;
 import org.hango.cloud.envoy.infra.plugin.dto.DescribeCustomPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
+import org.hango.cloud.envoy.infra.plugin.meta.SchemaInfo;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginSource;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
@@ -79,10 +80,24 @@ public class Trans {
         pluginDto.setCategoryKey(customPluginInfo.getPluginCategory());
         pluginDto.setCategoryName(PluginType.getByName(customPluginInfo.getPluginCategory()));
         pluginDto.setInstructionForUse(customPluginInfo.getDescription());
-        pluginDto.setPluginSchema(customPluginInfo.getPluginSchema());
+        pluginDto.setPluginSchema(handlerSchema(customPluginInfo));
         pluginDto.setPluginSource(PluginSource.CUSTOM.getName());
         return pluginDto;
     }
+
+    private static String handlerSchema(CustomPluginInfo customPluginInfo){
+        if (StringUtils.isBlank(customPluginInfo.getPluginSchema())){
+            return customPluginInfo.getPluginSchema();
+        }
+        SchemaInfo schemaInfo = JSONObject.parseObject(customPluginInfo.getPluginSchema(), SchemaInfo.class);
+        JSONObject inject = new JSONObject();
+        inject.put("kind", customPluginInfo.getPluginType());
+        inject.put("type", customPluginInfo.getLanguage());
+        schemaInfo.setInject(inject);
+        return JSONObject.toJSONString(schemaInfo);
+    }
+
+
 
     public static CustomPluginInfo customPluginDto2MetaInfo(CustomPluginInfoDto customPluginInfoDto) {
         return CustomPluginInfo.builder()

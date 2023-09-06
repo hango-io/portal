@@ -1,5 +1,6 @@
 package org.hango.cloud.envoy.infra.plugin.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -26,6 +27,7 @@ import org.hango.cloud.envoy.infra.plugin.dto.*;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfoQuery;
 import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusEnum;
+import org.hango.cloud.envoy.infra.plugin.meta.SchemaInfo;
 import org.hango.cloud.envoy.infra.plugin.rpc.CustomPluginRpcService;
 import org.hango.cloud.envoy.infra.plugin.service.CustomPluginInfoService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
@@ -95,8 +97,12 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
                 return CommonErrorCode.invalidParameter("插件作用域错误");
             }
         }
-        //校验插件内容
-        ErrorCode errorCode = checkPluginContent(customPluginInfoDto.getSourceType(),customPluginInfoDto.getSourceUrl(), customPluginInfoDto.getSourceContent());
+        ErrorCode errorCode = checkPluginSchema(customPluginInfoDto.getSchemaContent());
+        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
+            return errorCode;
+        }
+                //校验插件内容
+        errorCode = checkPluginContent(customPluginInfoDto.getSourceType(),customPluginInfoDto.getSourceUrl(), customPluginInfoDto.getSourceContent());
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return errorCode;
         }
@@ -107,6 +113,32 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
             return errorCode;
         }
 
+        return CommonErrorCode.SUCCESS;
+    }
+
+    private ErrorCode checkPluginSchema(String schema){
+        if (!StringUtils.hasText(schema)){
+            return CommonErrorCode.invalidParameter("schema不能为空");
+        }
+        SchemaInfo schemaInfo;
+        try {
+            schemaInfo = JSONObject.parseObject(schema, SchemaInfo.class);
+        }catch (Exception e){
+            logger.error("schema格式错误, schema:{}",schema, e);
+            return CommonErrorCode.invalidParameter("schema格式错误");
+        }
+        List<JSONObject> layouts = schemaInfo.getLayouts();
+        if (CollectionUtils.isEmpty(layouts)){
+            return CommonErrorCode.invalidParameter("layouts不能为空");
+        }
+        for (JSONObject layout : layouts) {
+            if (!layout.containsKey("key")){
+                return CommonErrorCode.invalidParameter("key 不能为空");
+            }
+            if (!layout.containsKey("type")){
+                return CommonErrorCode.invalidParameter("type 不能为空");
+            }
+        }
         return CommonErrorCode.SUCCESS;
     }
 
@@ -211,6 +243,7 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         customPluginInfoDao.add(customPluginInfo);
         return customPluginInfo.getId();
     }
+
 
 
     @Override
