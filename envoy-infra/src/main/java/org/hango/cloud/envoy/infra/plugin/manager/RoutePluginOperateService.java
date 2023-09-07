@@ -37,9 +37,6 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
     @Autowired
     IRouteService routeService;
 
-    @Autowired
-    private IVirtualGatewayInfoService virtualGatewayInfoService;
-
 
     @Override
     public ErrorCode create(BindingPluginDto plugin) {
