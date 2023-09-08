@@ -257,4 +257,15 @@ public class BaseConst {
      * 未同步
      **/
     public static final int STATUS_NEED_SYNC = 1;
+
+    /**
+     * 查询服务接口的过滤条件前缀字符
+     */
+    public static final String PREFIX_LABEL = "label_";
+    public static final String PREFIX_HOST = "host_";
+    public static final String PREFIX_ADDRESS = "address_";
+    public static final String PREFIX_PORT = "port_";
+    public static final String PREFIX_PROTOCOL = "protocol_";
+
+    public static final String PROJECT_CODE = "projectCode";
 }

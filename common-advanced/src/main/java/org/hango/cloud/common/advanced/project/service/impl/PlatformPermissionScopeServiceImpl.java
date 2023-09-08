@@ -14,8 +14,11 @@ import org.hango.cloud.common.advanced.authentication.holder.UserPermissionHolde
 import org.hango.cloud.common.advanced.base.config.CommonAdvanceConfig;
 import org.hango.cloud.common.advanced.base.meta.AdvancedConst;
 import org.hango.cloud.common.advanced.project.service.IPlatformPermissionScopeService;
+import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
+import org.hango.cloud.common.infra.serviceregistry.meta.RegistryCenterEnum;
 import org.hango.cloud.common.infra.virtualgateway.dto.PermissionScopeDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +27,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -127,5 +133,43 @@ public class PlatformPermissionScopeServiceImpl implements IPlatformPermissionSc
             return null;
         }
         return JSONObject.parseObject(authResponse.getResponseBody(), PermissionScopeDto.class);
+    }
+
+
+    @Override
+    public PermissionScopeDto getProjectScopeDto(long projectId) {
+        List<Long> projectIdList = new ArrayList<>(1);
+        projectIdList.add(projectId);
+        List<PermissionScopeDto> permissionScopeDtoList = getPermissionScope(projectIdList);
+        if (permissionScopeDtoList.isEmpty()) {
+            throw new  RuntimeException("projectId: " + projectId + " 不合法，不存在对应项目信息");
+        }
+        return permissionScopeDtoList.get(0);
+    }
+
+    /**
+     * 服务的过滤条件在本方法中扩展
+     * 过滤条件的格式在gportal和api-plane两侧统一，过滤条件的key必须为xxx_的前缀开头，参考"Const.PREFIX_LABEL"
+     * 需要对endpoint的什么字段过滤就加上什么前缀，当前共5种前缀，详见"Const.PREFIX_XXX"，过滤Map结构如下
+     * {
+     * "label_projectCode": "project1", // 过滤label为"projectCode=project1"的endpoint
+     * "label_application": "app1",     // 过滤label为"application=app1"的endpoint
+     * "action": "function",            // 无效标签，可填写但不使用
+     * "host_xxx": "qz.com"             // host值为"qz.com"的endpoint
+     * "port_xxx": "8080"               // port值为"8080"的endpoint
+     * }
+     *
+     * @param registry 注册中心
+     * @return 服务过滤条件Map
+     */
+    @Override
+    public Map<String, String> createServiceFilters(String registry) {
+        Map<String, String> filters = new HashMap<>(2);
+        // 携带项目隔离信息projectCode，api-plane处根据服务hostname做项目隔离匹配
+        if (Objects.equals(RegistryCenterEnum.Eureka.getType(), registry) || Objects.equals(RegistryCenterEnum.Nacos.getType(), registry)) {
+            PermissionScopeDto projectScopeDto = getProjectScopeDto(ProjectTraceHolder.getProId());
+            filters.put(BaseConst.PREFIX_LABEL + BaseConst.PROJECT_CODE, projectScopeDto.getPermissionScopeEnName());
+        }
+        return filters;
     }
 }
