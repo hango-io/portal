@@ -26,8 +26,10 @@ import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.common.infra.route.dto.RouteDto;
 import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
+import org.hango.cloud.common.infra.virtualgateway.dto.PermissionScopeDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
+import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -77,6 +79,9 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
 
     @Autowired
     private DomainInfoMapper domainInfoMapper;
+
+    @Autowired
+    private IVirtualGatewayProjectService virtualGatewayProjectService;
 
 
     @Override
@@ -410,6 +415,11 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 pluginBindingDto.setBindingObjectName(routeDto == null ? StringUtils.EMPTY : routeDto.getName());
                 break;
             case GLOBAL:
+                PermissionScopeDto projectScope = virtualGatewayProjectService.getProjectScope(pluginBindingDto.getProjectId());
+                if (projectScope != null){
+                    pluginBindingDto.setBindingObjectName(projectScope.getPermissionScopeEnName());
+                }
+                break;
             case GATEWAY:
                 pluginBindingDto.setBindingObjectName(virtualGatewayDto == null ? StringUtils.EMPTY : virtualGatewayDto.getName());
                 break;
