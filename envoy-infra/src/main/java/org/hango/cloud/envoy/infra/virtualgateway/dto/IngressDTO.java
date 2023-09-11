@@ -22,6 +22,12 @@ public class IngressDTO implements Serializable {
     private String name;
 
     /**
+     * 端口
+     */
+    @JSONField(name = "Port")
+    private Integer port;
+
+    /**
      * 命名空间
      */
     @JSONField(name = "Namespace")

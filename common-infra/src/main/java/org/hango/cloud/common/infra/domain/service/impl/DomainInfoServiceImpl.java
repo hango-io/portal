@@ -140,6 +140,12 @@ public class DomainInfoServiceImpl implements IDomainInfoService {
         return query;
     }
 
+    @Override
+    public DomainInfoDTO get(long id) {
+        DomainInfo domainInfoPO = domainInfoDao.get(id);
+        return toView(domainInfoPO);
+    }
+
 
     @Override
     public List<String> getHosts(long projectId, long virtualGatewayId) {
