@@ -46,6 +46,13 @@ public class PluginInfoConvertService {
         pluginBindingInfoQuery.setOffset(pluginBindingQueryDto.getOffset());
         pluginBindingInfoQuery.setSortByKey(pluginBindingQueryDto.getSortByKey());
         pluginBindingInfoQuery.setSortByValue(pluginBindingQueryDto.getSortByValue());
+        if (BindingObjectTypeEnum.GATEWAY.getValue().equals(pluginBindingQueryDto.getBindingObjectType())) {
+            // 网关级别插件不需要通过项目过滤
+            pluginBindingInfoQuery.setProjectId(null);
+        } else {
+            pluginBindingInfoQuery.setProjectId(ProjectTraceHolder.getProId());
+        }
+
         return pluginBindingInfoQuery;
     }
 

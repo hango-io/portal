@@ -377,7 +377,6 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     @Override
     public Page<PluginBindingInfo> getOutsideBindingPluginPage(PluginBindingQueryDto queryDto) {
         PluginBindingInfoQuery query = PluginInfoConvertService.trans(queryDto);
-        query.setProjectId(ProjectTraceHolder.getProId());
         // 内部使用插件，不对外暴露，新增内部插件继续添加;
         query.setExcludedPluginType(Collections.singletonList(SOAP_JSON_TRANSCODER_PLUGIN));
         return pluginBindingInfoDao.getPluginBindingInfoPage(query);
