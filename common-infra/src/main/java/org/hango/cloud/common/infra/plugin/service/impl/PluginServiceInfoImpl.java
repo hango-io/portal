@@ -401,6 +401,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(pluginBindingDto.getVirtualGwId());
         if (virtualGatewayDto != null){
             pluginBindingDto.setVirtualGwName(virtualGatewayDto.getName());
+            pluginBindingDto.setVirtualGwType(virtualGatewayDto.getType());
         }
         BindingObjectTypeEnum bindingObjectTypeEnum = BindingObjectTypeEnum.getByValue(pluginBindingDto.getBindingObjectType());
         if (bindingObjectTypeEnum == null) {

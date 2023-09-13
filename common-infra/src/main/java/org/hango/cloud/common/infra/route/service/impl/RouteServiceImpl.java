@@ -111,6 +111,7 @@ public class RouteServiceImpl implements IRouteService {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(routePO.getVirtualGwId());
         routeDto.setVirtualGwId(virtualGatewayDto.getId());
         routeDto.setVirtualGwName(virtualGatewayDto.getName());
+        routeDto.setVirtualGwType(virtualGatewayDto.getType());
         routeDto.setVirtualGwCode(virtualGatewayDto.getCode());
         routeDto.setEnvId(virtualGatewayDto.getEnvId());
         routeDto.setGwType(routePO.getGwType());

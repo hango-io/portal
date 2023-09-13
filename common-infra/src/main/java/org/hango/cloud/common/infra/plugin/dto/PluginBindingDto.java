@@ -79,6 +79,9 @@ public class PluginBindingDto extends CommonExtensionDto implements Serializable
     @JSONField(name = "GwName")
     private String virtualGwName;
 
+    @JSONField(name = "VirtualGwType")
+    private String virtualGwType;
+
     @JSONField(name = "TemplateId")
     private Long templateId;
 
