@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.hango.cloud.common.infra.base.dto.ResourceDTO;
@@ -209,22 +210,39 @@ public class EnvoyServiceProxyServiceImpl implements IEnvoyServiceProxyService {
      */
     @Override
     public boolean refreshRouteSessionStatus(ServiceProxyDto serviceProxyDto) {
+        List<RouteDto> routeList = routeService.getRouteList(RouteQuery.builder().serviceId(serviceProxyDto.getId()).build());
+        return CommonErrorCode.SUCCESS.equals(routePluginOperateService.batchUpdateUsingRoute(routeList));
+    }
+
+    /**
+     * 是否刷新路由会话状态
+     *
+     * 当服务的会话状态发生变化时，需要刷新对应路由会话状态
+     * @param serviceProxyDto
+     * @return
+     */
+    @Override
+    public boolean needRefreshSessionStatus(ServiceProxyDto serviceProxyDto) {
         ServiceProxyDto originService = serviceProxyService.get(serviceProxyDto.getId());
         if (originService == null) {
             logger.debug("创建场景，无需刷新路由会话状态");
-            return true;
+            return false;
         }
-        if (Objects.equals(originService.getTrafficPolicy(), serviceProxyDto.getTrafficPolicy())) {
-            logger.debug("路由会话状态未发生变化，无需刷新路由会话状态");
+        if (ObjectUtils.allNull(originService.getTrafficPolicy(), serviceProxyDto.getTrafficPolicy())) {
+            logger.debug("未配置会话保持");
+            return false;
+        }
+        if (ObjectUtils.anyNull(originService.getTrafficPolicy(), serviceProxyDto.getTrafficPolicy())) {
+            logger.debug("会话保持配置发生变化，需要刷新路由会话状态");
             return true;
         }
         if (Objects.equals(originService.getTrafficPolicy().getSessionState(), serviceProxyDto.getTrafficPolicy().getSessionState())) {
             logger.debug("路由会话状态未发生变化，无需刷新路由会话状态");
-            return true;
+            return false;
         }
-        List<RouteDto> routeList = routeService.getRouteList(RouteQuery.builder().serviceId(serviceProxyDto.getId()).build());
-        return CommonErrorCode.SUCCESS.equals(routePluginOperateService.batchUpdateUsingRoute(routeList));
+        return true;
     }
+
 
     private Map<String, Object> buildDestinationServices(ServiceProxyDto serviceProxy) {
         Map<String, Object> proxyService = Maps.newHashMap();

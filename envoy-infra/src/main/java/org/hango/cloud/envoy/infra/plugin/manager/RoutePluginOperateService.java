@@ -100,8 +100,10 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
     }
 
     public BindingPluginDto getRouteDefaultBindInfo(RouteDto routeDto) {
-        return new BindingPluginDto(routeDto.getVirtualGwId(),
+        BindingPluginDto bindingPluginDto = new BindingPluginDto(routeDto.getVirtualGwId(),
                 BindingObjectTypeEnum.ROUTE.getValue(), routeDto.getId(), "", "");
+        bindingPluginDto.setPluginIdList(Lists.newArrayList());
+        return bindingPluginDto;
     }
 
     @Override

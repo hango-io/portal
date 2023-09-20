@@ -50,6 +50,16 @@ public interface IEnvoyServiceProxyService extends CommonService<ServiceProxyInf
 
 
     /**
+     * 是否刷新路由会话状态
+     *
+     * 当服务的会话状态发生变化时，需要刷新对应路由会话状态
+     * @param serviceProxyDto
+     * @return
+     */
+    boolean needRefreshSessionStatus(ServiceProxyDto serviceProxyDto);
+
+
+    /**
      * 从网关数据面下线
      *
      * @param serviceProxyDto

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author zhangbj
@@ -43,4 +44,19 @@ public class SessionStateDto implements Serializable {
      */
     @JSONField(name = "CookiePath")
     private String cookiePath = "/";
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SessionStateDto that = (SessionStateDto) o;
+        return Objects.equals(cookieName, that.cookieName)
+                && Objects.equals(kind, that.kind)
+                && Objects.equals(cookieTTL, that.cookieTTL)
+                && Objects.equals(cookiePath, that.cookiePath);
+    }
+
+
+
+
 }
