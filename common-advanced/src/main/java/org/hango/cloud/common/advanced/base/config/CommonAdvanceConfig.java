@@ -69,4 +69,17 @@ public class CommonAdvanceConfig {
      */
     @Value("${metaServiceAddr:#{null}}")
     private String metaServiceAddr;
+
+    /**
+     * 默认不开启项目隔离，如需开始，需要配置kubernetesIsolateLabelName
+     *
+     * 开启后，Kubernetes 中对应服务的Pod需配置对应的标签
+     *
+     * 如: kubernetesIsolateLabelName=projectCode
+     *
+     * 则Kubernetes 中对应服务的Pod需配置 projectCode=xxx
+     */
+    @Value("${kubernetesIsolateLabelName:#{null}}")
+    private String kubernetesIsolateLabelName;
+
 }

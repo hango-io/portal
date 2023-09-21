@@ -170,6 +170,11 @@ public class PlatformPermissionScopeServiceImpl implements IPlatformPermissionSc
             PermissionScopeDto projectScopeDto = getProjectScopeDto(ProjectTraceHolder.getProId());
             filters.put(BaseConst.PREFIX_LABEL + BaseConst.PROJECT_CODE, projectScopeDto.getPermissionScopeEnName());
         }
+        if (StringUtils.isNotBlank(advanceConfig.getKubernetesIsolateLabelName()) &&
+                Objects.equals(RegistryCenterEnum.Kubernetes.getType(),registry)){
+            PermissionScopeDto projectScopeDto = getProjectScopeDto(ProjectTraceHolder.getProId());
+            filters.put(BaseConst.PREFIX_LABEL + advanceConfig.getKubernetesIsolateLabelName(), projectScopeDto.getPermissionScopeEnName());
+        }
         return filters;
     }
 }
