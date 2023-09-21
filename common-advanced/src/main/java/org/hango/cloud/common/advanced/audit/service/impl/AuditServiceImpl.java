@@ -409,9 +409,7 @@ public class AuditServiceImpl implements IAuditService {
         auditInfo.setOriginHost(source.getString("originHost"));
         auditInfo.setHostName(source.getString("hostname"));
         auditInfo.setPodName(source.getString("pod_name"));
-        long apiId = NumberUtils.toLong(source.getString("apiId"));
-        auditInfo.setApiId(apiId);
-        auditInfo.setApiName(source.getString("apiName"));
+        auditInfo.setApiName(source.getString("apiId"));
         return auditInfo;
     }
 }
