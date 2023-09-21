@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.exception.ErrorCodeException;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
@@ -180,7 +181,7 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(pluginDto.getVirtualGwId());
         RouteDto route = routeService.getRoute(pluginDto.getVirtualGwId(), pluginDto.getBindingObjectId());
         //添加额外插件配置
-        addExtraRoutePluginConfig(route, pluginConfigs, delete);
+        addExtraRoutePluginConfig(route,virtualGatewayDto, pluginConfigs, delete);
         GatewayPluginDto gatewayPlugin = buildPlugin(pluginDto, null, pluginConfigs);
         gatewayPlugin.setCode(buildVirtualServiceName(route.getName(), String.valueOf(route.getProjectId()), CommonUtil.genGatewayStrForRoute(virtualGatewayDto)));
         return gatewayPlugin;
@@ -199,8 +200,8 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
      * @param toBePublishedPluginList
      * @param delete
      */
-    private void addExtraRoutePluginConfig(RouteDto route,List<String> toBePublishedPluginList, boolean delete){
-        toBePublishedPluginList.addAll(processSessionState(route,delete));
+    private void addExtraRoutePluginConfig(RouteDto route,VirtualGatewayDto virtualGatewayDto, List<String> toBePublishedPluginList, boolean delete){
+        toBePublishedPluginList.addAll(processSessionState(route,virtualGatewayDto,delete));
     }
 
     /**
@@ -209,8 +210,15 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
      * @param routeDto
      * @param delete
      */
-    private List<String> processSessionState(RouteDto routeDto ,boolean delete){
+    private List<String> processSessionState(RouteDto routeDto,VirtualGatewayDto virtualGatewayDto ,boolean delete){
         if (delete){
+            return Collections.emptyList();
+        }
+        if (virtualGatewayDto == null){
+            return Collections.emptyList();
+        }
+        //仅负载均衡形态支持会话保持
+        if (!BaseConst.LOAD_BALANCE.equals(virtualGatewayDto.getType())){
             return Collections.emptyList();
         }
         List<ServiceMetaForRouteDto> serviceList = routeDto.getServiceMetaForRouteDtos();

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
@@ -61,7 +62,6 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
     @Autowired
     private IServiceProxyService serviceProxyService;
 
-    public static final String LOAD_BALANCE = "LoadBalance";
 
 
     @Override
@@ -343,7 +343,7 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
             return true;
         }
 
-        return !virtualGateway.getType().equalsIgnoreCase(LOAD_BALANCE);
+        return !virtualGateway.getType().equalsIgnoreCase(BaseConst.LOAD_BALANCE);
     }
 
 

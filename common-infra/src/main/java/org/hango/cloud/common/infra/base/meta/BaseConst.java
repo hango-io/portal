@@ -223,6 +223,11 @@ public class BaseConst {
     public static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
     public static final String STATIC_EP_VERSION = "version";
 
+    /**
+     *  虚拟网关形态- 负载均衡
+     */
+    public static final String LOAD_BALANCE = "LoadBalance";
+
 
     public static final String DUBBO_SERVICE_SUFFIX = ".dubbo";
 
