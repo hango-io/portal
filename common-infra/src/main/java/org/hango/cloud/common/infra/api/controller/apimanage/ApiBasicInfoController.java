@@ -1,25 +1,22 @@
-package org.hango.cloud.envoy.advanced.bakup.apiserver.web.controller.apimanage;
+package org.hango.cloud.common.infra.api.controller.apimanage;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.hango.cloud.common.advanced.authentication.holder.UserPermissionHolder;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
-import org.hango.cloud.common.infra.base.meta.ApiConst;
+import org.hango.cloud.common.infra.base.meta.ApiManageConst;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
 import org.hango.cloud.gdashboard.api.dto.ApiInfoBasicDto;
 import org.hango.cloud.gdashboard.api.dto.ApiListDto;
 import org.hango.cloud.gdashboard.api.meta.ApiInfo;
-import org.hango.cloud.gdashboard.api.meta.OperationLog;
 import org.hango.cloud.gdashboard.api.meta.errorcode.ApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.errorcode.CommonApiErrorCode;
 import org.hango.cloud.gdashboard.api.service.IApiInfoService;
+import org.hango.cloud.gdashboard.api.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +28,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.hango.cloud.common.infra.base.meta.BaseConst.HANGO_DASHBOARD_PREFIX;
+
 /**
  * api基本信息管理，包括API名称，标识等基本信息
  *
  * @author hanjiahao
  */
 @RestController
-@RequestMapping(value = Const.G_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
+@RequestMapping(value = HANGO_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
 @Validated
 public class ApiBasicInfoController extends AbstractController {
     private static Logger logger = LoggerFactory.getLogger(ApiBasicInfoController.class);
@@ -54,7 +53,7 @@ public class ApiBasicInfoController extends AbstractController {
     public Object addApi(@Validated @RequestBody ApiInfoBasicDto apiInfoBasicDto) {
         logger.info("创建API，apiInfoBasicDto:{}", apiInfoBasicDto);
         //操作审计记录资源名称
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, null, apiInfoBasicDto.getApiName());
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API, null, apiInfoBasicDto.getApiName());
 
 
         //服务id校验
@@ -67,16 +66,6 @@ public class ApiBasicInfoController extends AbstractController {
             return apiReturn(errorCode);
         }
         long apiId = apiInfoService.addApiInfos(apiInfoBasicDto, apiInfoBasicDto.getType());
-        try {
-            OperationLog operationLog = new OperationLog();
-            operationLog.setObjectId(apiId);
-            operationLog.setType(ApiConst.API);
-            operationLog.setCreateDate(System.currentTimeMillis());
-            operationLog.setEmail(UserPermissionHolder.getAccountId());
-            operationLog.setOperation(UserPermissionHolder.getAccountId() + "创建了该API");
-        } catch (Exception e) {
-            logger.error("记录用户创建API时发生异常！{}", e);
-        }
         resource.setResourceId(apiId);
         return apiReturnSuccess(apiId);
 
@@ -145,7 +134,6 @@ public class ApiBasicInfoController extends AbstractController {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{名称: " + apiInfo.getApiName() + ", 路径：" + apiInfo.getApiPath() + ", 方法：" + apiInfo.getApiMethod() + ", 描述：" + apiInfo.getDescription()
                 + ", 状态：" + apiInfo.getStatus()).append("}");
-        String operation = UserPermissionHolder.getAccountId() + "修改了API，修改为:" + stringBuilder.toString();
         apiInfoService.updateApi(apiInfo);
         return apiReturn(CommonErrorCode.SUCCESS);
     }
@@ -160,7 +148,7 @@ public class ApiBasicInfoController extends AbstractController {
     public Object deleteApi(@RequestParam(value = "ApiId") long apiId) {
         logger.info("请求删除apiId:{}的接口信息", apiId);
         //操作审计记录资源名称
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, apiId, null);
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API, apiId, null);
 
         ApiInfo apiInfo = apiInfoService.getApiById(apiId);
         if (apiInfo != null) {

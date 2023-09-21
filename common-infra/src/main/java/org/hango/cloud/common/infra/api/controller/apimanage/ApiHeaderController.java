@@ -1,13 +1,11 @@
-package org.hango.cloud.envoy.advanced.bakup.apiserver.web.controller.apimanage;
+package org.hango.cloud.common.infra.api.controller.apimanage;
 
 
 import com.google.common.collect.Maps;
-import org.hango.cloud.common.advanced.authentication.holder.UserPermissionHolder;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
+import org.hango.cloud.common.infra.base.meta.ApiManageConst;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
 import org.hango.cloud.gdashboard.api.dto.ApiHeaderBasicDto;
 import org.hango.cloud.gdashboard.api.dto.ApiHeadersDto;
 import org.hango.cloud.gdashboard.api.meta.ApiHeader;
@@ -16,6 +14,8 @@ import org.hango.cloud.gdashboard.api.meta.errorcode.ApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.errorcode.CommonApiErrorCode;
 import org.hango.cloud.gdashboard.api.service.IApiHeaderService;
 import org.hango.cloud.gdashboard.api.service.IApiInfoService;
+import org.hango.cloud.gdashboard.api.util.BeanUtil;
+import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.hango.cloud.common.infra.base.meta.BaseConst.HANGO_DASHBOARD_PREFIX;
+
 /**
  * Api header controller,包括 request header 以及 response header
  *
  * @author hanjiahao
  */
 @RestController
-@RequestMapping(value = Const.G_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
+@RequestMapping(value = HANGO_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
 public class ApiHeaderController extends AbstractController {
     private static Logger logger = LoggerFactory.getLogger(ApiHeaderController.class);
 
@@ -69,14 +71,13 @@ public class ApiHeaderController extends AbstractController {
             stringBuilder.append(count + ". 名称：" + apiHeader.getParamName() + ", 取值：" + apiHeader.getParamValue() + ", 描述："
                     + apiHeader.getDescription() + ". ");
             count++;
-            resourceDataDtoList.add(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_REQUEST_HEADER, apiHeaderId, apiHeader.getParamName()));
+            resourceDataDtoList.add(new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_REQUEST_HEADER, apiHeaderId, apiHeader.getParamName()));
         }
         //操作审计记录资源名称
         //AuditResourceHolder.set(resourceDataDtoList);
 
 
         stringBuilder.append("}");
-        String operation = UserPermissionHolder.getAccountId() + "修改了该API的 Request Header，修改后Request Header中的参数信息为：" + stringBuilder.toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 
@@ -101,7 +102,7 @@ public class ApiHeaderController extends AbstractController {
 
         headerList.forEach(apiHeader -> {
             long apiHeaderId = apiHeaderService.addHeader(apiHeader);
-            resourceDataDtoList.add(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_RESPONSE_HEADER, apiHeaderId, apiHeader.getParamName()));
+            resourceDataDtoList.add(new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_RESPONSE_HEADER, apiHeaderId, apiHeader.getParamName()));
 
         });
         //操作审计记录资源名称
@@ -115,7 +116,6 @@ public class ApiHeaderController extends AbstractController {
             count++;
         }
         stringBuilder.append("}");
-        String operation = UserPermissionHolder.getAccountId() + "修改了该API的 Response Header，修改后Request Header中的参数信息为：" + stringBuilder.toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 

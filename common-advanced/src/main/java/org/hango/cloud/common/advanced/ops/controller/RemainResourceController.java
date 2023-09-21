@@ -1,7 +1,9 @@
-package org.hango.cloud.envoy.advanced.bakup.envoy.web.controller;
+package org.hango.cloud.common.advanced.ops.controller;
 
 import com.google.common.collect.Maps;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
+import org.hango.cloud.common.infra.base.meta.ApiManageConst;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
@@ -11,7 +13,6 @@ import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.common.infra.virtualgateway.dto.QueryVirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class RemainResourceController extends AbstractController {
                 permissionScopeType, permissionScopeEnName, permissionScopeId);
         Map<String, Object> result = Maps.newHashMap();
         result.put(HAS_RESOURCE, true);
-        if (Const.SCOPE_TYPE_TENANT.equals(permissionScopeType)) {
+        if (BaseConst.SCOPE_TYPE_TENANT.equals(permissionScopeType)) {
             result.put(HAS_RESOURCE, false);
             return apiReturnSuccess(result);
         }
@@ -67,7 +68,7 @@ public class RemainResourceController extends AbstractController {
         List<PluginBindingDto> bindingPluginList = pluginInfoService.getBindingPluginInfoList(pluginQuery);
         if (!CollectionUtils.isEmpty(bindingPluginList)) {
             PluginBindingDto pluginBindingDto = bindingPluginList.get(0);
-            result.put(RESOURCE_TYPE_NAME, Const.AUDIT_RESOURCE_TYPE_ENVOY_PLUGIN);
+            result.put(RESOURCE_TYPE_NAME, ApiManageConst.AUDIT_RESOURCE_TYPE_ENVOY_PLUGIN);
             result.put(RESOURCE_NAME, pluginBindingDto.getPluginType());
             return apiReturnSuccess(result);
         }
@@ -75,7 +76,7 @@ public class RemainResourceController extends AbstractController {
         List<PluginTemplateDto> pluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(PluginTemplateInfoQuery.builder().projectId(permissionScopeId).build());
         if (!CollectionUtils.isEmpty(pluginTemplateInfoList)) {
             PluginTemplateDto pluginTemplateInfo = pluginTemplateInfoList.get(0);
-            result.put(RESOURCE_TYPE_NAME, Const.AUDIT_RESOURCE_TYPE_PLUGIN_TEMPLATE);
+            result.put(RESOURCE_TYPE_NAME, ApiManageConst.AUDIT_RESOURCE_TYPE_PLUGIN_TEMPLATE);
             result.put(RESOURCE_NAME, pluginTemplateInfo.getTemplateName());
             return apiReturnSuccess(result);
         }
@@ -85,7 +86,7 @@ public class RemainResourceController extends AbstractController {
         //gateway virtual host association
         if (!CollectionUtils.isEmpty(virtualGatewayList)) {
             VirtualGatewayDto gateway = virtualGatewayList.get(0);
-            result.put(RESOURCE_TYPE_NAME, Const.AUDIT_RESOURCE_TYPE_GATEWAY);
+            result.put(RESOURCE_TYPE_NAME, ApiManageConst.AUDIT_RESOURCE_TYPE_GATEWAY);
             result.put(RESOURCE_NAME, gateway.getName());
             return apiReturnSuccess(result);
         }

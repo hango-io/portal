@@ -268,4 +268,6 @@ public class BaseConst {
     public static final String PREFIX_PROTOCOL = "protocol_";
 
     public static final String PROJECT_CODE = "projectCode";
+
+    public static final String SCOPE_TYPE_TENANT = "tenant";
 }

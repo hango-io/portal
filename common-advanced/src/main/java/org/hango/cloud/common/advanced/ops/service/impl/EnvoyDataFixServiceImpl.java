@@ -1,7 +1,8 @@
-package org.hango.cloud.envoy.advanced.bakup.envoy.service.impl;
+package org.hango.cloud.common.advanced.ops.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import org.hango.cloud.common.advanced.ops.service.IEnvoyDateFixService;
 import org.hango.cloud.common.infra.base.convert.RouteRuleConvert;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
@@ -22,9 +23,6 @@ import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
-import org.hango.cloud.envoy.advanced.bakup.envoy.service.IEnvoyDateFixService;
-import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +63,6 @@ public class EnvoyDataFixServiceImpl implements IEnvoyDateFixService {
 
     @Autowired
     private IPluginBindingInfoDao envoyPluginBindingInfoDao;
-
-    @Autowired
-    private IEnvoyPluginInfoService envoyPluginInfoService;
 
     @Autowired
     private RouteMapper routeMapper;
@@ -162,7 +157,7 @@ public class EnvoyDataFixServiceImpl implements IEnvoyDateFixService {
             if (null == routeRuleProxyInfo) {
                 return true;
             }
-            return Const.ROUTE_RULE_DISABLE_STATE.equals(routeRuleProxyInfo.getEnableState());
+            return BaseConst.DISABLE_STATE.equals(routeRuleProxyInfo.getEnableState());
         }).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(errorRouteRuleList)) {
             logger.info("指定的路由规则尚未发布至该网关！ errorRouteRuleList:{}", errorRouteRuleList);
@@ -255,13 +250,10 @@ public class EnvoyDataFixServiceImpl implements IEnvoyDateFixService {
     }
 
     private String authnToKind(String authnType) {
-        HashMap<String, String> authnTokind = new HashMap<String, String>() {
-            {
-                put("oauth2_authn_type", "oauth2-auth");
-                put("jwt_authn_type", "jwt-auth");
-                put("aksk_authn_type", "sign-auth");
-            }
-        };
+        HashMap<String, String> authnTokind = new HashMap<>();
+        authnTokind.put("oauth2_authn_type", "oauth2-auth");
+        authnTokind.put("jwt_authn_type", "jwt-auth");
+        authnTokind.put("aksk_authn_type", "sign-auth");
         return authnTokind.get(authnType);
     }
 

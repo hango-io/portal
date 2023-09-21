@@ -73,7 +73,6 @@ public class EnvoyPluginInfoServiceImpl implements IEnvoyPluginInfoService {
                 .map(this::getSystemPluginInfos)
                 .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
-                .distinct()
                 .map(Trans::fromMeta)
                 .collect(Collectors.toList());
         //查询自定义插件

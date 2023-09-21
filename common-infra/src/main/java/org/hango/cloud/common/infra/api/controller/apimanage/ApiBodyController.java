@@ -1,15 +1,12 @@
-package org.hango.cloud.envoy.advanced.bakup.apiserver.web.controller.apimanage;
+package org.hango.cloud.common.infra.api.controller.apimanage;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
-import org.hango.cloud.common.advanced.authentication.holder.UserPermissionHolder;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
+import org.hango.cloud.common.infra.base.meta.ApiManageConst;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.meta.AssociationType;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
 import org.hango.cloud.gdashboard.api.dto.*;
 import org.hango.cloud.gdashboard.api.meta.ApiBody;
 import org.hango.cloud.gdashboard.api.meta.ApiInfo;
@@ -21,6 +18,8 @@ import org.hango.cloud.gdashboard.api.service.IApiBodyService;
 import org.hango.cloud.gdashboard.api.service.IApiConvertToJsonService;
 import org.hango.cloud.gdashboard.api.service.IApiInfoService;
 import org.hango.cloud.gdashboard.api.service.IApiParamTypeService;
+import org.hango.cloud.gdashboard.api.util.BeanUtil;
+import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.hango.cloud.common.infra.base.meta.BaseConst.HANGO_DASHBOARD_PREFIX;
+
 /**
  * API body controller，包括request body,response body 以及queryString
  * 同时包括dubbo param以及webservice param的创建
@@ -39,7 +40,7 @@ import java.util.Map;
  * @author hanjiahao
  */
 @RestController
-@RequestMapping(value = Const.G_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
+@RequestMapping(value = HANGO_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
 @Validated
 public class ApiBodyController extends AbstractController {
 
@@ -53,6 +54,8 @@ public class ApiBodyController extends AbstractController {
     private IApiBodyService apiBodyService;
     @Autowired
     private IApiConvertToJsonService apiConvertToJsonService;
+
+    public static final String ASSOCIATION_TYPE = "NORMAL";
 
     /**
      * 添加request body
@@ -73,14 +76,13 @@ public class ApiBodyController extends AbstractController {
         //构造审计资源
         List<ResourceDataDto> resourceDataDtoList = new ArrayList<>();
         bodyList.forEach(apiBody -> {
-            apiBody.setAssociationType(AssociationType.NORMAL.name());
+            apiBody.setAssociationType(ASSOCIATION_TYPE);
             long apiBodyId = apiBodyService.addBody(apiBody);
-            resourceDataDtoList.add(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_REQUEST_BODY, apiBodyId, apiBody.getParamName()));
+            resourceDataDtoList.add(new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_REQUEST_BODY, apiBodyId, apiBody.getParamName()));
         });
 
         //操作审计记录资源名称
         StringBuilder stringBuilder = getOperationLog(bodyList);
-        String operation = UserPermissionHolder.getAccountId() + "修改了该API的Request Body，修改后Request Body中的参数信息为：" + stringBuilder.toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 
@@ -92,7 +94,7 @@ public class ApiBodyController extends AbstractController {
      */
     @RequestMapping(params = {"Action=CreateQueryString"}, method = RequestMethod.POST)
     public Object addQueryString(@Validated @RequestBody ApiBodysDto apiBodysDto) {
-        logger.info("创建request body，apiBody：{}", apiBodysDto);
+        logger.info("创建query string，apiBody：{}", apiBodysDto);
         ApiErrorCode errorCode = apiBodyService.checkApiBodyBasicInfo(apiBodysDto);
         if (!CommonApiErrorCode.Success.equals(errorCode)) {
             return apiReturn(errorCode);
@@ -103,13 +105,12 @@ public class ApiBodyController extends AbstractController {
         List<ResourceDataDto> resourceDataDtoList = new ArrayList<>();
         bodyList.forEach(apiBody -> {
             long apiBodyId = apiBodyService.addBody(apiBody);
-            resourceDataDtoList.add(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_QUERY_STRING, apiBodyId, apiBody.getParamName()));
+            resourceDataDtoList.add(new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_QUERY_STRING, apiBodyId, apiBody.getParamName()));
         });
 
         //操作审计记录资源名称
         //AuditResourceHolder.set(resourceDataDtoList);
         StringBuilder stringBuilder = getOperationLog(bodyList);
-        String operation = UserPermissionHolder.getAccountId() + "修改了该API的queryString，修改后queryString中的参数信息为：" + stringBuilder.toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 
@@ -154,13 +155,12 @@ public class ApiBodyController extends AbstractController {
         List<ApiStatusCode> apiStatusCodes = apiBodyService.generateApiStatusCodeFromCodeList(apiStatusCodesDto);
         List<ResourceDataDto> resourceDataDtoList = new ArrayList<>();
         for (ApiStatusCode apiStatusCode : apiStatusCodes) {
-            resourceDataDtoList.add(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_STATUS_CODE, StringUtils.EMPTY, String.valueOf(apiStatusCode.getStatusCode())));
+            resourceDataDtoList.add(new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_STATUS_CODE, StringUtils.EMPTY, String.valueOf(apiStatusCode.getStatusCode())));
         }
         //操作审计记录资源名称
         //AuditResourceHolder.set(resourceDataDtoList);
         apiBodyService.addStatusCodes(apiStatusCodes, apiStatusCodesDto.getId(), ApiConst.API);
 
-        String operation = UserPermissionHolder.getAccountId() + "修改了该API的响应吗，修改后响应码为：" + getStatusCodeOperationLog(apiStatusCodes).toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 
@@ -197,7 +197,7 @@ public class ApiBodyController extends AbstractController {
      */
     @RequestMapping(params = {"Action=CreateResponseBody"}, method = RequestMethod.POST)
     public Object addResponseBody(@Validated @RequestBody ApiBodysDto apiBodysDto) {
-        logger.info("创建request body，apiBody：{}", apiBodysDto);
+        logger.info("创建response body，apiBody：{}", apiBodysDto);
         ApiErrorCode errorCode = apiBodyService.checkApiBodyBasicInfo(apiBodysDto);
         if (!CommonApiErrorCode.Success.equals(errorCode)) {
             return apiReturn(errorCode);
@@ -209,13 +209,12 @@ public class ApiBodyController extends AbstractController {
         bodyList.forEach(apiBody -> {
             apiBody.setAssociationType(org.hango.cloud.gdashboard.api.meta.AssociationType.NORMAL.name());
             long apiBodyId = apiBodyService.addBody(apiBody);
-            resourceDataDtoList.add(new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_RESPONSE_BODY, apiBodyId, apiBody.getParamName()));
+            resourceDataDtoList.add(new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_RESPONSE_BODY, apiBodyId, apiBody.getParamName()));
         });
 
         //操作审计记录资源名称
         //AuditResourceHolder.set(resourceDataDtoList);
         StringBuilder stringBuilder = getOperationLog(bodyList);
-        String operation = UserPermissionHolder.getAccountId() + "修改了该API的Response Body，修改后response body中的参数信息为：" + stringBuilder.toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 
@@ -274,7 +273,7 @@ public class ApiBodyController extends AbstractController {
      */
     @RequestMapping(params = {"Action=GenerateBodyByJson"}, method = RequestMethod.POST)
     public Object addBodyByJson(@Validated @RequestBody ApiBodyJsonDto apiBodyJsonDto) {
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, apiBodyJsonDto.getId(), null);
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API, apiBodyJsonDto.getId(), null);
        
 
         ApiInfo apiInfo = apiInfoService.getApiById(apiBodyJsonDto.getId());
@@ -296,7 +295,6 @@ public class ApiBodyController extends AbstractController {
 
         List<ApiBody> bodyList = apiConvertToJsonService.generateApiBodyByJson(apiBodyJsonDto.getId(), apiInfo.getServiceId(), apiBodyJsonDto.getParams(), apiBodyJsonDto.getType());
         StringBuilder stringBuilder = getOperationLog(bodyList);
-        String operation = UserPermissionHolder.getAccountId() + "通过json导入的方式添加该API的" + apiBodyJsonDto.getType() + " Body，修改后参数信息为：" + stringBuilder.toString();
         return apiReturn(CommonErrorCode.SUCCESS);
     }
 

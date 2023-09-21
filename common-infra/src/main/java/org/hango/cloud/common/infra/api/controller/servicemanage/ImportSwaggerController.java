@@ -1,4 +1,4 @@
-package org.hango.cloud.envoy.advanced.bakup.apiserver.web.controller.servicemanage;
+package org.hango.cloud.common.infra.api.controller.servicemanage;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,15 +10,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.holder.RequestContextHolder;
+import org.hango.cloud.common.infra.base.meta.ApiManageConst;
 import org.hango.cloud.common.infra.cache.ICacheService;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
 import org.hango.cloud.gdashboard.api.meta.errorcode.ApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.errorcode.CommonApiErrorCode;
 import org.hango.cloud.gdashboard.api.meta.swagger.SwaggerDetailsDto;
 import org.hango.cloud.gdashboard.api.service.swagger.ImportSwaggerService;
+import org.hango.cloud.gdashboard.api.util.Const;
 import org.hango.cloud.gdashboard.api.util.CsvUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static org.hango.cloud.common.infra.base.meta.BaseConst.HANGO_DASHBOARD_PREFIX;
+
 /**
  * 导入swagger json文件，生成gportal支持的相关API信息
  *
  * @author hanjiahao
  */
 @RestController
-@RequestMapping(value = Const.G_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
+@RequestMapping(value = HANGO_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
 public class ImportSwaggerController extends AbstractController {
 
     public static final String[] HEADERS = {"Type", "Name", "Status", "Path", "Method", "Message"};
@@ -52,6 +55,8 @@ public class ImportSwaggerController extends AbstractController {
     private ICacheService cacheService;
     @Autowired
     private IServiceProxyService serviceProxyService;
+
+    public static final String LOCATION = "Location";
 
     private static String convertToJson(MultipartFile file) throws IOException {
         ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
@@ -103,12 +108,12 @@ public class ImportSwaggerController extends AbstractController {
         }
         String location = null;
         try {
-            location = JSONObject.parseObject(body).getString("Location").trim();
+            location = JSONObject.parseObject(body).getString(LOCATION).trim();
         } catch (Exception e) {
-            return apiReturn(CommonErrorCode.invalidParameterValue(location, "Location"));
+            return apiReturn(CommonErrorCode.invalidParameterValue(location, LOCATION));
         }
         if (StringUtils.isBlank(location)) {
-            return apiReturn(CommonErrorCode.MissingParameter("Location"));
+            return apiReturn(CommonErrorCode.MissingParameter(LOCATION));
         }
         Swagger swagger = new SwaggerParser().read(location);
         if (swagger != null) {
@@ -125,7 +130,7 @@ public class ImportSwaggerController extends AbstractController {
     @RequestMapping(params = {"Action=ConfirmImportByFile"}, method = RequestMethod.POST)
     public String confirmSwaggerByFile(@RequestParam("file") MultipartFile file, @RequestHeader("Service-Id") Long serviceId) {
         //操作审计记录资源名称
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, serviceId, "导入swagger");
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API, serviceId, "导入swagger");
 
         ServiceProxyDto serviceInDb = serviceProxyService.get(serviceId);
         if (serviceInDb == null) {
@@ -160,7 +165,7 @@ public class ImportSwaggerController extends AbstractController {
     @RequestMapping(params = {"Action=ConfirmImportByLocation"}, method = RequestMethod.POST)
     public String confirmSwaggerByLocation(@RequestBody String body, @RequestHeader("Service-Id") Long serviceId) {
         //操作审计记录资源名称
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API, serviceId, "导入swagger");
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API, serviceId, "导入swagger");
 
         ServiceProxyDto serviceInDb = serviceProxyService.get(serviceId);
         if (serviceInDb == null) {
@@ -168,12 +173,12 @@ public class ImportSwaggerController extends AbstractController {
         }
         String location = null;
         try {
-            location = JSONObject.parseObject(body).getString("Location").trim();
+            location = JSONObject.parseObject(body).getString(LOCATION).trim();
         } catch (Exception e) {
-            return apiReturn(CommonErrorCode.invalidParameterValue(location, "Location"));
+            return apiReturn(CommonErrorCode.invalidParameterValue(location, LOCATION));
         }
         if (StringUtils.isBlank(location)) {
-            return apiReturn(CommonErrorCode.MissingParameter("Location"));
+            return apiReturn(CommonErrorCode.MissingParameter(LOCATION));
         }
         Swagger swagger = new SwaggerParser().read(location);
         if (swagger != null) {

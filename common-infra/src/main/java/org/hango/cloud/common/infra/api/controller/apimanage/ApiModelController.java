@@ -1,16 +1,15 @@
-package org.hango.cloud.envoy.advanced.bakup.apiserver.web.controller.apimanage;
+package org.hango.cloud.common.infra.api.controller.apimanage;
 
 import com.google.common.collect.Maps;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
+import org.hango.cloud.common.infra.base.meta.ApiManageConst;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.operationaudit.meta.ResourceDataDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.BeanUtil;
-import org.hango.cloud.envoy.advanced.bakup.apiserver.util.Const;
 import org.hango.cloud.gdashboard.api.dto.ApiParamDto;
 import org.hango.cloud.gdashboard.api.dto.CreateApiModelDto;
 import org.hango.cloud.gdashboard.api.meta.ApiModel;
@@ -19,6 +18,7 @@ import org.hango.cloud.gdashboard.api.meta.errorcode.AbstractErrorCode;
 import org.hango.cloud.gdashboard.api.meta.errorcode.CommonApiErrorCode;
 import org.hango.cloud.gdashboard.api.service.IApiModelService;
 import org.hango.cloud.gdashboard.api.service.IApiParamTypeService;
+import org.hango.cloud.gdashboard.api.util.BeanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.hango.cloud.common.infra.base.meta.BaseConst.HANGO_DASHBOARD_PREFIX;
+
 /**
  * @Author: Wang Dacheng(wangdacheng@corp.netease.com)
  * @Date: 创建时间: 2018/1/26 下午2:46.
  */
 @RestController
-@RequestMapping(value = Const.G_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
+@RequestMapping(value = HANGO_DASHBOARD_PREFIX, params = {"Version=2018-08-09"})
 @Validated
 public class ApiModelController extends AbstractController {
 
@@ -59,7 +61,7 @@ public class ApiModelController extends AbstractController {
     public Object addModel(@Validated @RequestBody CreateApiModelDto createApiModelDto) {
         logger.info("请求创建模型，创建的数据模型：{}", createApiModelDto);
         //操作审计记录资源名称
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_MODEL, null, createApiModelDto.getModelName());
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_MODEL, null, createApiModelDto.getModelName());
 
         //服务id校验
         if (serviceProxyService.get(createApiModelDto.getServiceId()) == null) {
@@ -225,7 +227,7 @@ public class ApiModelController extends AbstractController {
         logger.info("请求删除模型，modelId为：{}", modelId);
 
         //操作审计记录资源名称
-        ResourceDataDto resource = new ResourceDataDto(Const.AUDIT_RESOURCE_TYPE_API_MODEL, modelId, null);
+        ResourceDataDto resource = new ResourceDataDto(ApiManageConst.AUDIT_RESOURCE_TYPE_API_MODEL, modelId, null);
 
 
         ApiModel dbModel = apiModelService.getApiModelInfoByModelId(modelId);
