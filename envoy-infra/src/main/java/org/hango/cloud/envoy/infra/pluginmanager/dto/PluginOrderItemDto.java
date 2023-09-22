@@ -17,8 +17,8 @@ public class PluginOrderItemDto {
 
     private Object inline;
 
-    private Object rider;
+    private RiderDTO rider;
 
-    private Object wasm;
+    private RiderDTO wasm;
 
 }

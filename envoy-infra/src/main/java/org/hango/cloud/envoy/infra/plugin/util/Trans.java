@@ -15,6 +15,7 @@ import org.hango.cloud.envoy.infra.plugin.meta.SchemaInfo;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginSource;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.RiderDTO;
 
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.FILE;
 import static org.hango.cloud.gdashboard.api.util.Const.KUBERNETES_INGRESS;
@@ -162,20 +163,20 @@ public class Trans {
         String pluginType = customPluginInfo.getPluginType();
         pluginOrderItemDto.setEnable(false);
         pluginOrderItemDto.setName(pluginType);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("pluginName", pluginType);
+        RiderDTO riderDTO = new RiderDTO();
+        riderDTO.setPluginName(pluginType);
         String url;
         if (FILE.equals(customPluginInfo.getSourceType())){
             url = "file://usr/local/lib/rider/plugins/" + getPluginNmae(pluginType, customPluginInfo.getLanguage());
         }else {
             url = "oci://" + customPluginInfo.getSourceUrl();
-            jsonObject.put("imagePullSecretName", customPluginInfo.getSecretName());
+            riderDTO.setImagePullSecretName(customPluginInfo.getSecretName());
         }
-        jsonObject.put("url", url);
+        riderDTO.setUrl(url);
         if ("lua".equals(customPluginInfo.getLanguage())){
-            pluginOrderItemDto.setRider(jsonObject);
+            pluginOrderItemDto.setRider(riderDTO);
         }else {
-            pluginOrderItemDto.setWasm(jsonObject);
+            pluginOrderItemDto.setWasm(riderDTO);
         }
         return pluginOrderItemDto;
     }
