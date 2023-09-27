@@ -2,10 +2,10 @@ package org.hango.cloud.envoy.infra.pluginmanager.service;
 
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
+import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginPublishDTO;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 
 import java.util.List;
 
@@ -37,14 +37,19 @@ public interface IPluginManagerService {
     ErrorCode checkPluginManager(long virtualGwId, String name, boolean enable);
 
     /**
-     * 更新插件
+     * 更新插件状态
      */
-    boolean updatePluginManagerItem(long virtualGwId, PluginOrderItemDto itemDto);
+    boolean updatePluginStatus(long virtualGwId, String name, boolean enable);
 
     /**
-     * 删除插件
+     * 上线自定义插件
      */
-    boolean deletePluginManagerItem(long virtualGwId, PluginOrderItemDto itemDto);
+    boolean onlineCustomPlugin(long virtualGwId, CustomPluginPublishDTO customPluginPublishDTO);
+
+    /**
+     * 下线自定义插件
+     */
+    boolean offlineCustomPlugin(long virtualGwId, CustomPluginPublishDTO customPluginPublishDTO);
 
     /**
      * 更新数据面插件开关配置（插件开关数据以原有模板为准）
@@ -61,6 +66,12 @@ public interface IPluginManagerService {
      * @return
      */
     boolean offlinePluginManager(VirtualGatewayDto virtualGatewayDto);
+
+    /**
+     * 重新排序plm资源
+     */
+    boolean resortPluginManager(String confAddr, List<String> names);
+
     /**
      * 从数据面获取插件配置
      */

@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class CustomPluginDTO {
+public class CustomPluginCodeDTO {
     /** 插件的名称: uri-restriction.lua */
     @JSONField(name = "PluginName")
     private String pluginName;

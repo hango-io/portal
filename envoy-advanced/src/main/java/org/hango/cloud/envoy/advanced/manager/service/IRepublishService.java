@@ -17,4 +17,10 @@ public interface IRepublishService {
      */
     List<RepublishResult> republish(List<Long> vgId);
 
+
+    /**
+     * 更新plm顺序
+     */
+    ErrorCode resortPluginManager(String gwCluster);
+
 }

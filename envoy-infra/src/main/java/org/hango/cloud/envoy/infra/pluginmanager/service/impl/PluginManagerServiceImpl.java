@@ -14,12 +14,14 @@ import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.base.util.LogUtil;
+import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginPublishDTO;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusEnum;
 import org.hango.cloud.envoy.infra.plugin.util.Trans;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginStatusDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.handler.PluginHandler;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.hango.cloud.gdashboard.api.util.Const;
@@ -37,8 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_PLUGIN_PATH;
-import static org.hango.cloud.common.infra.base.meta.BaseConst.PLANE_VERSION;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.MODULE_API_PLANE;
 import static org.hango.cloud.gdashboard.api.util.Const.ACTION;
 import static org.hango.cloud.gdashboard.api.util.Const.VERSION;
@@ -110,31 +111,33 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
 
 
     @Override
+
     public Boolean updateCustomPluginStatus(VirtualGatewayDto virtualGatewayDto, CustomPluginInfo customPluginInfo) {
         if (PluginStatusEnum.OFFLINE.getStatus().equals(customPluginInfo.getPluginStatus())) {
-            PluginOrderItemDto pluginOrderItemDto = new PluginOrderItemDto();
-            pluginOrderItemDto.setName(customPluginInfo.getPluginType());
-            return deletePluginManagerItem(virtualGatewayDto.getId(), pluginOrderItemDto);
+            CustomPluginPublishDTO customPluginPublishDTO = new CustomPluginPublishDTO();
+            customPluginPublishDTO.setPluginManagerName(Trans.getPluginManagerName(virtualGatewayDto));
+            customPluginPublishDTO.setPluginName(customPluginInfo.getPluginType());
+            return offlineCustomPlugin(virtualGatewayDto.getId(), customPluginPublishDTO);
         }else {
-            PluginOrderItemDto pluginOrderItemDto = Trans.builderCustomPluginItem(customPluginInfo);
-            pluginOrderItemDto.setPort(virtualGatewayDto.getPort());
-            return updatePluginManagerItem(virtualGatewayDto.getId(), pluginOrderItemDto);
+            CustomPluginPublishDTO customPluginPublishDTO = Trans.trans(customPluginInfo);
+            customPluginPublishDTO.setPort(virtualGatewayDto.getPort());
+            customPluginPublishDTO.setPluginManagerName(Trans.getPluginManagerName(virtualGatewayDto));
+            return onlineCustomPlugin(virtualGatewayDto.getId(), customPluginPublishDTO);
         }
 
     }
 
     @Override
-    public boolean updatePluginManagerItem(long virtualGwId, PluginOrderItemDto itemDto) {
+    public boolean updatePluginStatus(long virtualGwId, String name, boolean enable) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(virtualGwId);
         Map<String, Object> params = Maps.newHashMap();
-        params.put(ACTION, "UpdatePluginOrderItem");
+        params.put(ACTION, "UpdatePluginStatus");
         params.put(VERSION, PLANE_VERSION);
 
-        PluginOrderDto pluginOrderDto = buildPluginOrder(virtualGatewayDto);
-        pluginOrderDto.setPlugins(Collections.singletonList(itemDto));
+        PluginStatusDTO pluginStatusDTO = buildPluginStatus(virtualGatewayDto, name, enable);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginOrderDto), params, headers, MODULE_API_PLANE);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginStatusDTO), params, headers, MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error(LogUtil.buildPlaneErrorLog(response));
             return false;
@@ -143,17 +146,28 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
     }
 
     @Override
-    public boolean deletePluginManagerItem(long virtualGwId, PluginOrderItemDto itemDto) {
+    public boolean onlineCustomPlugin(long virtualGwId, CustomPluginPublishDTO customPluginPublishDTO) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(virtualGwId);
         Map<String, Object> params = Maps.newHashMap();
-        params.put(ACTION, "DeletePluginOrderItem");
-        params.put(VERSION, PLANE_VERSION);
-
-        PluginOrderDto pluginOrderDto = buildPluginOrder(virtualGatewayDto);
-        pluginOrderDto.setPlugins(Collections.singletonList(itemDto));
+        params.put(ACTION, "OnlineCustomPlugin");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginOrderDto), params, headers, MODULE_API_PLANE);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_CUSTOM_PLUGIN_PATH, JSON.toJSONString(customPluginPublishDTO), params, headers, MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error(LogUtil.buildPlaneErrorLog(response));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean offlineCustomPlugin(long virtualGwId, CustomPluginPublishDTO customPluginPublishDTO) {
+        VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(virtualGwId);
+        Map<String, Object> params = Maps.newHashMap();
+        params.put(ACTION, "OfflineCustomPlugin");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_CUSTOM_PLUGIN_PATH, JSON.toJSONString(customPluginPublishDTO), params, headers, MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error(LogUtil.buildPlaneErrorLog(response));
             return false;
@@ -170,6 +184,21 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginManagers), params, headers, MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error(LogUtil.buildPlaneErrorLog(response));
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean resortPluginManager(String confAddr, List<String> names) {
+
+        Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
+        params.put(ACTION, "ResortPluginOrder");
+        params.put(VERSION, PLANE_VERSION);
+        params.put("Names", names);
+        HttpClientResponse response = HttpClientUtil.getRequest(confAddr + PLANE_PLUGIN_PATH,  params, MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error(LogUtil.buildPlaneErrorLog(response));
             return false;
@@ -217,6 +246,18 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
         pluginOrderDto.setName(Trans.getPluginManagerName(virtualGatewayDto));
         pluginOrderDto.setPort(virtualGatewayDto.getPort());
         return pluginOrderDto;
+    }
+
+    private PluginStatusDTO buildPluginStatus(VirtualGatewayDto virtualGatewayDto, String pluginName, Boolean enable){
+        PluginStatusDTO pluginStatusDTO = new PluginStatusDTO();
+        if (StringUtils.isBlank(virtualGatewayDto.getGwClusterName())) {
+            GatewayDto gatewayDto = gatewayService.get(virtualGatewayDto.getGwId());
+            virtualGatewayDto.setGwClusterName(gatewayDto.getGwClusterName());
+        }
+        pluginStatusDTO.setPluginManagerName(Trans.getPluginManagerName(virtualGatewayDto));
+        pluginStatusDTO.setEnable(enable);
+        pluginStatusDTO.setPluginName(pluginName);
+        return pluginStatusDTO;
     }
 
     /**

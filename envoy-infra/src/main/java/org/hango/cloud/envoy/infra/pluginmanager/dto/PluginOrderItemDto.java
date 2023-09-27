@@ -11,7 +11,6 @@ public class PluginOrderItemDto {
 
     private String name;
 
-    private String subName;
 
     private Integer port;
 

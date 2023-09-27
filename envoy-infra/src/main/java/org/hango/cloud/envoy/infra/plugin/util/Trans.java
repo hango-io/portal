@@ -9,12 +9,12 @@ import org.hango.cloud.common.infra.plugin.meta.PluginInfo;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.envoy.infra.base.util.EnvoyCommonUtil;
 import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginInfoDto;
+import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginPublishDTO;
 import org.hango.cloud.envoy.infra.plugin.dto.DescribeCustomPluginDto;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.SchemaInfo;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginSource;
 import org.hango.cloud.envoy.infra.plugin.metas.PluginType;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.RiderDTO;
 
 import static org.hango.cloud.envoy.infra.base.meta.EnvoyConst.FILE;
@@ -158,11 +158,11 @@ public class Trans {
         return describeCustomPluginDto;
     }
 
-    public static PluginOrderItemDto builderCustomPluginItem(CustomPluginInfo customPluginInfo){
-        PluginOrderItemDto pluginOrderItemDto = new PluginOrderItemDto();
+    public static CustomPluginPublishDTO trans(CustomPluginInfo customPluginInfo){
+        CustomPluginPublishDTO customPluginPublishDTO = new CustomPluginPublishDTO();
         String pluginType = customPluginInfo.getPluginType();
-        pluginOrderItemDto.setEnable(false);
-        pluginOrderItemDto.setName(pluginType);
+        customPluginPublishDTO.setPluginName(pluginType);
+        customPluginPublishDTO.setPluginCategory(customPluginInfo.getPluginCategory());
         RiderDTO riderDTO = new RiderDTO();
         riderDTO.setPluginName(pluginType);
         String url;
@@ -174,11 +174,11 @@ public class Trans {
         }
         riderDTO.setUrl(url);
         if ("lua".equals(customPluginInfo.getLanguage())){
-            pluginOrderItemDto.setRider(riderDTO);
+            customPluginPublishDTO.setLua(riderDTO);
         }else {
-            pluginOrderItemDto.setWasm(riderDTO);
+            customPluginPublishDTO.setWasm(riderDTO);
         }
-        return pluginOrderItemDto;
+        return customPluginPublishDTO;
     }
 
     public static String getPluginNmae(String pluginType, String language){

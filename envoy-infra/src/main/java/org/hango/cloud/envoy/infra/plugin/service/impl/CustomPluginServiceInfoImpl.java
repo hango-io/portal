@@ -101,7 +101,7 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return errorCode;
         }
-                //校验插件内容
+        //校验插件内容
         errorCode = checkPluginContent(customPluginInfoDto.getSourceType(),customPluginInfoDto.getSourceUrl(), customPluginInfoDto.getSourceContent());
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return errorCode;
@@ -294,9 +294,9 @@ public class CustomPluginServiceInfoImpl implements CustomPluginInfoService {
             String pluginNmae = Trans.getPluginNmae(customPluginInfo.getPluginType(), customPluginInfo.getLanguage());
             Boolean planeResult;
             if (PluginStatusEnum.ONLINE.equals(pluginStatusEnum)){
-                planeResult = customPluginRpcService.publishCustomPlugin(pluginNmae, customPluginInfo.getPluginContent(), gateway);
+                planeResult = customPluginRpcService.addPluginCodeFile(pluginNmae, customPluginInfo.getPluginContent(), gateway);
             }else {
-                planeResult = customPluginRpcService.deleteCustomPlugin(pluginNmae, gateway);
+                planeResult = customPluginRpcService.deletePluginCodeFile(pluginNmae, gateway);
             }
             if (Boolean.FALSE.equals(planeResult)) {
                 return CommonErrorCode.INTERNAL_SERVER_ERROR;

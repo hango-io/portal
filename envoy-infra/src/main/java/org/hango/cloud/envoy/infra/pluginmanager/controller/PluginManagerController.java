@@ -5,15 +5,10 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,15 +43,14 @@ public class PluginManagerController extends AbstractController {
      * @return
      */
     @PostMapping(params = {"Action=UpdatePluginManager"})
-    public Object updatePluginManager(@RequestParam(name = "VirtualGwId") long virtualGwId, @RequestParam(name = "Name") String name, @RequestParam(name = "Enable") boolean enable) {
+    public Object updatePluginManager(@RequestParam(name = "VirtualGwId") long virtualGwId,
+                                      @RequestParam(name = "Name") String name,
+                                      @RequestParam(name = "Enable") boolean enable) {
         ErrorCode errorCode = pluginManagerService.checkPluginManager(virtualGwId, name, enable);
         if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
             return apiReturn(errorCode);
         }
-        PluginOrderItemDto itemDto = new PluginOrderItemDto();
-        itemDto.setName(name);
-        itemDto.setEnable(enable);
-        boolean result = pluginManagerService.updatePluginManagerItem(virtualGwId, itemDto);
+        boolean result = pluginManagerService.updatePluginStatus(virtualGwId, name, enable);
         return apiReturnSuccess(result);
     }
 

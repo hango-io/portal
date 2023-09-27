@@ -156,6 +156,7 @@ public class BaseConst {
     public static final String PLANE_PORTAL_PATH = "/api/portal";
 
     public static final String PLANE_PLUGIN_PATH = "/api/plugin";
+    public static final String PLANE_CUSTOM_PLUGIN_PATH = "/api/customplugin";
 
     public static final String RESULT = "Result";
 

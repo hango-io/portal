@@ -96,7 +96,6 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
             Set<Long> projectIds = domainInfos.stream().map(DomainInfoDTO::getProjectId).collect(Collectors.toSet());
             if (projectIds.contains(projectId)){
                 return CommonErrorCode.EXIST_PUBLISHED_DOMAIN;
-
             }
         }
         long publishedServiced = serviceProxyService.countServiceProxy(ServiceProxyQuery.builder().virtualGwId(virtualGwId).projectId(projectId).build());

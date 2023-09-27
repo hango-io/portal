@@ -39,4 +39,12 @@ public class RepublishController extends AbstractController {
         List<RepublishResult> resultDTO = republishService.republish(vgIds);
         return apiReturn(new Result(resultDTO));
     }
+
+
+    @GetMapping(params = {"Action=ResortPluginManager"})
+    public String resort(@RequestParam(value = "GwCluster") String gwCluster) {
+        log.info("resort start gwcluster:{}", gwCluster);
+        ErrorCode errorCode = republishService.resortPluginManager(gwCluster);
+        return apiReturn(errorCode);
+    }
 }

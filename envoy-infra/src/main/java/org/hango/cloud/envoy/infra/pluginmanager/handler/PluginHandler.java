@@ -19,7 +19,6 @@ public abstract class PluginHandler {
 
     static {
         pluginIgnoreList.add("proxy.filters.http.traffic_mark");
-        pluginIgnoreList.add("envoy.filters.http.fault");
         pluginIgnoreList.add("proxy.filters.http.metadatahub");
         pluginIgnoreList.add("proxy.filters.http.detailed_stats");
         pluginIgnoreList.add("proxy.filters.http.soapjsontranscoder");

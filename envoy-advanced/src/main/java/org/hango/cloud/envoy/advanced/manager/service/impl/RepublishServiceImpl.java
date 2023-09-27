@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
+import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
+import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.BindingPluginDto;
@@ -20,6 +22,7 @@ import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoSe
 import org.hango.cloud.envoy.advanced.manager.dto.RepublishResult;
 import org.hango.cloud.envoy.advanced.manager.service.IRepublishService;
 import org.hango.cloud.envoy.infra.plugin.manager.IPluginOperateManagerService;
+import org.hango.cloud.envoy.infra.plugin.util.Trans;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.hango.cloud.envoy.infra.route.service.IEnvoyRouteService;
 import org.hango.cloud.envoy.infra.serviceproxy.dto.ResultDTO;
@@ -27,11 +30,10 @@ import org.hango.cloud.envoy.infra.serviceproxy.service.IEnvoyServiceProxyServic
 import org.hango.cloud.envoy.infra.virtualgateway.service.IEnvoyVgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author zhufengwei
@@ -68,6 +70,9 @@ public class RepublishServiceImpl implements IRepublishService {
     @Autowired
     private IPluginOperateManagerService pluginOperateManagerService;
 
+    @Autowired
+    private IGatewayService gatewayService;
+
     @Override
     public ErrorCode checkRepublishParam(List<Long> vgIds) {
         for (Long vgId : vgIds) {
@@ -94,6 +99,22 @@ public class RepublishServiceImpl implements IRepublishService {
             republishResults.add(result);
         }
         return republishResults;
+    }
+
+
+    @Override
+    public ErrorCode resortPluginManager(String gwCluster) {
+        GatewayDto gatewayDto = gatewayService.getByClusterName(gwCluster);
+        if (gatewayDto == null){
+            return CommonErrorCode.NO_SUCH_GATEWAY;
+        }
+        List<VirtualGatewayDto> virtualGatewayDtos = virtualGatewayInfoService.getVirtualGatewayList(Arrays.asList(gatewayDto.getId()));
+        List<String> names = virtualGatewayDtos.stream().map(Trans::getPluginManagerName).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(names)){
+            return CommonErrorCode.SUCCESS;
+        }
+        boolean result = pluginManagerService.resortPluginManager(gatewayDto.getConfAddr(), names);
+        return result ? CommonErrorCode.SUCCESS : CommonErrorCode.INTERNAL_SERVER_ERROR;
     }
 
     private RepublishResult doRepublish(VirtualGatewayDto virtualGatewayDto){
