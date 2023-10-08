@@ -90,6 +90,7 @@ public class CommonErrorCode extends ErrorCode {
     public static final ErrorCode ROUTE_RULE_NOT_PUBLISHED = new ErrorCode(ErrorCodeEnum.ROUTE_RULE_NOT_PUBLISHED);
     public static final ErrorCode COPY_ROUTE_SAME_GW = new ErrorCode(ErrorCodeEnum.COPY_ROUTE_SAME_GW);
     public static final ErrorCode COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE = new ErrorCode(ErrorCodeEnum.COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE);
+    public static final ErrorCode COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE = new ErrorCode(ErrorCodeEnum.COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE);
     public static final ErrorCode GATEWAY_NOT_BINDING_SAME_HOST = new ErrorCode(ErrorCodeEnum.GATEWAY_NOT_BINDING_SAME_HOST);
 
     public static final ErrorCode INVALID_TOTAL_WEIGHT = new ErrorCode(ErrorCodeEnum.INVALID_TOTAL_WEIGHT);

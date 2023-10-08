@@ -3,6 +3,7 @@ package org.hango.cloud.common.infra.route.service.impl;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
@@ -18,6 +19,7 @@ import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,20 +59,21 @@ public class CopyRouteImpl implements ICopyRoute {
             return CommonErrorCode.ROUTE_RULE_NOT_PUBLISHED;
         }
 
-        Long serviceId = routeDto.getServiceIds().get(0);
-        ServiceProxyDto serviceProxy = serviceProxyService.get(serviceId);
-        if (serviceProxy == null) {
-            logger.error("复制路由，路由关联服务未发布到源网关");
-            return CommonErrorCode.SERVICE_NOT_PUBLISHED;
-        }
-
-        if (!serviceProxy.getProtocol().equalsIgnoreCase(SCHEME_HTTP)) {
-            logger.error("复制路由，路由关联服务非HTTP类型，关联的服务协议: {}", serviceProxy.getProtocol());
-            return CommonErrorCode.COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE;
-        }
-
-        Set<String> originHostList = serviceProxyService.getUniqueHostListFromServiceIdList(routeDto.getServiceIds());
+        List<Long> serviceIdList = routeDto.getServiceIds();
         VirtualGatewayDto targetVirtualGw = virtualGatewayService.get(desGwId);
+        if (BaseConst.LOAD_BALANCE.equalsIgnoreCase(targetVirtualGw.getType()) && serviceIdList.size() != 1) {
+            // 负载均衡网关仅支持单服务路由复制
+            return CommonErrorCode.COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE;
+        }
+        for (Long serviceId : serviceIdList) {
+            // 服务校验（服务是否存在，服务协议等）
+            ErrorCode serviceErrCode = checkService(serviceId);
+            if (!CommonErrorCode.SUCCESS.equals(serviceErrCode)) {
+                return serviceErrCode;
+            }
+        }
+
+        Set<String> originHostList = serviceProxyService.getUniqueHostListFromServiceIdList(serviceIdList);
         List<DomainInfoDTO> domainInfos = targetVirtualGw.getDomainInfos();
         Set<String> targetVirtualGwHostList = domainInfos.stream().map(DomainInfoDTO::getHost).collect(Collectors.toSet());
         if (!targetVirtualGwHostList.containsAll(originHostList)) {
@@ -90,6 +93,20 @@ public class CopyRouteImpl implements ICopyRoute {
 //                return CommonErrorCode.SERVICE_NOT_PUBLISHED;
 //            }
 //        }
+        return CommonErrorCode.SUCCESS;
+    }
+
+    private ErrorCode checkService(Long serviceId) {
+        ServiceProxyDto serviceProxy = serviceProxyService.get(serviceId);
+        if (serviceProxy == null) {
+            logger.error("复制路由，路由关联服务未发布到源网关, serviceId: {}", serviceId);
+            return CommonErrorCode.SERVICE_NOT_PUBLISHED;
+        }
+
+        if (!serviceProxy.getProtocol().equalsIgnoreCase(SCHEME_HTTP)) {
+            logger.error("复制路由，路由关联服务非HTTP类型，serviceId: {}, 关联的服务协议: {}", serviceId, serviceProxy.getProtocol());
+            return CommonErrorCode.COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE;
+        }
         return CommonErrorCode.SUCCESS;
     }
 

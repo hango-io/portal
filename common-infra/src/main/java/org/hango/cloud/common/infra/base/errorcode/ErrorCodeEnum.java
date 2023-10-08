@@ -141,6 +141,7 @@ public enum ErrorCodeEnum {
     ROUTE_RULE_NOT_PUBLISHED("RouteRuleNotPublished", "The route rule not published", "路由规则未发布", 400),
     COPY_ROUTE_SAME_GW("CopyRouteSameGw", "copy route to same gateway is not allowed", "无法在相同网关下进行拷贝路由，请选择其他网关", 400),
     COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE("CopyRouteOnlySupportHttpService", "copy-route feature only supports routes associated with HTTP services", "复制路由功能仅支持关联HTTP类型服务的路由", 400),
+    COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE("CopyRouteToLoadbalanceOnlySupportOneService", "copy-route feature to loadbalance gateway only supports one service", "绑定多服务的路由禁止复制到负载均衡网关", 400),
     GATEWAY_NOT_BINDING_SAME_HOST("GatewayNotBindingSameHost", "The target gateway is not bound to the same domains as the source gateway, routes cannot be replicated", "目标网关未绑定与源网关相同的域名，无法复制路由", 400),
     INVALID_DESTINATION_SERVICE("InvalidDestinationService", "Destination service is invalid", "路由规则发布时指定的后端服务不能为空", 400),
     ROUTE_RULE_ALREADY_PUBLISHED_TO_GW("RouteRuleAlreadyPublishedToGw", "The route rule has already published to gw, gw is: %s.", "路由规则已发布至网关: %s", 400),
