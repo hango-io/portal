@@ -18,10 +18,7 @@ import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginPublishDTO;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
 import org.hango.cloud.envoy.infra.plugin.meta.PluginStatusEnum;
 import org.hango.cloud.envoy.infra.plugin.util.Trans;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderItemDto;
-import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginStatusDTO;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.*;
 import org.hango.cloud.envoy.infra.pluginmanager.handler.PluginHandler;
 import org.hango.cloud.envoy.infra.pluginmanager.service.IPluginManagerService;
 import org.hango.cloud.gdashboard.api.util.Const;
@@ -33,10 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.common.infra.base.meta.BaseConst.*;
@@ -144,6 +138,54 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
         }
         return true;
     }
+
+    @Override
+    public boolean refreshEngineRule(EngineRuleDTO engineRuleDTO) {
+        List<? extends VirtualGatewayDto> allVirtualGateway = virtualGatewayInfoService.findAll();
+        if (CollectionUtils.isEmpty(allVirtualGateway)) {
+            logger.error("不存在虚拟网关，无法刷新引擎规则");
+            return false;
+        }
+        for (VirtualGatewayDto virtualGatewayDto : allVirtualGateway) {
+            if (!"ApiGateway".equals(virtualGatewayDto.getType())) {
+                continue;
+            }
+            try {
+                PluginOrderDto pluginOrderDto = getPluginOrder(virtualGatewayDto.getId());
+                List<PluginOrderItemDto> plugins = pluginOrderDto.getPlugins();
+                if (CollectionUtils.isEmpty(plugins)) {
+                    continue;
+                }
+                //取出lua插件
+                Optional<PluginOrderItemDto> luaPlugin = plugins.stream().filter(plugin -> plugin.getName().equals(engineRuleDTO.getName())).findFirst();
+                //如果存在lua插件则直接修改该条插件配置
+                if (!luaPlugin.isPresent()) {
+                    continue;
+                }
+                luaPlugin.get().getRider().setSettings(engineRuleDTO.getConfig());
+                pluginOrderDto.setGatewayKind(virtualGatewayDto.getType());
+                loadEngineRulePluginManager(virtualGatewayDto, pluginOrderDto);
+            } catch (Exception e) {
+                logger.error("刷新引擎规则失败，virtualGwId:{}", virtualGatewayDto.getId(), e);
+            }
+        }
+        return true;
+    }
+
+    public boolean loadEngineRulePluginManager(VirtualGatewayDto virtualGatewayDto,PluginOrderDto pluginOrderDto) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put(ACTION, "ReloadPluginOrder");
+        params.put(VERSION, PLANE_VERSION);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpClientResponse response = HttpClientUtil.postRequest(virtualGatewayDto.getConfAddr() + PLANE_PLUGIN_PATH, JSON.toJSONString(pluginOrderDto), params, headers, MODULE_API_PLANE);
+        if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
+            logger.error("调用api-plane下线插件配置接口失败，返回http status code非2xx，httpStatusCoed:{},errMsg:{}", response.getStatusCode(), response.getResponseBody());
+            return false;
+        }
+        return true;
+    }
+
 
     @Override
     public boolean onlineCustomPlugin(long virtualGwId, CustomPluginPublishDTO customPluginPublishDTO) {

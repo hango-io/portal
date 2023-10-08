@@ -16,5 +16,5 @@ public class RiderDTO {
 
     private String url;
 
-    private Object setting;
+    private Object settings;
 }

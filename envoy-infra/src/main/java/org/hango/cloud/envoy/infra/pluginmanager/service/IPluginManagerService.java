@@ -4,6 +4,7 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.envoy.infra.plugin.dto.CustomPluginPublishDTO;
 import org.hango.cloud.envoy.infra.plugin.meta.CustomPluginInfo;
+import org.hango.cloud.envoy.infra.pluginmanager.dto.EngineRuleDTO;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginManagerDto;
 import org.hango.cloud.envoy.infra.pluginmanager.dto.PluginOrderDto;
 
@@ -50,6 +51,8 @@ public interface IPluginManagerService {
      * 下线自定义插件
      */
     boolean offlineCustomPlugin(long virtualGwId, CustomPluginPublishDTO customPluginPublishDTO);
+
+    boolean refreshEngineRule(EngineRuleDTO engineRuleDTO);
 
     /**
      * 更新数据面插件开关配置（插件开关数据以原有模板为准）
