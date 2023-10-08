@@ -263,6 +263,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
         logger.info("[copyGlobalPlugin] bindingPlugin:{},virtualGwId:{}", bindingPlugin, virtualGwId);
         if (CollectionUtils.isEmpty(sameTypePlugins)) {
             // 网关没有相同类型的全局插件（项目级）
+            pluginBindingInfo.setId(null);
             pluginBindingInfoDao.add(pluginBindingInfo);
         } else {
             // 网关下有相同类型的全局插件（项目级）
