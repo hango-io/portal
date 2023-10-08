@@ -26,6 +26,9 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
     @JSONField(name = "Gateway")
     private String gateway;
 
+    @JSONField(name = "GwCluster")
+    private String gwCluster;
+
     /**
      * 插件作用域
      */
@@ -106,6 +109,14 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
 
     public void setGateway(String gateway) {
         this.gateway = gateway;
+    }
+
+    public String getGwCluster() {
+        return gwCluster;
+    }
+
+    public void setGwCluster(String gwCluster) {
+        this.gwCluster = gwCluster;
     }
 
     public String getCode() {

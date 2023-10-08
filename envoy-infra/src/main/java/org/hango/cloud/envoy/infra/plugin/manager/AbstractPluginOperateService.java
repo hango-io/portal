@@ -94,6 +94,7 @@ public abstract class AbstractPluginOperateService implements PluginOperateServi
         GatewayPluginDto gatewayPlugin = new GatewayPluginDto();
         gatewayPlugin.setAddr(virtualGatewayDto.getConfAddr());
         gatewayPlugin.setPort(virtualGatewayDto.getPort());
+        gatewayPlugin.setGwCluster(virtualGatewayDto.getGwClusterName());
         gatewayPlugin.setGateway(virtualGatewayDto.getGwClusterName().toLowerCase() + "-" + virtualGatewayDto.getCode());
         gatewayPlugin.setPlugins(pluginList);
         gatewayPlugin.setBindingObjectId(bindingPluginInfo.getBindingObjectId());

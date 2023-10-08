@@ -184,6 +184,7 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
         addExtraRoutePluginConfig(route,virtualGatewayDto, pluginConfigs, delete);
         GatewayPluginDto gatewayPlugin = buildPlugin(pluginDto, null, pluginConfigs);
         gatewayPlugin.setCode(buildVirtualServiceName(route.getName(), String.valueOf(route.getProjectId()), CommonUtil.genGatewayStrForRoute(virtualGatewayDto)));
+        gatewayPlugin.setGwCluster(virtualGatewayDto.getGwClusterName());
         return gatewayPlugin;
     }
 
