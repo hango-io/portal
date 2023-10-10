@@ -21,7 +21,6 @@ import org.hango.cloud.common.infra.serviceproxy.dto.ServiceTrafficPolicyDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.SessionStateDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
-import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.plugin.dto.GatewayPluginDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -49,10 +48,6 @@ public class RoutePluginOperateService extends AbstractPluginOperateService {
 
     @Autowired
     IServiceProxyService serviceProxyService;
-
-    @Autowired
-    private IVirtualGatewayInfoService virtualGatewayInfoService;
-
 
     @Override
     public ErrorCode create(BindingPluginDto plugin) {

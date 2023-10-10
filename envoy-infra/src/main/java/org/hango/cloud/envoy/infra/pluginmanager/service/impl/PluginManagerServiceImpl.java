@@ -197,7 +197,7 @@ public class PluginManagerServiceImpl implements IPluginManagerService {
         Map<String, Object> params = new HashMap<>(Const.DEFAULT_MAP_SIZE);
         params.put(ACTION, "ResortPluginOrder");
         params.put(VERSION, PLANE_VERSION);
-        params.put("Names", names);
+        params.put("Names", String.join(",", names));
         HttpClientResponse response = HttpClientUtil.getRequest(confAddr + PLANE_PLUGIN_PATH,  params, MODULE_API_PLANE);
         if (!HttpClientUtil.isNormalCode(response.getStatusCode())) {
             logger.error(LogUtil.buildPlaneErrorLog(response));
