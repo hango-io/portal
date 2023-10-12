@@ -70,7 +70,8 @@ public enum ErrorCodeEnum {
     INVALID_PARAM_GW_TYPE("InvalidParamGwType", "Wrong Gateway Type.", "网关类型填写错误", 400),
     PROJECT_NOT_ASSOCIATED_GATEWAY("ProjectNotAssociatedGateway", "The current project is not associated with the specified gateway.", "当前项目未关联指定网关，不允许发布", 400),
 
-    GW_NOT_ASSOCIATED_DOMAIN("GwNotAssociatedDomain", "The current gw not associated domain", "当前网关未绑定域名，不允许发布", 400),
+    DESTINATION_GW_NOT_ASSOCIATED_DOMAIN("DestinationGwNotAssociatedDomain", "The destination gw not associated domain", "目标网关未绑定域名，不允许发布", 400),
+    CURRENT_GW_NOT_ASSOCIATED_DOMAIN("CurrentGwNotAssociatedDomain", "The current gw not associated domain", "当前网关未绑定域名，不允许发布", 400),
 
 
     MIRROR_BY_ROUTE_RULE("MirrorByRouteRule", "The service has been mirrored by route rule", "该服务已被路由流量镜像使用", 400),

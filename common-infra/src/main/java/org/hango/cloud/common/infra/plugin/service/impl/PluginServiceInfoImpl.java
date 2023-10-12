@@ -91,6 +91,11 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
 
     @Override
     public ErrorCode checkDescribePlugin(long virtualGwId) {
+        return checkDescribePlugin(virtualGwId, false);
+    }
+
+    @Override
+    public ErrorCode checkDescribePlugin(long virtualGwId, boolean copyPlugin) {
         if (virtualGwId <= 0) {
             // 获取插件getPluginInfo可以不传gwId，默认值为0，此处返回成功（后面会处理所有网关的场景）
             return CommonErrorCode.SUCCESS;
@@ -101,8 +106,13 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
             return CommonErrorCode.NO_SUCH_GATEWAY;
         }
         if (CollectionUtils.isEmpty(virtualGateway.getDomainInfos())){
-            logger.error("复制插件时，目前网关未绑定域名，不允许复制, vgId:{}", virtualGwId);
-            return CommonErrorCode.GW_NOT_ASSOCIATED_DOMAIN;
+            if (copyPlugin) {
+                logger.error("复制插件时，目前网关未绑定域名，不允许复制, vgId:{}", virtualGwId);
+                return CommonErrorCode.DESTINATION_GW_NOT_ASSOCIATED_DOMAIN;
+            } else {
+                logger.error("绑定插件时，目前网关未绑定域名，不允许复制, vgId:{}", virtualGwId);
+                return CommonErrorCode.CURRENT_GW_NOT_ASSOCIATED_DOMAIN;
+            }
         }
         return CommonErrorCode.SUCCESS;
     }
@@ -119,7 +129,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
     @Override
     public ErrorCode checkCopyGlobalPluginToGateway(CopyGlobalPluginDto copyGlobalPluginDto) {
         // 检查目标网关是否存在
-        ErrorCode gwErrorCode = checkDescribePlugin(copyGlobalPluginDto.getVirtualGwId());
+        ErrorCode gwErrorCode = checkDescribePlugin(copyGlobalPluginDto.getVirtualGwId(), true);
         if (!gwErrorCode.equals(CommonErrorCode.SUCCESS)) {
             return gwErrorCode;
         }
@@ -211,7 +221,7 @@ public class PluginServiceInfoImpl implements IPluginInfoService {
                 List<String> hosts = domainInfoService.getHosts(bindingObjectId, virtualGwId);
                 if (CollectionUtils.isEmpty(hosts)) {
                     logger.info("绑定全局插件时指定的域名不存在! virtualGwId:{}, projectId:{}", virtualGwId, bindingObjectId);
-                    return CommonErrorCode.GW_NOT_ASSOCIATED_DOMAIN;
+                    return CommonErrorCode.CURRENT_GW_NOT_ASSOCIATED_DOMAIN;
                 }
                 break;
             case HOST:

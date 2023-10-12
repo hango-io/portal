@@ -31,6 +31,15 @@ public interface IPluginInfoService extends CommonService<PluginBindingInfo, Plu
     ErrorCode checkDescribePlugin(long virtualGwId);
 
     /**
+     * 查询插件信息时的参数校验（列表&详情）
+     *
+     * @param virtualGwId 网关id
+     * @param copyPlugin 是否为拷贝插件场景
+     * @return 参数校验结果，当校验通过时返回 ErrorCodeEnum.Success
+     */
+    ErrorCode checkDescribePlugin(long virtualGwId, boolean copyPlugin);
+
+    /**
      * 校验删除参数
      *
      * @param pluginBindingInfoId
