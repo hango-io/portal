@@ -22,7 +22,6 @@ import org.hango.cloud.common.infra.serviceproxy.dto.SubsetDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -560,7 +559,6 @@ public class RouteServiceImpl implements IRouteService {
         return checkMirrorConfig(routeMirrorDto, routeDto);
     }
 
-    @NotNull
     private ErrorCode checkMirrorConfig(RouteMirrorDto routeMirrorDto, RouteDto routeDto) {
         DestinationDto mirrorTraffic = routeMirrorDto.getMirrorTraffic();
         if (mirrorTraffic == null) {
