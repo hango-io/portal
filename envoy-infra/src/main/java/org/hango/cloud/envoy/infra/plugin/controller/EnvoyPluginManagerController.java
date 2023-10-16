@@ -8,6 +8,7 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.PluginDto;
+import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.hango.cloud.envoy.infra.plugin.service.IEnvoyPluginInfoService;
 import org.slf4j.Logger;
@@ -35,6 +36,10 @@ public class EnvoyPluginManagerController extends AbstractController {
     private static final Logger logger = LoggerFactory.getLogger(EnvoyPluginManagerController.class);
     @Autowired
     private IEnvoyPluginInfoService envoyPluginInfoService;
+
+    @Autowired
+    private IPluginInfoService pluginInfoService;
+
     @Autowired
     private IVirtualGatewayInfoService virtualGatewayInfoService;
 
@@ -42,7 +47,7 @@ public class EnvoyPluginManagerController extends AbstractController {
     public String getPluginInfo(@RequestParam(value = "PluginType") String pluginType,
                                 @RequestParam(value = "VirtualGwId", required = false, defaultValue = "0") long virtualGwId) {
         logger.info("查询插件详情, pluginType:{}, virtualGwId:{}", pluginType, virtualGwId);
-        ErrorCode checkResult = envoyPluginInfoService.checkDescribePlugin(virtualGwId);
+        ErrorCode checkResult = pluginInfoService.checkDescribePlugin(virtualGwId);
         if (!CommonErrorCode.SUCCESS.equals(checkResult)) {
             return apiReturn(checkResult);
         }
@@ -59,7 +64,7 @@ public class EnvoyPluginManagerController extends AbstractController {
     public String getPluginInfoList(@RequestParam(value = "VirtualGwId", required = false, defaultValue = "0") long virtualGwId,
                                     @Pattern(regexp = "|routeRule|gateway|global|host", message = "插件范围仅支持routeRule/gateway/global/host") @RequestParam(value = "PluginScope", required = false, defaultValue = "") String pluginScope) {
         logger.info("分页查询插件详情列表, virtualGwId:{}, pluginScope:{}", virtualGwId, pluginScope);
-        ErrorCode checkResult = envoyPluginInfoService.checkDescribePlugin(virtualGwId);
+        ErrorCode checkResult = pluginInfoService.checkDescribePlugin(virtualGwId);
         if (!CommonErrorCode.SUCCESS.equals(checkResult)) {
             return apiReturn(checkResult);
         }
