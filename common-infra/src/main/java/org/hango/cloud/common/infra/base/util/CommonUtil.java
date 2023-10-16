@@ -29,16 +29,6 @@ import java.util.stream.Collectors;
  * @Date: 创建时间: 2018/2/8 下午3:11.
  */
 public class CommonUtil {
-    /**
-     * IPV4格式 1~255.0~255.0~255.0~255
-     */
-    private static final String IPV4_BASIC_PATTERN_STRING = "(([1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){1}" +
-            "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){2}" +
-            "([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
-
-    private static final Pattern IPV4_PATTERN = Pattern.compile("^" + IPV4_BASIC_PATTERN_STRING + "$");
-
-    private static Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
 
     /**
@@ -97,36 +87,6 @@ public class CommonUtil {
             xFor = request.getRemoteAddr();
         }
         return xFor;
-    }
-
-    /**
-     * 检查IP、IP网段格式是否正确
-     *
-     * @param ipAddress IP地址或网段
-     * @return true:格式正确 false:格式错误
-     */
-    public static boolean ipCheck(String ipAddress) {
-        if (ipAddress.indexOf(BaseConst.SYMBOL_SLASH) > 0) {
-            try {
-
-                String[] addressAndMask = StringUtils.split(ipAddress, BaseConst.SYMBOL_SLASH);
-                ipAddress = addressAndMask[0];
-                int nMaskBits = Integer.parseInt(addressAndMask[1]);
-                if (nMaskBits < 0 || nMaskBits > 32) {
-                    return false;
-                }
-                return IPV4_PATTERN.matcher(ipAddress).matches();
-            } catch (Exception e) {
-                logger.info("解析IP地址格式时发生异常!", e);
-                return false;
-            }
-        }
-        return IPV4_PATTERN.matcher(ipAddress).matches();
-    }
-
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Map<Object, Boolean> seen = new ConcurrentHashMap<>(BaseConst.DEFAULT_MAP_SIZE);
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     /**

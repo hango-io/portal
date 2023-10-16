@@ -22,7 +22,6 @@ import org.hango.cloud.common.infra.route.pojo.RouteQuery;
 import org.hango.cloud.common.infra.route.service.IRouteService;
 import org.hango.cloud.common.infra.serviceproxy.dao.IServiceProxyDao;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
-import org.hango.cloud.common.infra.serviceproxy.dto.ServiceConnectionPoolDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceConsistentHashDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceLoadBalancerDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
@@ -238,11 +237,11 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
 
     @Override
     public ErrorCode checkCreateParam(ServiceProxyDto serviceProxyDto) {
-       List<ServiceProxyDto> serviceProxyInDb = getServiceProxy(ServiceProxyQuery.builder()
+        List<ServiceProxyDto> serviceProxyInDb = getServiceProxy(ServiceProxyQuery.builder()
                 .pattern(serviceProxyDto.getName())
                 .virtualGwId(serviceProxyDto.getVirtualGwId())
                 .build());
-       serviceProxyDto.setProjectId(ProjectTraceHolder.getProId());
+        serviceProxyDto.setProjectId(ProjectTraceHolder.getProId());
         if (!CollectionUtils.isEmpty(serviceProxyInDb)) {
             logger.info("发布服务，服务已发布到当前网关,服务名称:{},网关id:{}，不允许再次发布", serviceProxyDto.getName(), serviceProxyDto.getVirtualGwId());
             return CommonErrorCode.SERVICE_NAME_ALREADY_EXIST;
@@ -373,8 +372,7 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
                 continue;
             }
             if (!subsetNameSet.contains(routeProxyInfo.getMirrorTraffic().getSubsetName())) {
-                RouteDto routeDto = routeService.get(routeProxyInfo.getId());
-                return CommonErrorCode.subsetUsedByRouteRule(routeDto.getName());
+                return CommonErrorCode.subsetUsedByRouteRule(routeProxyInfo.getName());
             }
         }
         return CommonErrorCode.SUCCESS;
@@ -665,44 +663,7 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         if (serviceTrafficPolicyDto == null) {
             return CommonErrorCode.SUCCESS;
         }
-        ErrorCode errorCode = checkLoadBalance(serviceTrafficPolicyDto.getLoadBalancer());
-        if (!CommonErrorCode.SUCCESS.equals(errorCode)) {
-            return errorCode;
-        }
-        ServiceConnectionPoolDto serviceConnectionPoolDto = serviceTrafficPolicyDto.getConnectionPoolDto();
-        if (serviceConnectionPoolDto != null) {
-            ServiceConnectionPoolDto.ServiceHttpConnectionPoolDto serviceHttpConnectionPoolDto = serviceConnectionPoolDto.getServiceHttpConnectionPoolDto();
-            ServiceConnectionPoolDto.ServiceTcpConnectionPoolDto serviceTcpConnectionPoolDto = serviceConnectionPoolDto.getServiceTcpConnectionPoolDto();
-            if (serviceHttpConnectionPoolDto != null) {
-                Integer http1MaxPendingRequests = serviceHttpConnectionPoolDto.getHttp1MaxPendingRequests();
-                Integer http2MaxRequests = serviceHttpConnectionPoolDto.getHttp2MaxRequests();
-                Integer idleTimeout = serviceHttpConnectionPoolDto.getIdleTimeout();
-                Integer maxRequestsPerConnection = serviceHttpConnectionPoolDto.getMaxRequestsPerConnection();
-                if (http1MaxPendingRequests < 0) {
-                    return CommonErrorCode.INVALID_HTTP_1_MAX_PENDING_REQUESTS;
-                }
-                if (http2MaxRequests < 0) {
-                    return CommonErrorCode.INVALID_HTTP_2_MAX_REQUESTS;
-                }
-                if (idleTimeout < 0) {
-                    return CommonErrorCode.INVALID_IDLE_TIMEOUT;
-                }
-                if (maxRequestsPerConnection < 0) {
-                    return CommonErrorCode.INVALID_MAX_REQUESTS_PER_CONNECTION;
-                }
-            }
-            if (serviceTcpConnectionPoolDto != null) {
-                Integer maxConnections = serviceTcpConnectionPoolDto.getMaxConnections();
-                Integer connectTimeout = serviceTcpConnectionPoolDto.getConnectTimeout();
-                if (maxConnections < 0) {
-                    return CommonErrorCode.INVALID_MAX_CONNECTIONS;
-                }
-                if (connectTimeout < 0) {
-                    return CommonErrorCode.INVALID_CONNECT_TIMEOUT;
-                }
-            }
-        }
-        return CommonErrorCode.SUCCESS;
+        return checkLoadBalance(serviceTrafficPolicyDto.getLoadBalancer());
     }
 
     /**
@@ -715,40 +676,12 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
         if (serviceLoadBalancerDto == null) {
             return CommonErrorCode.SUCCESS;
         }
-        if (BaseConst.SERVICE_LOADBALANCER_SIMPLE.equals(serviceLoadBalancerDto.getType())) {
-            return checkSimpleLoadBalance(serviceLoadBalancerDto);
-        } else if (BaseConst.SERVICE_LOADBALANCER_HASH.equals(serviceLoadBalancerDto.getType())) {
+        if (BaseConst.SERVICE_LOADBALANCER_HASH.equals(serviceLoadBalancerDto.getType())) {
             return checkHashLoadBalance(serviceLoadBalancerDto);
         }
-        // 服务预热时间窗校验，为空则代表不开启功能；时间窗仅支持[1, 3600]区间配置
-        if (serviceLoadBalancerDto.getSlowStartWindow() != null &&
-                (serviceLoadBalancerDto.getSlowStartWindow() > 3600 || serviceLoadBalancerDto.getSlowStartWindow() < 1)) {
-            return CommonErrorCode.INVALID_SLOW_START_WINDOW;
-        }
-        //type不合法
-        return CommonErrorCode.INVALID_LOAD_BALANCE_TYPE;
-    }
-
-    /**
-     * 校验简单负载均衡
-     *
-     * @param serviceLoadBalancerDto
-     * @return
-     */
-    private ErrorCode checkSimpleLoadBalance(ServiceLoadBalancerDto serviceLoadBalancerDto) {
-        //Simple类型，包含ROUND_ROBIN|LEAST_CONN|RANDOM
-        final List<String> simpleList = new ArrayList<>();
-        simpleList.add(BaseConst.SERVICE_LOADBALANCER_SIMPLE_ROUND_ROBIN);
-        simpleList.add(BaseConst.SERVICE_LOADBALANCER_SIMPLE_LEAST_CONN);
-        simpleList.add(BaseConst.SERVICE_LOADBALANCER_SIMPLE_RANDOM);
-        if (StringUtils.isBlank(serviceLoadBalancerDto.getSimple()) ||
-                !simpleList.contains(serviceLoadBalancerDto.getSimple())) {
-            return CommonErrorCode.INVALID_SIMPLE_LOAD_BALANCE_TYPE;
-        }
-        //将Cookie相关参数置空
-        serviceLoadBalancerDto.setConsistentHash(null);
         return CommonErrorCode.SUCCESS;
     }
+
 
     /**
      * 校验哈希负载均衡
@@ -763,15 +696,7 @@ public class ServiceProxyServiceImpl implements IServiceProxyService {
             //不能为空
             return CommonErrorCode.INVALID_CONSISTENT_HASH_OBJECT;
         }
-        final List<String> hashList = new ArrayList<>();
-        hashList.add(BaseConst.SERVICE_LOADBALANCER_HASH_HTTPHEADERNAME);
-        hashList.add(BaseConst.SERVICE_LOADBALANCER_HASH_HTTPCOOKIE);
-        hashList.add(BaseConst.SERVICE_LOADBALANCER_HASH_USESOURCEIP);
 
-        if (StringUtils.isBlank(serviceConsistentHashDto.getType()) ||
-                !hashList.contains(serviceConsistentHashDto.getType())) {
-            return CommonErrorCode.INVALID_CONSISTENT_HASH_TYPE;
-        }
         if (BaseConst.SERVICE_LOADBALANCER_HASH_HTTPCOOKIE.equals(serviceConsistentHashDto.getType())) {
             ServiceConsistentHashDto.ServiceConsistentHashCookieDto serviceConsistentHashCookieDto =
                     serviceConsistentHashDto.getCookieDto();
