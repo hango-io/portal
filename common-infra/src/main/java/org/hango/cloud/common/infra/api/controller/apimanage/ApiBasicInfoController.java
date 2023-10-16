@@ -155,7 +155,7 @@ public class ApiBasicInfoController extends AbstractController {
             resource.setResourceName(apiInfo.getApiName());
             if (NumberUtils.INTEGER_ONE.equals(NumberUtils.toInt(apiInfo.getStatus()))) {
                 logger.info("接口未下线，不能进行删除");
-                return apiReturn(org.hango.cloud.envoy.advanced.bakup.apiserver.meta.errorcode.CommonErrorCode.CANNOT_DELETE_ONLINE_API);
+                return apiReturn(CommonErrorCode.CANNOT_DELETE_ONLINE_API);
             }
         }
         apiInfoService.deleteApi(apiId);
