@@ -153,32 +153,32 @@ public class PluginServiceInfoImplTest{
     }
 
 
-     private VirtualGatewayDto preCreate(){
-         DomainInfoDTO domainInfoDTO = MockUtil.initHttpDomainInfo();
-         domainInfoService.create(domainInfoDTO);
-         GatewayDto gatewayDto = MockUtil.initGatewayDto();
-         long gwId = gatewayService.create(gatewayDto);
-         VirtualGatewayDto virtualGatewayDto = MockUtil.initVirtualGateway("HTTP", null);
-         virtualGatewayDto.setDomainInfos(Collections.singletonList(domainInfoDTO));
+    private VirtualGatewayDto preCreate(){
+        DomainInfoDTO domainInfoDTO = MockUtil.initHttpDomainInfo();
+        domainInfoService.create(domainInfoDTO);
+        GatewayDto gatewayDto = MockUtil.initGatewayDto();
+        long gwId = gatewayService.create(gatewayDto);
+        VirtualGatewayDto virtualGatewayDto = MockUtil.initVirtualGateway("HTTP", null);
+        virtualGatewayDto.setDomainInfos(Collections.singletonList(domainInfoDTO));
 
-         virtualGatewayDto.setGwId(gwId);
-         long vgId = virtualGatewayService.createWithoutHooker(virtualGatewayDto);
-         return virtualGatewayDto;
-     }
+        virtualGatewayDto.setGwId(gwId);
+        long vgId = virtualGatewayService.createWithoutHooker(virtualGatewayDto);
+        return virtualGatewayDto;
+    }
 
-     private void postDelete(VirtualGatewayDto virtualGatewayDto){
-         List<DomainInfoDTO> domainInfos = virtualGatewayDto.getDomainInfos();
-         if (domainInfos != null){
-             for (DomainInfoDTO domainInfo : domainInfos) {
-                 domainInfoService.delete(domainInfo);
-             }
-         }
-         virtualGatewayService.deleteWithoutHooker(virtualGatewayDto);
-         long gwId = virtualGatewayDto.getGwId();
-         GatewayDto gatewayDto = gatewayService.get(gwId);
-         if (gatewayDto != null){
-             gatewayService.delete(gatewayDto);
-         }
+    private void postDelete(VirtualGatewayDto virtualGatewayDto){
+        List<DomainInfoDTO> domainInfos = virtualGatewayDto.getDomainInfos();
+        if (domainInfos != null){
+            for (DomainInfoDTO domainInfo : domainInfos) {
+                domainInfoService.delete(domainInfo);
+            }
+        }
+        virtualGatewayService.deleteWithoutHooker(virtualGatewayDto);
+        long gwId = virtualGatewayDto.getGwId();
+        GatewayDto gatewayDto = gatewayService.get(gwId);
+        if (gatewayDto != null){
+            gatewayService.delete(gatewayDto);
+        }
 
-     }
+    }
 }

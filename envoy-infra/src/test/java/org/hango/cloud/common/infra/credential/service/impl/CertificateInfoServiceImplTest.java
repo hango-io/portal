@@ -113,7 +113,7 @@ public class CertificateInfoServiceImplTest{
         viewDTO = certificateInfoService.getCertificateInfoById(id);
         assertNull(viewDTO);
     }
-    
+
 
     @Test
     public void getCertificateInfos() {

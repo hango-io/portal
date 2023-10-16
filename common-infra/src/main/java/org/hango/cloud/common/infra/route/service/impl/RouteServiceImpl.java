@@ -1,5 +1,6 @@
 package org.hango.cloud.common.infra.route.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
@@ -158,15 +159,15 @@ public class RouteServiceImpl implements IRouteService {
     }
 
     private void configMirrorTraffic(RoutePO routePO, RouteDto routeDto) {
-        if (routePO.getMirrorTraffic() != null) {
-            ServiceProxyDto serviceDto = serviceProxyService.get(routePO.getMirrorTraffic().getServiceId());
-            if (serviceDto != null) {
-                routeDto.setMirrorSwitch(1);
-                routeDto.setMirrorTraffic(RouteRuleConvert.toView(routePO.getMirrorTraffic()));
-                routeDto.getMirrorTraffic().setApplicationName(serviceDto.getBackendService());
-            }
-        } else {
+        if (routePO.getMirrorTraffic() == null){
             routeDto.setMirrorSwitch(0);
+            return;
+        }
+        ServiceProxyDto serviceDto = serviceProxyService.get(routePO.getMirrorTraffic().getServiceId());
+        if (serviceDto != null) {
+            routeDto.setMirrorSwitch(1);
+            routeDto.setMirrorTraffic(RouteRuleConvert.toView(routePO.getMirrorTraffic()));
+            routeDto.getMirrorTraffic().setApplicationName(serviceDto.getBackendService());
         }
     }
 
@@ -463,7 +464,7 @@ public class RouteServiceImpl implements IRouteService {
     }
 
     @SuppressWarnings("java:S3776")
-    private ErrorCode checkServiceAndSubsetExist(List<ServiceMetaForRouteDto> serviceMetaList, ServiceProxyDto serviceProxyDto) {
+    public ErrorCode checkServiceAndSubsetExist(List<ServiceMetaForRouteDto> serviceMetaList, ServiceProxyDto serviceProxyDto) {
         if (serviceProxyDto == null) {
             return CommonErrorCode.NO_SUCH_SERVICE;
         }
@@ -498,7 +499,7 @@ public class RouteServiceImpl implements IRouteService {
         return CommonErrorCode.SUCCESS;
     }
 
-    private static ErrorCode checkServiceMeta(List<ServiceMetaForRouteDto> serviceMetaList) {
+    public ErrorCode checkServiceMeta(List<ServiceMetaForRouteDto> serviceMetaList) {
         int serviceTotalWeight = 0;
         for (ServiceMetaForRouteDto serviceMeta : serviceMetaList) {
             ErrorCode subsetCheckResult = checkServiceSubset(serviceMeta);
@@ -506,30 +507,26 @@ public class RouteServiceImpl implements IRouteService {
                 return subsetCheckResult;
             }
             serviceTotalWeight += serviceMeta.getWeight();
-            logger.info("[weight] service TotalWeight: {}, serviceId: {}, weight: {}",
-                    serviceTotalWeight, serviceMeta.getServiceId(), serviceMeta.getWeight());
         }
 
         if (serviceTotalWeight != 100) {
-            logger.error("创建路由流程，关联服务设置的总权重不为100！");
+            logger.error("创建路由流程，关联服务版本分流设置的权重总和不为100, serviceMeta:{}", JSONObject.toJSONString(serviceMetaList));
             return CommonErrorCode.INVALID_TOTAL_WEIGHT;
         }
         return CommonErrorCode.SUCCESS;
     }
 
     private static ErrorCode checkServiceSubset(ServiceMetaForRouteDto serviceMeta) {
-        if (!CollectionUtils.isEmpty(serviceMeta.getDestinationServices())) {
-            int subsetTotalWeight = 0;
-            for (DestinationDto destinationService : serviceMeta.getDestinationServices()) {
-                subsetTotalWeight += destinationService.getWeight();
-                logger.info("[weight] subset TotalWeight: {}, serviceId: {}, weight: {}",
-                        subsetTotalWeight, serviceMeta.getServiceId(), destinationService.getWeight());
-            }
+        if (CollectionUtils.isEmpty(serviceMeta.getDestinationServices())) {
+            return CommonErrorCode.SUCCESS;
+        }
+        int subsetTotalWeight = serviceMeta.getDestinationServices().stream()
+                .mapToInt(DestinationDto::getWeight)
+                .reduce(0, Integer::sum);
 
-            if (subsetTotalWeight != 100) {
-                logger.error("创建路由流程，关联服务版本分流设置的权重总和不为100！");
-                return CommonErrorCode.INVALID_TOTAL_WEIGHT;
-            }
+        if (subsetTotalWeight != 100) {
+            logger.error("创建路由流程，关联服务版本分流设置的权重总和不为100, serviceMeta:{}", JSONObject.toJSONString(serviceMeta));
+            return CommonErrorCode.INVALID_TOTAL_WEIGHT;
         }
         return CommonErrorCode.SUCCESS;
     }
@@ -581,21 +578,17 @@ public class RouteServiceImpl implements IRouteService {
         if (StringUtils.isEmpty(mirrorTraffic.getSubsetName())) {
             return CommonErrorCode.SUCCESS;
         }
-
-        if (!CollectionUtils.isEmpty(serviceProxyDto.getSubsets())) {
-            List<SubsetDto> subsetDtoList = serviceProxyDto.getSubsets();
-            List<SubsetDto> collect = subsetDtoList.stream()
-                    .filter(subsetDto -> subsetDto.getName().equals(mirrorTraffic.getSubsetName()))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(collect)) {
-                logger.error("流量镜像指定服务版本配置错误");
-                return CommonErrorCode.INVALID_SUBSET_NAME;
-            }
-        } else {
+        if (CollectionUtils.isEmpty(serviceProxyDto.getSubsets())){
             logger.error("流量镜像指定服务版本配置不存在");
             return CommonErrorCode.NO_SUBSET_OF_SERVICE;
         }
+        List<SubsetDto> collect = serviceProxyDto.getSubsets().stream().filter(subsetDto -> subsetDto.getName().equals(mirrorTraffic.getSubsetName())).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(collect)) {
+            logger.error("流量镜像指定服务版本配置错误");
+            return CommonErrorCode.INVALID_SUBSET_NAME;
+        }
         return CommonErrorCode.SUCCESS;
+
     }
 
     @Override
