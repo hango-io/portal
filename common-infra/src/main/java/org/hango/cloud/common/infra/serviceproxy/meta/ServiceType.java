@@ -14,7 +14,10 @@ public enum ServiceType {
     dubbo,
     serviceMesh,
     webservice,
-    grpc;
+    grpc,
+    tcp,
+    udp,
+    ;
 
 
     /**

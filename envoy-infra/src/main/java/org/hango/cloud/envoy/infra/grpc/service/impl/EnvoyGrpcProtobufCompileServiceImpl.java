@@ -13,7 +13,6 @@ import org.hango.cloud.envoy.infra.grpc.meta.EnvoyServiceProtobufProxy;
 import org.hango.cloud.envoy.infra.grpc.service.IEnvoyGrpcProtobufCompileService;
 import org.hango.cloud.envoy.infra.grpc.service.IEnvoyGrpcProtobufService;
 import org.hango.cloud.gdashboard.api.util.Const;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -257,7 +256,6 @@ public class EnvoyGrpcProtobufCompileServiceImpl implements IEnvoyGrpcProtobufCo
         return compileMultiPbResult;
     }
 
-    @NotNull
     private Pair<ErrorCode, PbCompileResultDto> compileMultiPb(long serviceId, MultipartFile file, String pbFileName, String pbFileContent, List<String> pbFileContentList) {
         //获取所有服务的pb文件，统一编译
         List<String> sourcePathList = new ArrayList<>();

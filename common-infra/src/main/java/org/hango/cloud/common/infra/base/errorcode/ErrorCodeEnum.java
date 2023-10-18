@@ -70,7 +70,8 @@ public enum ErrorCodeEnum {
     INVALID_PARAM_GW_TYPE("InvalidParamGwType", "Wrong Gateway Type.", "网关类型填写错误", 400),
     PROJECT_NOT_ASSOCIATED_GATEWAY("ProjectNotAssociatedGateway", "The current project is not associated with the specified gateway.", "当前项目未关联指定网关，不允许发布", 400),
 
-    GW_NOT_ASSOCIATED_DOMAIN("GwNotAssociatedDomain", "The current gw not associated domain", "当前网关未绑定域名，不允许发布", 400),
+    DESTINATION_GW_NOT_ASSOCIATED_DOMAIN("DestinationGwNotAssociatedDomain", "The destination gw not associated domain", "目标网关未绑定域名，不允许发布", 400),
+    CURRENT_GW_NOT_ASSOCIATED_DOMAIN("CurrentGwNotAssociatedDomain", "The current gw not associated domain", "当前网关未绑定域名，不允许发布", 400),
 
 
     MIRROR_BY_ROUTE_RULE("MirrorByRouteRule", "The service has been mirrored by route rule", "该服务已被路由流量镜像使用", 400),
@@ -80,6 +81,7 @@ public enum ErrorCodeEnum {
     /************************************** Service Start **************************************/
 
     NO_SUCH_SERVICE("NoSuchService", "No such service", "指定的服务不存在", 400),
+    TYPE_NOT_MATCH("TypeNotMatch", "service type not match virtual gateway type", "服务类型和网关类型不匹配", 400),
     INVALID_SERVICE_PORT("InvalidServicePort", "Invalid service port", "服务端口非法", 400),
     INVALID_SERVICE_SUBSET_PORT("InvalidServiceSubsetPort", "Invalid service subset port", "服务子版本端口非法", 400),
     CANNOT_UPDATE_SERVICE_NAME("CanNotUpdateServiceName", "service namecan not update  ", "服务名称不支持修改", 400),
@@ -93,7 +95,7 @@ public enum ErrorCodeEnum {
     SAME_NAME_ROUTE_EXIST("SameNameRouteRuleExist", "The route with the same name already exists in this project gateway and cannot be "
             + "created.", "当前项目网关已存在同名路由，无法重复创建", 400),
 
-    SERVICE_ALREADY_PUBLISHED("ServiceAlreadyPublished", "The service has already published", "服务已经发布到当前网关", 400),
+    SERVICE_ALREADY_PUBLISHED("ServiceAlreadyPublished", "The service has already published", "当前网关已有发布的服务", 400),
 
     EXIST_PUBLISHED_SERVICE("ExistPublishedService", "exist published service, do not allow to delete ", "当前项目存在已发布服务，不允许删除", 400),
     EXIST_PUBLISHED_PLUGIN("ExistPublishedPlugin", "exist published plugin, do not allow to delete ", "当前项目存在已发布插件，不允许删除", 400),
@@ -101,7 +103,6 @@ public enum ErrorCodeEnum {
 
     PUBLISH_TYPE_NOT_SUPPORT("PublishTypeNotSupport", "The publish type of service can not support this operation", "该服务的发布方式并不支持本操作", 400),
 
-    BACKEND_SERVICE_DIFFERENT("BackendServiceDifferent", "Backend services are different.", "发布服务，指定后端服务不同不允许创建", 400),
 
     DUPLICATED_SUBSET_NAME("DuplicatedSubsetName", "SubsetName is duplicated", "版本名称不能重复", 400),
 
@@ -123,7 +124,6 @@ public enum ErrorCodeEnum {
 
     /************************************** Route Rule Start **************************************/
     NO_SUCH_ROUTE_RULE("NoSuchRouteRule", "No such route rule", "指定的路由规则不存在", 400),
-    NO_ROUTE_RULE_PATH("NoRouteRulePath", "No route rule path", "创建路由，path不能为空", 400),
     ROUTE_PATH_INVALID("RoutePathInvalid", "No route rule path", "路由path不合法", 400),
     NO_SUCH_DOMAIN("NoSuchDomain", "No such route domain", "域名不存在", 400),
     ROUTE_RULE_CONTAINS_NGINX_CAPTURE("RouteRuleContainsNginxCapture", "Route rule contains nginx capture regex", "创建路由，path正则中不能包含nginx捕获正则", 400),
@@ -142,6 +142,7 @@ public enum ErrorCodeEnum {
     ROUTE_RULE_NOT_PUBLISHED("RouteRuleNotPublished", "The route rule not published", "路由规则未发布", 400),
     COPY_ROUTE_SAME_GW("CopyRouteSameGw", "copy route to same gateway is not allowed", "无法在相同网关下进行拷贝路由，请选择其他网关", 400),
     COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE("CopyRouteOnlySupportHttpService", "copy-route feature only supports routes associated with HTTP services", "复制路由功能仅支持关联HTTP类型服务的路由", 400),
+    COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE("CopyRouteToLoadbalanceOnlySupportOneService", "copy-route feature to loadbalance gateway only supports one service", "绑定多服务的路由禁止复制到负载均衡网关", 400),
     GATEWAY_NOT_BINDING_SAME_HOST("GatewayNotBindingSameHost", "The target gateway is not bound to the same domains as the source gateway, routes cannot be replicated", "目标网关未绑定与源网关相同的域名，无法复制路由", 400),
     INVALID_DESTINATION_SERVICE("InvalidDestinationService", "Destination service is invalid", "路由规则发布时指定的后端服务不能为空", 400),
     ROUTE_RULE_ALREADY_PUBLISHED_TO_GW("RouteRuleAlreadyPublishedToGw", "The route rule has already published to gw, gw is: %s.", "路由规则已发布至网关: %s", 400),
@@ -158,23 +159,13 @@ public enum ErrorCodeEnum {
     /************************************** API End **************************************/
     /************************************** Load Balance Start **************************************/
     //负载均衡相关
-    INVALID_SLOW_START_WINDOW("InvalidSlowStartWindow", "The service warm-up time can be configured in the range [1s-3600s] only", "服务预热时间窗仅支持配置[1s-3600s]区间", 400),
-    INVALID_LOAD_BALANCE_TYPE("InvalidLoadBanlanceType", "This load balance type is invalid", "服务负载均衡类型取值为Simple或ConsistentHash", 400),
-    INVALID_SIMPLE_LOAD_BALANCE_TYPE("InvalidSimpleLoadBanlanceType", "This simple load balance type is invalid", "Simple类型的负载均衡规则，仅包含ROUND_ROUBIN、LEAST_CONN、RANDOM", 400),
     INVALID_CONSISTENT_HASH_OBJECT("InvalidConsistentHashObject", "Consistent hash object is invalid", "一致性哈希对象格式非法", 400),
-    INVALID_CONSISTENT_HASH_TYPE("InvalidConsistentHashType", "Consistent hash type is invalid", "一致性哈希对象类型为HttpHeaderName、HttpCookie、UseSourceIp三者之一", 400),
     INVALID_CONSISTENT_HASH_HTTP_COOKIE_OBJECT("InvalidConsistentHashHttpCookieObject", "Http cookie is invalid", "一致性哈希对象使用cookie时，cookie对象不能为空", 400),
     INVALID_CONSISTENT_HASH_HTTP_COOKIE_NAME("InvalidConsistentHashHttpCookieName", "Http cookie name is invalid", "一致性哈希对象使用cookie时，cookie名称不能为空", 400),
     INVALID_CONSISTENT_HASH_HTTP_COOKIE_TTL("InvalidConsistentHashHttpCookieName", "Http cookie ttl is invalid", "一致性哈希对象使用cookie时，cookie ttl不能小于0", 400),
     INVALID_CONSISTENT_HASH_HTTP_HEADER_NAME("InvalidConsistentHashHttpHeaderName", "Http header name is invalid", "一致性哈希对象使用HttpHeaderName时，HttpHeaderName不能为空", 400),
     INVALID_CONSISTENT_HASH_SOURCE_IP("InvalidConsistentHashSourceIP", "Source ip is invalid", "一致性哈希对象使用源IP时，源IP不能为空", 400),
 
-    INVALID_HTTP_1_MAX_PENDING_REQUESTS("InvalidHttp1MaxPendingRequests", "http1MaxPendingRequests is invalid", "http1MaxPendingRequests不能小于0", 400),
-    INVALID_HTTP_2_MAX_REQUESTS("InvalidHttp2MaxRequests", "Http2MaxRequests is invalid", "http2MaxRequests不能小于0", 400),
-    INVALID_IDLE_TIMEOUT("InvalidIdleTimeout", "IdleTimeout is invalid", "idleTimeout不能小于0", 400),
-    INVALID_MAX_REQUESTS_PER_CONNECTION("InvalidMaxRequestsPerConnection", "MaxRequestsPerConnection is invalid", "maxRequestsPerConnection不能小于0", 400),
-    INVALID_MAX_CONNECTIONS("InvalidmaxConnections", "MaxConnections is invalid", "maxConnections不能小于0", 400),
-    INVALID_CONNECT_TIMEOUT("InvalidConnectTimeout", "ConnectTimeout is invalid", "connectTimeout不能小于0", 400),
 
     /************************************** Load Balance End **************************************/
 
@@ -184,7 +175,6 @@ public enum ErrorCodeEnum {
     NO_SUCH_PLUGIN_BINDING("NoSuchPluginBinding", "No such plugin binding info", "指定的插件绑定关系不存在", 400),
     NO_SUCH_PLUGIN_TEMPLATE("NoSuchPluginTemplate", "No such plugin template", "指定的插件模板不存在", 400),
     SAME_NAME_PLUGIN_TEMPLATE_EXIST("SameNamePluginTemplateExist", "The plugin template with the same name already exists and cannot be created.", "同名插件模板已存在，不允许重复创建!", 400),
-    PLUGIN_IS_BOUND("PLUGIN_IS_BOUND","PLUGIN_IS_BOUND","该插件已经存在绑定关系",400),
     CANNOT_DUPLICATE_BINDING("CannotDuplicateBinding", "The plugin binding already exists and duplicate binding are not allowed", "插件绑定关系已存在，不允许重复绑定同一插件", 400),
     CANNOT_DUPLICATE_BINDING_AUTH_PLUGIN("CannotDuplicateBindingAuthPlugin", "The auth type plugin binding already exists",
             "认证类型插件绑定关系已存在，不允许重复绑定", 400),
@@ -193,12 +183,12 @@ public enum ErrorCodeEnum {
     INVALID_PARAMETER("InvalidParameter", "invaild parameter", "%s", 400),
 
     //健康检查相关
-    INVALID_API_PATH("InvalidApiPath", "Api path is invalid", "接口路径不合法", 400),
     INVALID_HTTP_STATUS_CODE("InvalidHttpStatusCode", "Http status code is invalid", "健康状态码不合法", 400),
-    INVALID_CONSECUTIVE_ERRORS("InvalidConsecutiveErrors", "Consecutive errors parameter is invalid", "连续失败次数不合法", 400),
 
-    INVALID_BASE_EJECTION_TIME("InvalidBaseEjectionTime", "Base ejection time is invalid", "驱逐时间不合法", 400),
-    INVALID_MAX_EJECTION_PRECENT("InvalidMaxEjectionPercent", "Max ejection percent is invalid", "最多可驱逐的实例比不合法", 400),
+    CANNOT_DELETE_ONLINE_API("CannotDeleteOnlineApi", "You can't delete api until offline the api", "在下线接口之前，不能删除接口", 400),
+
+    NOT_SUPPORT_MULTI_ADDR("NotSupportMultiAddr", "not support multi addr", "暂不支持多地址发布", 400),
+
 
     /************************************** Plugin End **************************************/
     ;

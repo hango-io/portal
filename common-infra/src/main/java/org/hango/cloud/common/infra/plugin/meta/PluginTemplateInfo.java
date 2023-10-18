@@ -1,41 +1,37 @@
 package org.hango.cloud.common.infra.plugin.meta;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hango.cloud.common.infra.base.meta.CommonExtension;
-
-import java.io.Serializable;
 
 /**
  * 插件模板info类
  *
  * @author hzchenzhongyang 2020-04-08
  */
-public class PluginTemplateInfo extends CommonExtension implements Serializable {
+@Getter
+@Setter
+@TableName("hango_plugin_template")
+public class PluginTemplateInfo extends CommonExtension{
     /**
-     * 无需同步
-     **/
-    public static final int STATUS_NO_NEED_SYNC = 0;
-    /**
-     * 未完全同步
-     **/
-    public static final int STATUS_INCOMPLETE_SYNC = 1;
-    /**
-     * 未同步
-     **/
-    public static final int STATUS_NEED_SYNC = 2;
-    /**
-     * id
+     * 表自增id
      */
-    private long id;
+    @TableId(value = "id",type = IdType.AUTO)
+    private Long id;
+
     /**
-     * 模板创建时间，时间戳格式，精确到毫秒
+     * 创建时间
      */
-    private long createTime;
+    @TableField(fill = FieldFill.INSERT)
+    private Long createTime;
+
     /**
-     * 模板最后更新时间，时间戳格式，精确到毫秒
+     * 更新时间
      */
-    private long updateTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Long updateTime;
+
     /**
      * 绑定的插件类型，全局唯一，如：RateLimiter、WhiteList等
      */
@@ -45,6 +41,7 @@ public class PluginTemplateInfo extends CommonExtension implements Serializable 
      * 绑定的插件名称
      */
     private String pluginName;
+
     /**
      * 插件配置
      */
@@ -52,11 +49,11 @@ public class PluginTemplateInfo extends CommonExtension implements Serializable 
     /**
      * 插件绑定关系所属项目id
      */
-    private long projectId;
+    private Long projectId;
     /**
      * 插件模板版本
      */
-    private long templateVersion;
+    private Long templateVersion;
     /**
      * 模板名称
      */
@@ -66,88 +63,4 @@ public class PluginTemplateInfo extends CommonExtension implements Serializable 
      */
     private String templateNotes;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
-
-    public long getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public String getPluginType() {
-        return pluginType;
-    }
-
-    public void setPluginType(String pluginType) {
-        this.pluginType = pluginType;
-    }
-
-    public String getPluginName() {
-        return pluginName;
-    }
-
-    public void setPluginName(String pluginName) {
-        this.pluginName = pluginName;
-    }
-
-    public String getPluginConfiguration() {
-        return pluginConfiguration;
-    }
-
-    public void setPluginConfiguration(String pluginConfiguration) {
-        this.pluginConfiguration = pluginConfiguration;
-    }
-
-    public long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
-    }
-
-    public long getTemplateVersion() {
-        return templateVersion;
-    }
-
-    public void setTemplateVersion(long templateVersion) {
-        this.templateVersion = templateVersion;
-    }
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getTemplateNotes() {
-        return templateNotes;
-    }
-
-    public void setTemplateNotes(String templateNotes) {
-        this.templateNotes = templateNotes;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
 }

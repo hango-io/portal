@@ -10,6 +10,8 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.List;
 
+import static org.hango.cloud.common.infra.base.meta.RegexConst.REGEX_NAME;
+
 /**
  * @Author zhufengwei
  * @Date 2023/5/5
@@ -29,6 +31,13 @@ public class UpdateRouteDto extends RouteMatchDto implements Serializable {
     @Size(max = 100, message = "路由别名长度不能超过100个字符")
     @JSONField(name = "Alias")
     private String alias;
+
+    /**
+     * 路由规则名称，用于前端展示
+     */
+    @Pattern(regexp = REGEX_NAME, message = "路由名称格式非法")
+    @JSONField(name = "Name")
+    private String name;
 
     /**
      * 描述信息

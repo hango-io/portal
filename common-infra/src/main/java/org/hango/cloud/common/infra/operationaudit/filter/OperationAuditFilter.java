@@ -205,7 +205,27 @@ public class OperationAuditFilter extends OncePerRequestFilter {
         } catch (IOException e) {
             logger.info("解析 requestBody 时出现异常", e);
         }
+        try {
+            requestBody = requestBodyFilter(requestBody, req.getParameter(BaseConst.ACTION));
+        }catch (Exception e){
+            logger.info("requestBodyFilter ", e);
+        }
+
         json.put("body", requestBody);
         return JSON.toJSONString(json);
+    }
+
+
+    private String requestBodyFilter(String body, String action){
+        if (StringUtils.isBlank(body) || StringUtils.isBlank(action)){
+            return body;
+        }
+        if (action.equalsIgnoreCase(OperationAuditKind.get("CreateCertificate").getEventName())){
+            JSONObject target = new JSONObject();
+            JSONObject source = JSON.parseObject(body);
+            target.put("CertificateName", source.getString("CertificateName"));
+            return target.toJSONString();
+        }
+        return body;
     }
 }

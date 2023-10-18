@@ -7,9 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import java.util.List;
 
 /**
  * @ClassName PluginImportDTO
@@ -51,6 +49,19 @@ public class CustomPluginInfoDto {
     @JSONField(name = "SourceType")
     @Pattern(regexp = "file|oci")
     private String sourceType;
+
+    /**
+     * 脚本类型
+     */
+    @JSONField(name = "SourceUrl")
+    private String sourceUrl;
+
+    /**
+     * secretName
+     */
+    @JSONField(name = "SecretName")
+    private String secretName;
+
     /**
      * 脚本内容 base 64
      */
@@ -64,7 +75,7 @@ public class CustomPluginInfoDto {
     @Pattern(regexp = "security|auth|dataFormat|trafficPolicy")
     private String pluginCategory;
     /**
-     * 插件作用域:routeRule(路由)，global(全局) 多选，可两者多选
+     * 插件作用域:routeRule(路由)，global(项目)，gateway(网关) 多选
      */
     @JSONField(name = "PluginScope")
     @NotEmpty

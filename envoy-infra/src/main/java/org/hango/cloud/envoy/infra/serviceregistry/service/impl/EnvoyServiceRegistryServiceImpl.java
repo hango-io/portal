@@ -2,9 +2,12 @@ package org.hango.cloud.envoy.infra.serviceregistry.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.meta.HttpClientResponse;
 import org.hango.cloud.common.infra.base.util.HttpClientUtil;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
@@ -42,6 +45,8 @@ public class EnvoyServiceRegistryServiceImpl implements IEnvoyServiceRegistrySer
     static {
         SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.dubbo.name(), Sets.newHashSet(RegistryCenterEnum.Zookeeper));
         SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.webservice.name(), Sets.newHashSet(RegistryCenterEnum.Kubernetes));
+        SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.tcp.name(), Sets.newHashSet(RegistryCenterEnum.Kubernetes));
+        SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.udp.name(), Sets.newHashSet(RegistryCenterEnum.Kubernetes));
         SERVICE_TYPE_2_REGISTER_TYPES_MAP.put(ServiceType.http.name(), Sets.newHashSet(RegistryCenterEnum.Nacos, RegistryCenterEnum.Kubernetes, RegistryCenterEnum.Eureka));
     }
 
@@ -71,6 +76,9 @@ public class EnvoyServiceRegistryServiceImpl implements IEnvoyServiceRegistrySer
 
     private List<String> getRegistry(long virtualGwId){
         VirtualGatewayDto virtualGatewayDto = iVirtualGatewayInfoService.get(virtualGwId);
+        if(StringUtils.equalsAnyIgnoreCase(virtualGatewayDto.getProtocol(), BaseConst.SCHEME_TCP, BaseConst.SCHEME_UDP)){
+            return Lists.newArrayList(RegistryCenterEnum.Kubernetes.getType());
+        }
         GatewayDto gatewayDto = gatewayService.get(virtualGatewayDto.getGwId());
         Map<String, Object> params = Maps.newHashMap();
         params.put("Action", "GetRegistryList");

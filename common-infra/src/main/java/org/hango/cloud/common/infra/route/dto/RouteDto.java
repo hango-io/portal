@@ -64,6 +64,9 @@ public class RouteDto extends RouteMatchDto {
     @JSONField(name = "VirtualGwName")
     private String virtualGwName;
 
+    @JSONField(name = "VirtualGwType")
+    private String virtualGwType;
+
     @JSONField(name = "VirtualGwCode")
     private String virtualGwCode;
 

@@ -1,8 +1,10 @@
 package org.hango.cloud.common.infra.plugin.dao;
 
 
-import org.hango.cloud.common.infra.base.dao.IBaseDao;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.hango.cloud.common.infra.base.dao.ICommonDao;
 import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfoQuery;
 
 import java.util.List;
 
@@ -11,10 +13,16 @@ import java.util.List;
  *
  * @author hzchenzhongyang 2020-04-08
  */
-public interface IPluginTemplateDao extends IBaseDao<PluginTemplateInfo> {
-    List<PluginTemplateInfo> getPluginTemplateInfoList(long projectId, String pluginType, long offset, long limit);
+public interface IPluginTemplateDao extends ICommonDao<PluginTemplateInfo> {
 
-    long getPluginTemplateInfoCount(long projectId);
+    /**
+     * 分页查询插件模板信息
+     */
+    Page<PluginTemplateInfo> getPluginTemplateInfoPage(PluginTemplateInfoQuery query);
 
-    List<PluginTemplateInfo> batchGet(List<Long> templateId);
+
+    /**
+     * 查询插件模板列表
+     */
+    List<PluginTemplateInfo> getPluginTemplateInfoList(PluginTemplateInfoQuery query);
 }

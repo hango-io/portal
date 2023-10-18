@@ -1,6 +1,8 @@
 package org.hango.cloud.common.infra.serviceproxy.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hango.cloud.common.infra.healthcheck.dto.ActiveHealthCheckRuleDto;
@@ -16,6 +18,8 @@ import java.io.Serializable;
  * @author TC_WANG
  * @date 2020/2/3 上午10:34.
  */
+@Getter
+@Setter
 public class ServiceTrafficPolicyDto implements Serializable {
 
     /**
@@ -24,6 +28,10 @@ public class ServiceTrafficPolicyDto implements Serializable {
     @Valid
     @JSONField(name = "LoadBalancer")
     private ServiceLoadBalancerDto loadBalancer;
+
+    @Valid
+    @JSONField(name = "SessionState")
+    private SessionStateDto sessionState;
 
     /**
      * 主动健康检查
@@ -44,37 +52,6 @@ public class ServiceTrafficPolicyDto implements Serializable {
     @JSONField(name = "ConnectionPool")
     private ServiceConnectionPoolDto connectionPoolDto;
 
-    public ServiceLoadBalancerDto getLoadBalancer() {
-        return loadBalancer;
-    }
-
-    public void setLoadBalancer(ServiceLoadBalancerDto loadBalancer) {
-        this.loadBalancer = loadBalancer;
-    }
-
-    public ServiceConnectionPoolDto getConnectionPoolDto() {
-        return connectionPoolDto;
-    }
-
-    public void setConnectionPoolDto(ServiceConnectionPoolDto connectionPoolDto) {
-        this.connectionPoolDto = connectionPoolDto;
-    }
-
-    public ActiveHealthCheckRuleDto getActiveHealthCheckRule() {
-        return activeHealthCheckRule;
-    }
-
-    public void setActiveHealthCheckRule(ActiveHealthCheckRuleDto activeHealthCheckRule) {
-        this.activeHealthCheckRule = activeHealthCheckRule;
-    }
-
-    public PassiveHealthCheckRuleDto getPassiveHealthCheckRule() {
-        return passiveHealthCheckRule;
-    }
-
-    public void setPassiveHealthCheckRule(PassiveHealthCheckRuleDto passiveHealthCheckRule) {
-        this.passiveHealthCheckRule = passiveHealthCheckRule;
-    }
 
     @Override
     public String toString() {

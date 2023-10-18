@@ -8,7 +8,6 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.serviceproxy.convert.ServiceProxyConvert;
 import org.hango.cloud.common.infra.serviceproxy.dto.BackendServiceWithPortDto;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
@@ -19,6 +18,7 @@ import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +54,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(result);
     }
 
-    @Audit(eventName = "CreateService", description = "创建服务")
     @RequestMapping(params = {"Action=CreateService"}, method = RequestMethod.POST)
     public String publishService(@Validated @RequestBody ServiceProxyDto serviceProxyDto) {
         logger.info("发布服务至网关，服务发布信息ServiceProxyDto:{}", serviceProxyDto);
@@ -68,7 +67,6 @@ public class ServiceProxyController extends AbstractController {
         return apiReturnSuccess(id);
     }
 
-    @Audit(eventName = "UpdateService", description = "更新服务")
     @RequestMapping(params = {"Action=UpdateService"}, method = RequestMethod.POST)
     public String updatePublishService(@Validated @RequestBody ServiceProxyUpdateDto serviceProxyUpdateDto) {
         logger.info("更新服务发布信息ServiceProxyDto:{}", serviceProxyUpdateDto);
@@ -122,7 +120,9 @@ public class ServiceProxyController extends AbstractController {
         logger.info("查询service proxy 详情,查询条件为 {}", id);
         ServiceProxyDto serviceProxyDto = serviceProxyService.get(id);
         serviceProxyService.fillServiceHealthStatus(serviceProxyDto);
-        serviceProxyService.fillServicePort(serviceProxyDto);
+        if (CollectionUtils.isEmpty(serviceProxyDto.getPort())){
+            serviceProxyService.fillServicePort(serviceProxyDto);
+        }
         return apiReturnSuccess(serviceProxyDto);
     }
 

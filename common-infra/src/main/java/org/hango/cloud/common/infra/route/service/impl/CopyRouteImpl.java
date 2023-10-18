@@ -3,9 +3,10 @@ package org.hango.cloud.common.infra.route.service.impl;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
-import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.common.infra.route.dto.CopyRouteDTO;
 import org.hango.cloud.common.infra.route.dto.DestinationDto;
@@ -57,20 +58,21 @@ public class CopyRouteImpl implements ICopyRoute {
             return CommonErrorCode.ROUTE_RULE_NOT_PUBLISHED;
         }
 
-        Long serviceId = routeDto.getServiceIds().get(0);
-        ServiceProxyDto serviceProxy = serviceProxyService.get(serviceId);
-        if (serviceProxy == null) {
-            logger.error("复制路由，路由关联服务未发布到源网关");
-            return CommonErrorCode.SERVICE_NOT_PUBLISHED;
-        }
-
-        if (!serviceProxy.getProtocol().equalsIgnoreCase(SCHEME_HTTP)) {
-            logger.error("复制路由，路由关联服务非HTTP类型，关联的服务协议: {}", serviceProxy.getProtocol());
-            return CommonErrorCode.COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE;
-        }
-
-        Set<String> originHostList = serviceProxyService.getUniqueHostListFromServiceIdList(routeDto.getServiceIds());
+        List<Long> serviceIdList = routeDto.getServiceIds();
         VirtualGatewayDto targetVirtualGw = virtualGatewayService.get(desGwId);
+        if (BaseConst.LOAD_BALANCE.equalsIgnoreCase(targetVirtualGw.getType()) && serviceIdList.size() != 1) {
+            // 负载均衡网关仅支持单服务路由复制
+            return CommonErrorCode.COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE;
+        }
+        for (Long serviceId : serviceIdList) {
+            // 服务校验（服务是否存在，服务协议等）
+            ErrorCode serviceErrCode = checkService(serviceId);
+            if (!CommonErrorCode.SUCCESS.equals(serviceErrCode)) {
+                return serviceErrCode;
+            }
+        }
+
+        Set<String> originHostList = serviceProxyService.getUniqueHostListFromServiceIdList(serviceIdList);
         List<DomainInfoDTO> domainInfos = targetVirtualGw.getDomainInfos();
         Set<String> targetVirtualGwHostList = domainInfos.stream().map(DomainInfoDTO::getHost).collect(Collectors.toSet());
         if (!targetVirtualGwHostList.containsAll(originHostList)) {
@@ -90,6 +92,20 @@ public class CopyRouteImpl implements ICopyRoute {
 //                return CommonErrorCode.SERVICE_NOT_PUBLISHED;
 //            }
 //        }
+        return CommonErrorCode.SUCCESS;
+    }
+
+    private ErrorCode checkService(Long serviceId) {
+        ServiceProxyDto serviceProxy = serviceProxyService.get(serviceId);
+        if (serviceProxy == null) {
+            logger.error("复制路由，路由关联服务未发布到源网关, serviceId: {}", serviceId);
+            return CommonErrorCode.SERVICE_NOT_PUBLISHED;
+        }
+
+        if (!serviceProxy.getProtocol().equalsIgnoreCase(SCHEME_HTTP)) {
+            logger.error("复制路由，路由关联服务非HTTP类型，serviceId: {}, 关联的服务协议: {}", serviceId, serviceProxy.getProtocol());
+            return CommonErrorCode.COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE;
+        }
         return CommonErrorCode.SUCCESS;
     }
 
@@ -216,8 +232,8 @@ public class CopyRouteImpl implements ICopyRoute {
             logger.error("copyRoutePlugins targetRoute is null");
             return;
         }
-        List<PluginBindingDto> alreadyBindingPlugins = pluginInfoService.getPluginBindingList(originGwId, String.valueOf(originRoute.getId()),
-                PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+        List<PluginBindingDto> alreadyBindingPlugins = pluginInfoService.getPluginBindingList(originGwId, originRoute.getId(),
+                BindingObjectTypeEnum.ROUTE.getValue());
 
         //先清除目标网关对应路由的全部路由插件
         deleteDestGwRoutePlugins(targetRoute.getId(), desGwId);
@@ -239,8 +255,7 @@ public class CopyRouteImpl implements ICopyRoute {
     }
 
     private void deleteDestGwRoutePlugins(long routeRuleId, long desGwId) {
-        List<PluginBindingDto> alreadyBindingPluginDes = pluginInfoService.getPluginBindingList(desGwId, String.valueOf(routeRuleId),
-                PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE);
+        List<PluginBindingDto> alreadyBindingPluginDes = pluginInfoService.getPluginBindingList(desGwId, routeRuleId, BindingObjectTypeEnum.ROUTE.getValue());
         alreadyBindingPluginDes.forEach(item -> pluginInfoService.delete(item));
     }
 }

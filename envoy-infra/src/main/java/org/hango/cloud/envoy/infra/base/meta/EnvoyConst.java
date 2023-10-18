@@ -12,9 +12,6 @@ public class EnvoyConst {
     /**
      * 项目名称
      */
-    public static final String PROJECT_CODE = "projectCode";
-    public static final String HOST_BINDING_TYPE = "host";
-    public static final String PROJECT_BINDING_TYPE = "project";
 
     public static final String MODULE_API_PLANE = "apigw-api-plane";
 
@@ -35,4 +32,9 @@ public class EnvoyConst {
      */
     public static final Integer PLUGIN_STATE_DISABLE = 0;
     public static final Integer PLUGIN_STATE_ENABLE = 1;
+
+
+    public static final String FILE = "file";
+
+    public static final String OCI = "oci";
 }

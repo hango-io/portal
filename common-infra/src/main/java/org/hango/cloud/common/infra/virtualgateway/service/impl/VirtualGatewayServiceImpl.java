@@ -6,12 +6,15 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
+import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
+import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
+import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dao.IVirtualGatewayDao;
 import org.hango.cloud.common.infra.virtualgateway.dto.GatewaySettingDTO;
@@ -59,7 +62,6 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
     @Autowired
     private IServiceProxyService serviceProxyService;
 
-    public static final String LOAD_BALANCE = "LoadBalance";
 
 
     @Override
@@ -165,6 +167,10 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         if(gatewayDto == null){
             return virtualGatewayDto;
         }
+        virtualGatewayDto.setPublishServiceCount(serviceProxyService.countServiceProxy(ServiceProxyQuery.builder()
+                .virtualGwId(virtualGateway.getId())
+                .projectId(ProjectTraceHolder.getProId())
+                .build()));
         virtualGatewayDto.setConfAddr(gatewayDto.getConfAddr());
         virtualGatewayDto.setGwType(gatewayDto.getType());
         virtualGatewayDto.setGwClusterName(gatewayDto.getGwClusterName());
@@ -189,7 +195,11 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
         virtualGateway.setType(virtualGatewayDto.getType());
         virtualGateway.setAddr(virtualGatewayDto.getAddr());
         List<Long> projectIdList = virtualGatewayDto.getProjectIdList();
-        virtualGateway.setProjectId(projectIdList.stream().map(Object::toString).collect(Collectors.joining(",")));
+        if (CollectionUtils.isEmpty(projectIdList)) {
+            virtualGateway.setProjectId(StringUtils.EMPTY);
+        }else {
+            virtualGateway.setProjectId(projectIdList.stream().map(Object::toString).collect(Collectors.joining(",")));
+        }
         List<DomainInfoDTO> domainInfos = virtualGatewayDto.getDomainInfos();
         if (!CollectionUtils.isEmpty(domainInfos)){
             virtualGateway.setDomainId(domainInfos.stream().map(DomainInfoDTO::getId).map(Object::toString).collect(Collectors.joining(",")));
@@ -333,7 +343,7 @@ public class VirtualGatewayServiceImpl implements IVirtualGatewayInfoService {
             return true;
         }
 
-        return !virtualGateway.getType().equalsIgnoreCase(LOAD_BALANCE);
+        return !virtualGateway.getType().equalsIgnoreCase(BaseConst.LOAD_BALANCE);
     }
 
 

@@ -7,7 +7,6 @@ import org.hango.cloud.common.infra.gateway.dao.IGatewayDao;
 import org.hango.cloud.common.infra.gateway.dto.GatewayDto;
 import org.hango.cloud.common.infra.gateway.meta.Gateway;
 import org.hango.cloud.common.infra.gateway.service.IGatewayService;
-import org.hango.cloud.common.infra.virtualgateway.dto.VirtualGatewayDto;
 import org.hango.cloud.common.infra.virtualgateway.service.IVirtualGatewayInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +55,6 @@ public class GatewayServiceImpl implements IGatewayService {
         gateway.setModifyTime(System.currentTimeMillis());
         gateway.setName(gatewayDto.getName());
         gateway.setDescription(gatewayDto.getDescription());
-        gateway.setConfAddr(gatewayDto.getConfAddr());
-        gateway.setGwClusterName(gatewayDto.getGwClusterName());
         return gatewayDao.update(gateway);
     }
 
@@ -196,15 +193,6 @@ public class GatewayServiceImpl implements IGatewayService {
         Optional<GatewayDto> nameCheck = gatewayDtoList.stream().filter(g -> g.getId() != gatewayDto.getId() && g.getName().equals(gatewayDto.getName())).findFirst();
         if (nameCheck.isPresent()) {
             return CommonErrorCode.GW_NAME_ALREADY_EXIST;
-        }
-        return CommonErrorCode.SUCCESS;
-    }
-
-    @Override
-    public ErrorCode checkDeleteParam(GatewayDto gatewayDto) {
-        List<VirtualGatewayDto> virtualGatewayList = virtualGatewayInfoService.getVirtualGatewayList(Collections.singletonList(gatewayDto.getId()));
-        if ( CollectionUtils.isEmpty(virtualGatewayList)) {
-            return CommonErrorCode.CANNOT_DELETE_GATEWAY;
         }
         return CommonErrorCode.SUCCESS;
     }

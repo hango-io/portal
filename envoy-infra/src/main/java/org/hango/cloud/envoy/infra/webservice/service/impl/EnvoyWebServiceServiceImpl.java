@@ -6,24 +6,18 @@ import com.hubspot.jinjava.Jinjava;
 import com.predic8.schema.Element;
 import com.predic8.soamodel.ModelAccessException;
 import com.predic8.soamodel.ValidationError;
-import com.predic8.wsdl.Binding;
-import com.predic8.wsdl.BindingOperation;
-import com.predic8.wsdl.Definitions;
-import com.predic8.wsdl.Message;
-import com.predic8.wsdl.Port;
-import com.predic8.wsdl.Service;
-import com.predic8.wsdl.WSDLParser;
-import com.predic8.wsdl.WSDLParserContext;
+import com.predic8.wsdl.*;
 import com.predic8.xml.util.ResourceDownloadException;
 import groovy.xml.MarkupBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.holder.ProjectTraceHolder;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
 import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
 import org.hango.cloud.dashboard.webservice.SoapCreatorContext;
 import org.hango.cloud.dashboard.webservice.SoapRequestCreator;
@@ -47,15 +41,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_ROUTE_RULE;
+import static org.hango.cloud.common.infra.base.meta.BaseConst.ENABLE_STATE;
 
 @org.springframework.stereotype.Service
 public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
@@ -212,10 +201,9 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
 
         // 更新插件配置
         boolean pluginBindingUpdateResult;
-        PluginBindingDto oldPluginBindingInfo = getWsPluginBindingInfo(virtualGwId, serviceId, routeId);
-        PluginBindingInfo pluginBindingInfo = createEnvoyPluginBindingInfo(virtualGwId, serviceId, routeId, pluginConfiguration);
+        PluginBindingDto oldPluginBindingInfo = getWsPluginBindingInfo(virtualGwId, routeId);
+        PluginBindingInfo pluginBindingInfo = createEnvoyPluginBindingInfo(virtualGwId, routeId, pluginConfiguration);
         if (Objects.nonNull(oldPluginBindingInfo)) {
-            oldPluginBindingInfo.setUpdateTime(pluginBindingInfo.getUpdateTime());
             oldPluginBindingInfo.setPluginConfiguration(pluginBindingInfo.getPluginConfiguration());
             pluginBindingUpdateResult = pluginInfoService.update(oldPluginBindingInfo) != BaseConst.ERROR_RESULT;
         } else {
@@ -247,7 +235,7 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
 
     @Override
     public ErrorCode deleteRouteProxyWsParam(long virtualGwId, long serviceId, long routeId) {
-        PluginBindingDto wsPluginBindingInfo = getWsPluginBindingInfo(virtualGwId, serviceId, routeId);
+        PluginBindingDto wsPluginBindingInfo = getWsPluginBindingInfo(virtualGwId, routeId);
         if (Objects.isNull(wsPluginBindingInfo)) {
             return EnvoyErrorCode.ROUTE_WS_PLUGIN_NON_EXIST;
         }
@@ -405,16 +393,16 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
         }).collect(Collectors.toList());
     }
 
-    private PluginBindingInfo createEnvoyPluginBindingInfo(long virtualGwId, long serviceId, long routeId, String pluginConfiguration) {
+    private PluginBindingInfo createEnvoyPluginBindingInfo(long virtualGwId, long routeId, String pluginConfiguration) {
         PluginBindingInfo out = new PluginBindingInfo();
         long createAndModifyDate = System.currentTimeMillis();
         out.setVirtualGwId(virtualGwId);
-        out.setBindingObjectType(BINDING_OBJECT_TYPE_ROUTE_RULE);
+        out.setBindingObjectType(BindingObjectTypeEnum.ROUTE.getValue());
         out.setBindingObjectId(String.valueOf(routeId));
         out.setCreateTime(createAndModifyDate);
         out.setUpdateTime(createAndModifyDate);
         out.setPluginConfiguration(pluginConfiguration);
-        out.setBindingStatus(PluginBindingInfo.BINDING_STATUS_ENABLE);
+        out.setBindingStatus(ENABLE_STATE);
         out.setProjectId(ProjectTraceHolder.getProId());
         out.setPluginType(WS_PLUGIN_TYPE);
         return out;
@@ -424,16 +412,22 @@ public class EnvoyWebServiceServiceImpl implements IEnvoyWebServiceService {
      * 获取路由上绑定的webservice插件
      *
      * @param virtualGwId      网关id
-     * @param serviceId 服务id
      * @param routeId   路由id
      * @return webservice插件信息
      */
-    private PluginBindingDto getWsPluginBindingInfo(long virtualGwId, long serviceId, long routeId) {
-        List<PluginBindingDto> pluginBindingInfoList = pluginInfoService.getBindingPluginList(virtualGwId, ProjectTraceHolder.getProId(), String.valueOf(routeId), BINDING_OBJECT_TYPE_ROUTE_RULE, WS_PLUGIN_TYPE, NumberUtils.LONG_ZERO, NumberUtils.LONG_ONE, "id", "desc");
-        if (Objects.nonNull(pluginBindingInfoList) && pluginBindingInfoList.size() > 0) {
-            return pluginBindingInfoList.get(0);
+    private PluginBindingDto getWsPluginBindingInfo(long virtualGwId, long routeId) {
+        PluginBindingInfoQuery query = PluginBindingInfoQuery.builder()
+                .virtualGwId(virtualGwId)
+                .projectId(ProjectTraceHolder.getProId())
+                .bindingObjectId(String.valueOf(routeId))
+                .bindingObjectType(BindingObjectTypeEnum.ROUTE.getValue())
+                .pattern(WS_PLUGIN_TYPE)
+                .build();
+        List<PluginBindingDto> bindingPluginInfoList = pluginInfoService.getBindingPluginInfoList(query);
+        if (CollectionUtils.isEmpty(bindingPluginInfoList)) {
+            return null;
         }
-        return null;
+        return bindingPluginInfoList.get(0);
     }
 
     /**

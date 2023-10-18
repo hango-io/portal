@@ -11,14 +11,13 @@ public class PluginOrderItemDto {
 
     private String name;
 
-    private String subName;
 
     private Integer port;
 
     private Object inline;
 
-    private Object rider;
+    private RiderDTO rider;
 
-    private String operate;
+    private RiderDTO wasm;
 
 }

@@ -532,3 +532,5 @@ CREATE TABLE IF NOT EXISTS `hango_virtual_gateway` (
 )
 comment 'pb文件服务信息表';
 
+CREATE ALIAS IF NOT EXISTS FIND_IN_SET FOR "org.mvnsearch.h2.mysql.StringFunctions.findInSet";
+

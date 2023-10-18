@@ -89,6 +89,12 @@ public class ServiceProxyDto extends CommonExtensionDto implements Serializable 
     private long virtualGwId;
 
     /**
+     * 服务发布指定的虚拟网关类型
+     */
+    @JSONField(name = "VirtualGwType")
+    private String virtualGwType;
+
+    /**
      * 服务发布指定的网关类型
      */
     @JSONField(name = "GwType")

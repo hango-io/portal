@@ -4,7 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import org.hango.cloud.common.infra.base.dto.CommonExtensionDto;
-import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Pattern;
@@ -40,7 +39,7 @@ public class DomainInfoDTO extends CommonExtensionDto implements Serializable {
     /**
      * 协议 HTTP/HTTPS
      */
-    @Pattern(regexp = BaseConst.PROTOCOL_SCHEME_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE)
+    @NotBlank
     @JSONField(name = "Protocol")
     private String protocol;
 

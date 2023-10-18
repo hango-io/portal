@@ -4,9 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @ClassName DescribeCustomPluginDtoResult
  * @Description 插件详情
@@ -46,6 +43,18 @@ public class DescribeCustomPluginDto {
      */
     @JSONField(name = "SourceType")
     private String sourceType;
+
+    /**
+     * 脚本类型
+     */
+    @JSONField(name = "SourceUrl")
+    private String sourceUrl;
+
+    /**
+     * secretName
+     */
+    @JSONField(name = "SecretName")
+    private String secretName;
     /**
      * 脚本内容
      */
@@ -64,7 +73,7 @@ public class DescribeCustomPluginDto {
     private String pluginScope;
 
     /**
-     * 插件作用域:online（上架）、offline（下架）
+     * 插件状态:online（上架）、offline（下架）
      */
     @JSONField(name = "PluginStatus")
     private String pluginStatus;
@@ -82,7 +91,7 @@ public class DescribeCustomPluginDto {
     private String author;
 
     /**
-     * 插件修改时间
+     * 插件创建时间
      */
     @JSONField(name = "CreateTime")
     private Long createTime;
@@ -92,23 +101,4 @@ public class DescribeCustomPluginDto {
      */
     @JSONField(name = "UpdateTime")
     private Long updateTime;
-
-    @Override
-    public String toString() {
-        return "DescribeCustomPluginDto{" +
-                "id=" + id +
-                ", pluginType='" + pluginType + '\'' +
-                ", pluginName='" + pluginName + '\'' +
-                ", description='" + description + '\'' +
-                ", language='" + language + '\'' +
-                ", sourceType='" + sourceType + '\'' +
-                ", sourceContent='" + sourceContent + '\'' +
-                ", pluginCategory='" + pluginCategory + '\'' +
-                ", pluginScope='" + pluginScope + '\'' +
-                ", pluginStatus='" + pluginStatus + '\'' +
-                ", schemaContent='" + schemaContent + '\'' +
-                ", author='" + author + '\'' +
-                ", updateTime=" + updateTime +
-                '}';
-    }
 }

@@ -6,7 +6,6 @@ import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.meta.Result;
 import org.hango.cloud.common.infra.healthcheck.dto.HealthCheckRuleDto;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.envoy.infra.healthcheck.dto.EnvoyServiceInstanceDto;
@@ -39,7 +38,6 @@ public class EnvoyHealthCheckController extends AbstractController {
     @Autowired
     private IServiceProxyService serviceProxyService;
 
-    @Audit(eventName = "UpdateHealthCheckRule", description = "更新服务健康检查规则")
     @RequestMapping(params = {"Action=UpdateHealthCheckRule"}, method = RequestMethod.POST)
     public String updateHealthCheckRule(@Validated @RequestBody HealthCheckRuleDto healthCheckRuleDto) {
         logger.info("更新服务健康检查规则，healthCheckRuleDto:{}", healthCheckRuleDto);

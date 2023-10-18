@@ -42,6 +42,9 @@ public class EnvoyCommonUtil {
     }
 
     public static String file2Str(MultipartFile file) {
+        if (file == null) {
+            return StringUtils.EMPTY;
+        }
         try {
             return new String(file.getBytes());
         } catch (Exception e) {

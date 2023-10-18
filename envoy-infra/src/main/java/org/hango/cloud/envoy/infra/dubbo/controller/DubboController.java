@@ -7,7 +7,6 @@ import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.ApiConst;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
-import org.hango.cloud.common.infra.operationaudit.annotation.Audit;
 import org.hango.cloud.envoy.infra.dubbo.dto.DubboBindingDto;
 import org.hango.cloud.envoy.infra.dubbo.dto.DubboMetaDto;
 import org.hango.cloud.envoy.infra.dubbo.service.IDubboBindingService;
@@ -48,7 +47,6 @@ public class DubboController extends AbstractController {
      * @return
      */
     @PostMapping(params = {"Action=PublishDubbo", "Version=2020-10-29"})
-    @Audit(eventName = "PublishEnvoyDubbo", description = "路由Dubbo转换发布")
     public String publishEnvoyDubbo(@RequestBody @Validated DubboBindingDto dubboBindingDto) {
         logger.info("进行路由Dubbo转换发布操作，关联类型：{} ,关联ID：{} ", dubboBindingDto.getObjectType(), dubboBindingDto.getObjectId());
         ErrorCode errorCode = dubboBindingService.checkAndComplete(dubboBindingDto);
@@ -71,7 +69,6 @@ public class DubboController extends AbstractController {
      * @return
      */
     @GetMapping(params = {"Action=OfflineDubbo", "Version=2020-10-29"})
-    @Audit(eventName = "OfflineEnvoyDubbo", description = "路由Dubbo转换下线")
     public String offlineEnvoyDubbo(@RequestParam(value = "ObjectId") long objectId,
                                     @RequestParam(value = "ObjectType", required = false, defaultValue = ApiConst.ROUTE) String objectType) {
         logger.info("进行路由Dubbo转换下线操作，，关联类型：{} ,关联ID：{}", objectType, objectId);

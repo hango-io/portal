@@ -58,6 +58,10 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode EXIST_PUBLISHED_SERVICE = new ErrorCode(ErrorCodeEnum.EXIST_PUBLISHED_SERVICE);
 
+    public static final ErrorCode SERVICE_ALREADY_PUBLISHED = new ErrorCode(ErrorCodeEnum.SERVICE_ALREADY_PUBLISHED);
+
+    public static final ErrorCode TYPE_NOT_MATCH = new ErrorCode(ErrorCodeEnum.TYPE_NOT_MATCH);
+
     public static final ErrorCode EXIST_PUBLISHED_PLUGIN = new ErrorCode(ErrorCodeEnum.EXIST_PUBLISHED_PLUGIN);
 
     public static final ErrorCode EXIST_PUBLISHED_DOMAIN = new ErrorCode(ErrorCodeEnum.EXIST_PUBLISHED_DOMAIN);
@@ -73,7 +77,6 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode SAME_NAME_ROUTE_EXIST = new ErrorCode(ErrorCodeEnum.SAME_NAME_ROUTE_EXIST);
 
-    public static final ErrorCode NO_ROUTE_RULE_PATH = new ErrorCode(ErrorCodeEnum.NO_ROUTE_RULE_PATH);
     public static final ErrorCode ROUTE_PATH_INVALID = new ErrorCode(ErrorCodeEnum.ROUTE_PATH_INVALID);
 
 
@@ -87,8 +90,8 @@ public class CommonErrorCode extends ErrorCode {
     public static final ErrorCode ROUTE_RULE_NOT_PUBLISHED = new ErrorCode(ErrorCodeEnum.ROUTE_RULE_NOT_PUBLISHED);
     public static final ErrorCode COPY_ROUTE_SAME_GW = new ErrorCode(ErrorCodeEnum.COPY_ROUTE_SAME_GW);
     public static final ErrorCode COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE = new ErrorCode(ErrorCodeEnum.COPY_ROUTE_ONLY_SUPPORT_HTTP_SERVICE);
+    public static final ErrorCode COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE = new ErrorCode(ErrorCodeEnum.COPY_ROUTE_TO_LOADBALANCE_ONLY_SUPPORT_ONE_SERVICE);
     public static final ErrorCode GATEWAY_NOT_BINDING_SAME_HOST = new ErrorCode(ErrorCodeEnum.GATEWAY_NOT_BINDING_SAME_HOST);
-    public static final ErrorCode BACKEND_SERVICE_DIFFERENT = new ErrorCode(ErrorCodeEnum.BACKEND_SERVICE_DIFFERENT);
 
     public static final ErrorCode INVALID_TOTAL_WEIGHT = new ErrorCode(ErrorCodeEnum.INVALID_TOTAL_WEIGHT);
 
@@ -96,7 +99,8 @@ public class CommonErrorCode extends ErrorCode {
     public static final ErrorCode INVALID_LABEL = new ErrorCode(ErrorCodeEnum.INVALID_LABEL);
     public static final ErrorCode NO_SUBSET_OF_SERVICE = new ErrorCode(ErrorCodeEnum.NO_SUBSET_OF_SERVICE);
     public static final ErrorCode PROJECT_NOT_ASSOCIATED_GATEWAY = new ErrorCode(ErrorCodeEnum.PROJECT_NOT_ASSOCIATED_GATEWAY);
-    public static final ErrorCode GW_NOT_ASSOCIATED_DOMAIN = new ErrorCode(ErrorCodeEnum.GW_NOT_ASSOCIATED_DOMAIN);
+    public static final ErrorCode DESTINATION_GW_NOT_ASSOCIATED_DOMAIN = new ErrorCode(ErrorCodeEnum.DESTINATION_GW_NOT_ASSOCIATED_DOMAIN);
+    public static final ErrorCode CURRENT_GW_NOT_ASSOCIATED_DOMAIN = new ErrorCode(ErrorCodeEnum.CURRENT_GW_NOT_ASSOCIATED_DOMAIN);
     public static final ErrorCode CANNOT_DELETE_VIRTUAL_GATEWAY = new ErrorCode(ErrorCodeEnum.CANNOT_DELETE_VIRTUAL_GATEWAY);
     public static final ErrorCode ROUTE_HAS_TRAFFIC_MARK_RULES = new ErrorCode(ErrorCodeEnum.ROUTE_HAS_TRAFFIC_MARK_RULES);
 
@@ -108,23 +112,13 @@ public class CommonErrorCode extends ErrorCode {
     /**
      * 负载均衡相关
      */
-    public static final ErrorCode INVALID_SLOW_START_WINDOW = new ErrorCode(ErrorCodeEnum.INVALID_SLOW_START_WINDOW);
-    public static final ErrorCode INVALID_LOAD_BALANCE_TYPE = new ErrorCode(ErrorCodeEnum.INVALID_LOAD_BALANCE_TYPE);
-    public static final ErrorCode INVALID_SIMPLE_LOAD_BALANCE_TYPE = new ErrorCode(ErrorCodeEnum.INVALID_SIMPLE_LOAD_BALANCE_TYPE);
     public static final ErrorCode INVALID_CONSISTENT_HASH_OBJECT = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_OBJECT);
-    public static final ErrorCode INVALID_CONSISTENT_HASH_TYPE = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_TYPE);
     public static final ErrorCode INVALID_CONSISTENT_HASH_HTTP_COOKIE_OBJECT = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_HTTP_COOKIE_OBJECT);
     public static final ErrorCode INVALID_CONSISTENT_HASH_HTTP_COOKIE_NAME = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_HTTP_COOKIE_NAME);
     public static final ErrorCode INVALID_CONSISTENT_HASH_HTTP_COOKIE_TTL = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_HTTP_COOKIE_TTL);
     public static final ErrorCode INVALID_CONSISTENT_HASH_HTTP_HEADER_NAME = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_HTTP_HEADER_NAME);
     public static final ErrorCode INVALID_CONSISTENT_HASH_SOURCE_IP = new ErrorCode(ErrorCodeEnum.INVALID_CONSISTENT_HASH_SOURCE_IP);
-    public static final ErrorCode INVALID_HTTP_1_MAX_PENDING_REQUESTS = new ErrorCode(ErrorCodeEnum.INVALID_HTTP_1_MAX_PENDING_REQUESTS);
-    public static final ErrorCode INVALID_HTTP_2_MAX_REQUESTS = new ErrorCode(ErrorCodeEnum.INVALID_HTTP_2_MAX_REQUESTS);
-    public static final ErrorCode INVALID_IDLE_TIMEOUT = new ErrorCode(ErrorCodeEnum.INVALID_IDLE_TIMEOUT);
-    public static final ErrorCode INVALID_MAX_REQUESTS_PER_CONNECTION = new ErrorCode(ErrorCodeEnum.INVALID_MAX_REQUESTS_PER_CONNECTION);
     public static final ErrorCode CANNOT_UPDATE_SERVICE_NAME = new ErrorCode(ErrorCodeEnum.CANNOT_UPDATE_SERVICE_NAME);
-    public static final ErrorCode INVALID_MAX_CONNECTIONS = new ErrorCode(ErrorCodeEnum.INVALID_MAX_CONNECTIONS);
-    public static final ErrorCode INVALID_CONNECT_TIMEOUT = new ErrorCode(ErrorCodeEnum.INVALID_CONNECT_TIMEOUT);
 
     public static final ErrorCode MIRROR_BY_ROUTE_RULE = new ErrorCode(ErrorCodeEnum.MIRROR_BY_ROUTE_RULE);
 
@@ -132,9 +126,7 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode NO_SUCH_PLUGIN_BINDING = new ErrorCode((ErrorCodeEnum.NO_SUCH_PLUGIN_BINDING));
 
-    public static final ErrorCode EXISTS_PLUGIN_WITH_THE_SAME_NAME = new ErrorCode((ErrorCodeEnum.EXISTS_PLUGIN_WITH_THE_SAME_NAME));
     public static final ErrorCode NO_SUCH_PLUGIN_TEMPLATE = new ErrorCode(ErrorCodeEnum.NO_SUCH_PLUGIN_TEMPLATE);
-    public static final ErrorCode PLUGIN_IS_BOUND = new ErrorCode(ErrorCodeEnum.PLUGIN_IS_BOUND);
 
     public static final ErrorCode SAME_NAME_PLUGIN_TEMPLATE_EXIST = new ErrorCode(ErrorCodeEnum.SAME_NAME_PLUGIN_TEMPLATE_EXIST);
 
@@ -144,14 +136,14 @@ public class CommonErrorCode extends ErrorCode {
 
     public static final ErrorCode ILLEGAL_PLUGIN_TYPE = new ErrorCode((ErrorCodeEnum.ILLEGAL_PLUGIN_TYPE));
 
-    public static final ErrorCode INVALID_API_PATH = new ErrorCode(ErrorCodeEnum.INVALID_API_PATH);
     public static final ErrorCode INVALID_HTTP_STATUS_CODE = new ErrorCode(ErrorCodeEnum.INVALID_HTTP_STATUS_CODE);
 
-    public static final ErrorCode INVALID_CONSECUTIVE_ERRORS = new ErrorCode(ErrorCodeEnum.INVALID_CONSECUTIVE_ERRORS);
-    public static final ErrorCode INVALID_BASE_EJECTION_TIME = new ErrorCode(ErrorCodeEnum.INVALID_BASE_EJECTION_TIME);
-    public static final ErrorCode INVALID_MAX_EJECTION_PRECENT = new ErrorCode(ErrorCodeEnum.INVALID_MAX_EJECTION_PRECENT);
 
     public static final ErrorCode INVALID_PATH = new ErrorCode(ErrorCodeEnum.INVALID_PATH);
+
+    public static final ErrorCode CANNOT_DELETE_ONLINE_API = new ErrorCode(ErrorCodeEnum.CANNOT_DELETE_ONLINE_API);
+
+    public static final ErrorCode NOT_SUPPORT_MULTI_ADDR = new ErrorCode(ErrorCodeEnum.NOT_SUPPORT_MULTI_ADDR);
 
     private CommonErrorCode(ErrorCodeEnum errorCodeEnum, String[] args) {
         super(errorCodeEnum, args);

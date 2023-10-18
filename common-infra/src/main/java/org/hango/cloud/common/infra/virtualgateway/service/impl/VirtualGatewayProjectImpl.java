@@ -1,14 +1,19 @@
 package org.hango.cloud.common.infra.virtualgateway.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.common.infra.base.errorcode.CommonErrorCode;
 import org.hango.cloud.common.infra.base.errorcode.ErrorCode;
 import org.hango.cloud.common.infra.base.meta.BaseConst;
+import org.hango.cloud.common.infra.base.util.CommonUtil;
 import org.hango.cloud.common.infra.domain.dto.DomainBindDTO;
 import org.hango.cloud.common.infra.domain.dto.DomainInfoDTO;
 import org.hango.cloud.common.infra.domain.service.IDomainInfoService;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
+import org.hango.cloud.common.infra.plugin.enums.BindingObjectTypeEnum;
+import org.hango.cloud.common.infra.plugin.meta.PluginBindingInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginInfoService;
+import org.hango.cloud.common.infra.serviceproxy.dto.ServiceProxyDto;
 import org.hango.cloud.common.infra.serviceproxy.meta.ServiceProxyQuery;
 import org.hango.cloud.common.infra.serviceproxy.service.IServiceProxyService;
 import org.hango.cloud.common.infra.virtualgateway.dto.*;
@@ -20,11 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.hango.cloud.common.infra.plugin.meta.PluginBindingInfo.BINDING_OBJECT_TYPE_GLOBAL;
 
 @Service
 public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService {
@@ -90,14 +96,13 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
             Set<Long> projectIds = domainInfos.stream().map(DomainInfoDTO::getProjectId).collect(Collectors.toSet());
             if (projectIds.contains(projectId)){
                 return CommonErrorCode.EXIST_PUBLISHED_DOMAIN;
-
             }
         }
         long publishedServiced = serviceProxyService.countServiceProxy(ServiceProxyQuery.builder().virtualGwId(virtualGwId).projectId(projectId).build());
         if (publishedServiced > 0) {
             return CommonErrorCode.EXIST_PUBLISHED_SERVICE;
         }
-        List<PluginBindingDto> bindingPluginList = pluginInfoService.getPluginBindingList(virtualGwId, String.valueOf(projectId), BINDING_OBJECT_TYPE_GLOBAL);
+        List<PluginBindingDto> bindingPluginList = pluginInfoService.getPluginBindingList(virtualGwId, projectId, BindingObjectTypeEnum.GLOBAL.getValue());
         if (!CollectionUtils.isEmpty(bindingPluginList)) {
             return CommonErrorCode.EXIST_PUBLISHED_PLUGIN;
         }
@@ -180,7 +185,12 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
             return CommonErrorCode.invalidParameter("域名不存在，绑定失败");
         }
         for (DomainInfoDTO domainInfo : domainInfos) {
-            if (!virtualGateway.getProtocol().equalsIgnoreCase(domainInfo.getProtocol())){
+            String domainInfoProtocol = domainInfo.getProtocol();
+            if (StringUtils.isBlank(domainInfoProtocol)){
+                return CommonErrorCode.invalidParameter("域名协议为空，绑定失败");
+            }
+            Set<String> domainProtocolSet = CommonUtil.splitStringToStringSet(domainInfoProtocol, ",");
+            if (!domainProtocolSet.contains(virtualGateway.getProtocol())){
                 return CommonErrorCode.invalidParameter("域名和网关协议不同，绑定失败");
             }
         }
@@ -208,9 +218,16 @@ public class VirtualGatewayProjectImpl implements IVirtualGatewayProjectService 
         VirtualGatewayDto virtualGateway = virtualGatewayInfoService.get(domainBindDTO.getVirtualGwId());
         Set<Long> targetDomain = virtualGateway.getDomainInfos().stream().map(DomainInfoDTO::getId).collect(Collectors.toSet());
         domainBindDTO.getDomainIds().forEach(targetDomain::remove);
-        if (CollectionUtils.isEmpty(targetDomain)
-                && !CollectionUtils.isEmpty(serviceProxyService.getServiceProxyListByVirtualGwId(domainBindDTO.getVirtualGwId()))){
-            return CommonErrorCode.invalidParameter("当前虚拟网关下存在服务，不允许清空域名");
+        if (CollectionUtils.isEmpty(targetDomain)){
+            List<ServiceProxyDto> serviceProxyDtos = serviceProxyService.getServiceProxyListByVirtualGwId(domainBindDTO.getVirtualGwId());
+            if (!CollectionUtils.isEmpty(serviceProxyDtos)){
+                return CommonErrorCode.invalidParameter("当前虚拟网关下存在服务，不允许清空域名");
+            }
+            PluginBindingInfoQuery query = PluginBindingInfoQuery.builder().virtualGwId(domainBindDTO.getVirtualGwId()).build();
+            List<PluginBindingDto> pluginBindingDtos = pluginInfoService.getBindingPluginInfoList(query);
+            if (!CollectionUtils.isEmpty(pluginBindingDtos)){
+                return CommonErrorCode.invalidParameter("当前虚拟网关下存在插件，不允许清空域名");
+            }
         }
         return CommonErrorCode.SUCCESS;
     }

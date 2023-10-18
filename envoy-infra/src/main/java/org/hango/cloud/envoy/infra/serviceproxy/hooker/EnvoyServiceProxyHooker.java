@@ -33,6 +33,8 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
     @Autowired
     private IEnvoyHealthCheckService envoyHealthCheckService;
 
+    private ThreadLocal<Boolean> isRefreshSessionStatus = new ThreadLocal<>();
+
 
     @Override
     public int getOrder() {
@@ -49,6 +51,7 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
 
     @Override
     protected void preUpdateHook(ServiceProxyDto serviceProxyDto) {
+        isRefreshSessionStatus.set(envoyServiceProxyService.needRefreshSessionStatus(serviceProxyDto));
         if (!envoyServiceProxyService.refreshRouteHost(serviceProxyDto.getVirtualGwId(), serviceProxyDto.getId(), serviceProxyDto.getHosts())){
             throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
@@ -57,7 +60,15 @@ public class EnvoyServiceProxyHooker extends AbstractServiceProxyHooker<ServiceP
         }
     }
 
-
+    @Override
+    protected Object postUpdateHook(Object returnData) {
+        ServiceProxyDto service = MethodAroundHolder.getNextParam(ServiceProxyDto.class);
+        if (isRefreshSessionStatus.get() && !envoyServiceProxyService.refreshRouteSessionStatus(service)) {
+            throw new ErrorCodeException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        isRefreshSessionStatus.remove();
+        return returnData;
+    }
     @Override
     protected void preDeleteHook(ServiceProxyDto serviceProxyDto) {
         if (!envoyServiceProxyService.offlineToGateway(serviceProxyDto)) {

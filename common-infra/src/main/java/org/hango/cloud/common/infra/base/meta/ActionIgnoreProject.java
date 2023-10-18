@@ -22,6 +22,7 @@ public enum ActionIgnoreProject {
     DescribeSwaggerApiById,
     DescribeSwaggerServiceById,
     DescribeGatewayInfoCount,
+    RefreshEngineRule,
     HasResourceRemain;
 
     ActionIgnoreProject() {

@@ -59,11 +59,11 @@ public class EnvoyRouteBuilderService {
     @Autowired
     private IDomainInfoService domainInfoService;
 
-    public JSONObject buildRouteInfo(RouteDto routeDto, List<String> pluginConfigurations) {
+    public JSONObject buildRouteInfo(RouteDto routeDto) {
         VirtualGatewayDto virtualGatewayDto = virtualGatewayInfoService.get(routeDto.getVirtualGwId());
         List<ServiceProxyDto> serviceProxyDtoList = serviceProxyService.getServiceByIds(routeDto.getServiceIds());
         //构建基本信息
-        JSONObject body = buildBaseInfo(routeDto, pluginConfigurations, virtualGatewayDto);
+        JSONObject body = buildBaseInfo(routeDto, virtualGatewayDto);
         //构建header信息
         buildHeaderInfo(body, routeDto);
         //构建服务实例
@@ -75,10 +75,12 @@ public class EnvoyRouteBuilderService {
         buildMirrorTraffic(body, routeDto.getMirrorTraffic(), routeDto.getMirrorSwitch());
         //构建dubbo meta信息
         body.put("MetaMap", processRouteMetadata(virtualGatewayDto, serviceProxyDtoList, routeDto));
+
+        buildExtensionInfo(body, routeDto);
         return body;
     }
 
-    private JSONObject buildBaseInfo(RouteDto routeDto, List<String> pluginConfigurations, VirtualGatewayDto virtualGatewayDto) {
+    private JSONObject buildBaseInfo(RouteDto routeDto, VirtualGatewayDto virtualGatewayDto) {
         JSONObject body = new JSONObject();
         body.put("Gateway", CommonUtil.genGatewayStrForRoute(virtualGatewayDto));
         body.put("Code", routeDto.getName());
@@ -89,7 +91,6 @@ public class EnvoyRouteBuilderService {
         body.put("Hosts", hosts);
         body.put("RequestUris", routeDto.getUriMatchDto().getValue());
         body.put("UriMatch", routeDto.getUriMatchDto().getType());
-        body.put("Plugins", pluginConfigurations);
         body.put("Order", routeDto.getOrders());
         body.put("ProjectId", routeDto.getProjectId());
         body.put("Methods", routeDto.getMethod());
@@ -114,6 +115,25 @@ public class EnvoyRouteBuilderService {
         body.put("Headers", toApiPlaneStringMatchDto(headers));
     }
 
+    /**
+     * 如果
+     * @see RouteDto#getExtension() 是一个Map结构，那么将其传入到api-plane中
+     * 此种设计基于开闭原则， 尽量减少历史代码的改动，避免造成Bug
+     *
+     * case 1: 在L4服务发布生成默认VS时，由于服务、路由同时发布，此时服务信息还未真正在数据库生成，而导致的
+     * @see EnvoyRouteBuilderService#buildDestinationServices 无法使用而产生的空Destination问题
+     * 此时需要通过Extension将数据传入。
+     *
+     * case 2: ...
+     * @param body
+     * @param routeDto
+     */
+    private void buildExtensionInfo(JSONObject body, RouteDto routeDto) {
+        Object extension = routeDto.getExtension();
+        if (extension != null && extension instanceof Map) {
+            body.putAll((Map) extension);
+        }
+    }
 
     private void buildDestinationServices(JSONObject body, List<DestinationDto> destinationDtos) {
         List<JSONObject> proxyServices = destinationDtos.stream().map(destinationInfo -> {

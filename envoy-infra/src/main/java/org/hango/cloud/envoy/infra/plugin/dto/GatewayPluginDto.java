@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.collect.Lists;
 import org.hango.cloud.common.infra.base.meta.CommonExtension;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,14 +26,14 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
     @JSONField(name = "Gateway")
     private String gateway;
 
-    @JSONField(name = "PluginType")
-    private String pluginType;
+    @JSONField(name = "GwCluster")
+    private String gwCluster;
 
     /**
-     * 路由插件名称标识的一部分
+     * 插件作用域
      */
-    @JSONField(name = "RouteId")
-    private String routeId;
+    @JSONField(name = "PluginScope")
+    private String pluginScope;
 
     /**
      * 全局插件名称
@@ -58,6 +59,7 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
     @JSONField(serialize = false)
     private Long bindingObjectId;
 
+
     /**
      * 插件绑定的对象类型（是项目还是路由）
      */
@@ -75,12 +77,14 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
         this.plugins = plugins;
     }
 
-    public GatewayPluginDto setPlugin(String plugin) {
+    public void setPlugin(String plugin) {
+        if (StringUtils.isEmpty(plugin)) {
+            return;
+        }
         if(CollectionUtils.isEmpty(plugins)){
             plugins = Lists.newArrayList();
         }
         plugins.add(plugin);
-        return this;
     }
 
     public List<String> getHosts() {
@@ -91,12 +95,12 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
         this.hosts = hosts;
     }
 
-    public String getRouteId() {
-        return routeId;
+    public String getPluginScope() {
+        return pluginScope;
     }
 
-    public void setRouteId(String routeId) {
-        this.routeId = routeId;
+    public void setPluginScope(String pluginScope) {
+        this.pluginScope = pluginScope;
     }
 
     public String getGateway() {
@@ -105,6 +109,14 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
 
     public void setGateway(String gateway) {
         this.gateway = gateway;
+    }
+
+    public String getGwCluster() {
+        return gwCluster;
+    }
+
+    public void setGwCluster(String gwCluster) {
+        this.gwCluster = gwCluster;
     }
 
     public String getCode() {
@@ -123,13 +135,6 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
         this.addr = addr;
     }
 
-    public String getPluginType() {
-        return pluginType;
-    }
-
-    public void setPluginType(String pluginType) {
-        this.pluginType = pluginType;
-    }
 
     public Integer getPort() {
         return port;
@@ -162,4 +167,5 @@ public class GatewayPluginDto extends CommonExtension implements Serializable {
     public void setBindingObjectType(String bindingObjectType) {
         this.bindingObjectType = bindingObjectType;
     }
+
 }

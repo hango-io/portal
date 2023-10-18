@@ -1,5 +1,6 @@
 package org.hango.cloud.common.infra.plugin.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import org.apache.http.HttpStatus;
 import org.hango.cloud.common.infra.base.controller.AbstractController;
@@ -10,6 +11,8 @@ import org.hango.cloud.common.infra.base.meta.BaseConst;
 import org.hango.cloud.common.infra.plugin.dto.PluginBindingDto;
 import org.hango.cloud.common.infra.plugin.dto.PluginTemplateDto;
 import org.hango.cloud.common.infra.plugin.dto.SyncPluginTemplateDto;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfo;
+import org.hango.cloud.common.infra.plugin.meta.PluginTemplateInfoQuery;
 import org.hango.cloud.common.infra.plugin.service.IPluginTemplateService;
 import org.hango.cloud.gdashboard.api.util.Const;
 import org.slf4j.Logger;
@@ -24,6 +27,7 @@ import javax.validation.constraints.Min;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 插件模板管理Controller
@@ -101,12 +105,22 @@ public class PluginTemplateController extends AbstractController {
     }
 
     @GetMapping(params = {"Action=DescribePluginTemplates"})
-    public String describeTemplates(@RequestParam(name = "PluginType", required = false) String pluginType, @Min(0) @RequestParam(name = "Offset", required = false, defaultValue = "0") long offset, @Min(0) @Max(1000) @RequestParam(name = "Limit", required = false, defaultValue = "1000") long limit, @RequestParam(name = "IsGlobal", required = false) boolean isGlobal) {
+    public String describeTemplates(@RequestParam(name = "PluginType", required = false) String pluginType,
+                                    @Min(0) @RequestParam(name = "Offset", required = false, defaultValue = "0") int offset,
+                                    @Min(0) @Max(1000) @RequestParam(name = "Limit", required = false, defaultValue = "1000") int limit,
+                                    @RequestParam(name = "IsGlobal", required = false) boolean isGlobal) {
         long projectId = isGlobal ? 0 : ProjectTraceHolder.getProId();
         logger.info("查询插件模板列表，projectId:{}, pluginType:{} offset:{}, limit:{}", projectId, pluginType, offset, limit);
+        PluginTemplateInfoQuery query = PluginTemplateInfoQuery.builder().projectId(projectId).pluginType(pluginType).build();
+        query.setOffset(offset);
+        query.setLimit(limit);
+        Page<PluginTemplateInfo> page = pluginTemplateService.getPluginTemplateInfoPage(query);
         Map<String, Object> result = new HashMap<>(Const.DEFAULT_MAP_SIZE);
-        result.put("TemplateInfoList", pluginTemplateService.getPluginTemplateInfoList(projectId, pluginType, offset, limit));
-        result.put("TotalCount", pluginTemplateService.getPluginTemplateInfoCount(projectId, pluginType));
+        result.put("TotalCount", page.getTotal());
+        List<PluginTemplateInfo> pluginTemplateInfos = page.getRecords();
+        if (!CollectionUtils.isEmpty(pluginTemplateInfos)) {
+            result.put("TemplateInfoList", pluginTemplateInfos.stream().map(pluginTemplateService::toView).collect(Collectors.toList()));
+        }
         return apiReturn(HttpStatus.SC_OK, null, null, result);
     }
 
@@ -114,8 +128,13 @@ public class PluginTemplateController extends AbstractController {
     public String describeAllTemplates(@RequestParam(name = "PluginType", required = false) String pluginType) {
         long projectId = ProjectTraceHolder.getProId();
         Map<String, Object> result = new HashMap<>(Const.DEFAULT_MAP_SIZE);
-        List<PluginTemplateDto> routePluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(projectId, pluginType, 0, 1000);
-        List<PluginTemplateDto> globalPluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(0, pluginType, 0, 1000);
+        //查询私有模板
+        PluginTemplateInfoQuery query = PluginTemplateInfoQuery.builder().projectId(projectId).pluginType(pluginType).build();
+        List<PluginTemplateDto> routePluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(query);
+
+        //查询公共模板
+        query.setProjectId(0L);
+        List<PluginTemplateDto> globalPluginTemplateInfoList = pluginTemplateService.getPluginTemplateInfoList(query);
         List<PluginTemplateDto> allPluginTemplateInfoList = Lists.newArrayList();
         allPluginTemplateInfoList.addAll(routePluginTemplateInfoList);
         allPluginTemplateInfoList.addAll(globalPluginTemplateInfoList);
